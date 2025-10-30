@@ -152,6 +152,7 @@ export default function SignUp() {
         lastName: values.lastName,
         email: values.email,
         password: values.password,
+        confirmPassword: values.confirmPassword,
       };
       await authService.signUp(payload);
 

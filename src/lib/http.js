@@ -18,7 +18,7 @@ export function clearToken() {
  * - auto throw error kalau status bukan 2xx
  */
 export async function http(path, { method = "GET", body, headers, useCookie } = {}) {
-  const url = `${BASE_URL}${path}`;
+  const url = new URL(path, BASE_URL).toString();
   const h = {
     "Content-Type": "application/json",
     ...(headers || {}),

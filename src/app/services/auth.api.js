@@ -1,12 +1,14 @@
 import { http, setToken, clearToken } from "@/lib/http";
 
 // ↓↓↓ UBAH DI SINI SAJA JIKA PATH BERBEDA ↓↓↓
+// src/app/config/services/auth.api.js
 const PATH = {
-  login:   "/auth/login",     // atau "/api/login"
-  register:"/auth/register",  // opsional
-  me:      "/auth/me",
-  logout:  "/auth/logout",    // opsional
+  login:    "/api/auth/signin",
+  register: "/api/auth/signup",   // ← samakan dengan Postman
+  me:       "/api/auth/me",
+  logout:   "/api/auth/logout",
 };
+
 // ↑↑↑
 
 export const authService = {
@@ -21,11 +23,11 @@ export const authService = {
   },
 
   async signUp(payload) {
-    return http(PATH.register, { method: "POST", body: payload });
+    return http("/api/auth/signup", { method: "POST", body: payload });
   },
 
   async me() {
-    return http(PATH.me, { method: "GET" });
+    return http("/api/auth/me", { method: "GET" });
   },
 
   async signOut() {
