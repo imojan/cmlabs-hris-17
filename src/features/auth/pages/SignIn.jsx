@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
-import { useAuth } from "@/app/store/authStore";            // ← pakai store yang benar
+import { useAuth } from "@/app/store/authStore";
 import AuthLayout from "@/app/layouts/AuthLayout.jsx";
 import logo from "@/assets/branding/logo-hris-1.png";
 import illustration from "@/assets/images/auth/logincontoh.png";
@@ -29,14 +29,11 @@ function TextInput({
   onRightIconClick,
 }) {
   const base =
-    "w-full rounded-2xl bg-white px-4 py-3 text-sm md:text-base outline-none " +
-    "transition-all duration-150 placeholder:text-neutral-400";
+    "w-full rounded-2xl bg-white px-4 py-3 text-sm md:text-base outline-none transition-all duration-150 placeholder:text-neutral-400";
   const ok =
-    "border-2 border-neutral-900/70 hover:border-blue-400 " +
-    "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
+    "border-2 border-neutral-900/70 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
   const err =
-    "border-2 border-red-500 hover:border-red-500 " +
-    "focus:border-red-600 focus:ring-2 focus:ring-red-500/20";
+    "border-2 border-red-500 hover:border-red-500 focus:border-red-600 focus:ring-2 focus:ring-red-500/20";
   const withIcon = rightIcon ? " pr-12" : "";
 
   return (
@@ -58,9 +55,9 @@ function TextInput({
         <button
           type="button"
           onClick={onRightIconClick}
-          className={`absolute inset-y-0 right-2 flex items-center justify-center
-                      p-2 rounded-md transition-colors
-                      ${error ? "text-red-400 hover:text-red-600" : "text-neutral-400 hover:text-blue-800"}`}
+          className={`absolute inset-y-0 right-2 flex items-center justify-center p-2 rounded-md transition-colors ${
+            error ? "text-red-400 hover:text-red-600" : "text-neutral-400 hover:text-blue-800"
+          }`}
           aria-label="toggle password visibility"
         >
           {rightIcon}
@@ -78,11 +75,15 @@ function TextInput({
 
 /* ---------- Page ---------- */
 export default function SignIn() {
-  const navigate   = useNavigate();
-  const login      = useAuth((s) => s.login);
-  const loading    = useAuth((s) => s.loading);
-  const errorAuth  = useAuth((s) => s.error);
+  const navigate = useNavigate();
 
+  // store
+  const login            = useAuth((s) => s.login);
+  const loginWithGoogle  = useAuth((s) => s.loginWithGoogle);
+  const loading          = useAuth((s) => s.loading);
+  const errorAuth        = useAuth((s) => s.error);
+
+  // form state
   const [values, setValues] = useState({ identifier: "", password: "" });
   const [touched, setTouched] = useState({});
   const [remember, setRemember] = useState(false);
@@ -91,6 +92,7 @@ export default function SignIn() {
   const onChange = (e) => setValues((s) => ({ ...s, [e.target.name]: e.target.value }));
   const onBlur   = (e) => setTouched((t) => ({ ...t, [e.target.name]: true }));
 
+  // validation
   const errors = useMemo(() => {
     const e = {};
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -101,9 +103,26 @@ export default function SignIn() {
     if (!values.password) e.password = "Password is required.";
     return e;
   }, [values]);
-
   const isValid = Object.keys(errors).length === 0;
 
+  // === GOOGLE IDENTITY SERVICES init ===
+  useEffect(() => {
+    const cid = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!window.google || !cid) return;
+
+    window.google.accounts.id.initialize({
+      client_id: cid,
+      callback: async (response) => {
+        // response.credential = JWT Google
+        const { ok } = await loginWithGoogle(response.credential);
+        if (ok) navigate("/dashboard");
+      },
+    });
+    // (opsional) bisa render button default GIS ke elemen tertentu jika mau
+    // window.google.accounts.id.renderButton(document.getElementById('google-btn'), { theme: 'outline' });
+  }, [loginWithGoogle, navigate]);
+
+  // handlers
   const handleSubmit = async (ev) => {
     ev.preventDefault();
     setTouched({ identifier: true, password: true, submit: true });
@@ -115,9 +134,15 @@ export default function SignIn() {
     });
 
     if (ok) {
-      // optional: persist "remember me" behavior di sini kalau backend mendukung
+      // implementasi "remember me" kalau diperlukan
       navigate("/dashboard");
     }
+  };
+
+  const handleGoogleClick = () => {
+    if (!window.google) return;
+    // munculkan One Tap / chooser popup; suksesnya diproses di callback initialize()
+    window.google.accounts.id.prompt();
   };
 
   return (
@@ -184,23 +209,12 @@ export default function SignIn() {
                   type="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
-                  className="
-                    h-5 w-5 cursor-pointer appearance-none rounded-full border-2 border-blue-950 bg-white
-                    transition-all duration-200 hover:border-blue-800
-                    checked:border-blue-900 checked:bg-blue-950
-                    relative
-                    before:content-[''] before:absolute before:inset-0 before:m-auto
-                    before:rounded-full before:scale-0 before:bg-white before:transition-transform before:duration-200
-                    checked:before:scale-[0.5]
-                  "
+                  className="h-5 w-5 cursor-pointer appearance-none rounded-full border-2 border-blue-950 bg-white transition-all duration-200 hover:border-blue-800 checked:border-blue-900 checked:bg-blue-950 relative before:content-[''] before:absolute before:inset-0 before:m-auto before:rounded-full before:scale-0 before:bg-white before:transition-transform before:duration-200 checked:before:scale-[0.5]"
                 />
                 <span className="select-none">Remember me</span>
               </label>
 
-              <a
-                href="/auth/forgot-password"
-                className="text-sm font-semibold text-brand-accent hover:underline"
-              >
+              <a href="/auth/forgot-password" className="text-sm font-semibold text-brand-accent hover:underline">
                 Forgot Password?
               </a>
             </div>
@@ -209,41 +223,20 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={!isValid || loading}
-              className="
-                group mt-2 w-full rounded-full
-                border-2 border-transparent
-                bg-blue-950 px-6 py-3.5
-                text-[13px] md:text-sm font-semibold tracking-wide text-white
-                transition-all duration-200 ease-out
-                enabled:hover:bg-white enabled:hover:text-blue-950 enabled:hover:border-blue-950
-                enabled:active:bg-white enabled:active:text-blue-950
-                enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-blue-950/30
-                enabled:shadow-soft
-                disabled:opacity-50 disabled:cursor-not-allowed
-              "
+              className="group mt-2 w-full rounded-full border-2 border-transparent bg-blue-950 px-6 py-3.5 text-[13px] md:text-sm font-semibold tracking-wide text-white transition-all duration-200 ease-out enabled:hover:bg-white enabled:hover:text-blue-950 enabled:hover:border-blue-950 enabled:active:bg-white enabled:active:text-blue-950 enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-blue-950/30 enabled:shadow-soft disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing in..." : "SIGN IN"}
             </button>
 
             {/* Error dari store */}
-            {errorAuth && (
-              <p className="text-xs text-red-600">
-                {errorAuth}
-              </p>
-            )}
+            {errorAuth && <p className="text-xs text-red-600">{errorAuth}</p>}
 
-            {/* Google CTA */}
+            {/* Google CTA (custom) */}
             <button
               type="button"
-              className="
-                group w-full rounded-full
-                border border-neutral-400 bg-white px-6 py-3
-                text-sm md:text-base font-medium text-neutral-900
-                shadow-soft transition-all duration-200 ease-out
-                hover:bg-blue-950 hover:text-white hover:border-blue-950
-                active:bg-blue-950 active:text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-950/30
-              "
+              onClick={handleGoogleClick}
+              disabled={loading}
+              className="group w-full rounded-full border border-neutral-400 bg-white px-6 py-3 text-sm md:text-base font-medium text-neutral-900 shadow-soft transition-all duration-200 ease-out hover:bg-blue-950 hover:text-white hover:border-blue-950 active:bg-blue-950 active:text-white focus:outline-none focus:ring-2 focus:ring-blue-950/30"
             >
               <span className="inline-flex items-center justify-center gap-3">
                 <img src={googleLogo} alt="Google" className="h-5 w-5" />
@@ -251,18 +244,10 @@ export default function SignIn() {
               </span>
             </button>
 
-            {/* Employee ID CTA */}
+            {/* Employee ID CTA (placeholder) */}
             <button
               type="button"
-              className="
-                group w-full rounded-full
-                border border-neutral-400 bg-white px-6 py-3
-                text-sm md:text-base font-medium text-neutral-900
-                shadow-soft transition-all duration-200 ease-out
-                hover:bg-blue-950 hover:text-white hover:border-blue-950
-                active:bg-blue-950 active:text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-950/30
-              "
+              className="group w-full rounded-full border border-neutral-400 bg-white px-6 py-3 text-sm md:text-base font-medium text-neutral-900 shadow-soft transition-all duration-200 ease-out hover:bg-blue-950 hover:text-white hover:border-blue-950 active:bg-blue-950 active:text-white focus:outline-none focus:ring-2 focus:ring-blue-950/30"
             >
               Sign In With ID Employee
             </button>
@@ -279,10 +264,7 @@ export default function SignIn() {
 
             <div className="text-center text-xs md:text-sm text-neutral-600">
               Don't have an account yet?{" "}
-              <a
-                href="/auth/sign-up"
-                className="font-semibold text-brand-accent hover:underline"
-              >
+              <a href="/auth/sign-up" className="font-semibold text-brand-accent hover:underline">
                 Sign up now and get started
               </a>
             </div>

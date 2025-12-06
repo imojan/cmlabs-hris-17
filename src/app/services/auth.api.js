@@ -4,30 +4,35 @@ import { http, setToken, clearToken } from "@/lib/http";
 // src/app/config/services/auth.api.js
 const PATH = {
   login:    "/api/auth/signin",
-  register: "/api/auth/signup",   // ← samakan dengan Postman
+  register: "/api/auth/signup",
   me:       "/api/auth/me",
   logout:   "/api/auth/logout",
+  google:   "/api/auth/google",   // ← backend-mu ada r.post('/google', ...)
 };
-
-// ↑↑↑
 
 export const authService = {
   async signIn({ identifier, password }) {
-    // banyak backend pakai "email" atau "username". Kamu bisa map di sini.
-    const body = { identifier, password };
-    const res = await http(PATH.login, { method: "POST", body });
-    // Normalisasi bentuk response (sesuaikan server temanmu)
+    const body = { identifier, password };     // backend-mu menerima "identifier"
+    const res  = await http(PATH.login, { method: "POST", body });
     const token = res?.token || res?.accessToken || res?.data?.token;
     if (token) setToken(token);
     return res;
   },
 
   async signUp(payload) {
-    return http("/api/auth/signup", { method: "POST", body: payload });
+    return http(PATH.register, { method: "POST", body: payload });
+  },
+
+  async googleSignIn(credential) {
+    // credential = JWT dari Google (GIS callback)
+    const res  = await http(PATH.google, { method: "POST", body: { credential } });
+    const token = res?.token || res?.accessToken || res?.data?.token;
+    if (token) setToken(token);
+    return res;
   },
 
   async me() {
-    return http("/api/auth/me", { method: "GET" });
+    return http(PATH.me, { method: "GET" });
   },
 
   async signOut() {
