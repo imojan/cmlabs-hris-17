@@ -12,6 +12,8 @@ export const useAuth = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res   = await authService.signIn({ identifier, password });
+      console.log("LOGIN RESPONSE", res); // <-- tambahin ini sementara
+      
       const token = getToken() || res?.token || res?.accessToken || null;
       const user  = res?.user || res?.data?.user || null;
       set({ token, user, loading: false });
