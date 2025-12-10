@@ -45,12 +45,21 @@ export const useAuth = create((set, get) => ({
   },
 
   async fetchMe() {
-    if (!get().token) return;
-    try {
-      const me = await authService.me();
-      set({ user: me?.data || me || null });
-    } catch {
-      get().logout();
-    }
-  },
+  if (!get().token) return;
+  try {
+    const me = await authService.me();
+    const currentUser = get().user;
+    const newUser = me?.data || me || null;
+
+    // gabungkan, jadi field yang sudah ada (avatarUrl) tidak hilang kalau backend lupa kirim
+    set({
+      user: {
+        ...(currentUser || {}),
+        ...(newUser || {}),
+      },
+    });
+  } catch {
+    get().logout();
+  }
+},
 }));

@@ -18,7 +18,7 @@ export function EmployeeStatusChart() {
         <BarChart 
           data={data} 
           layout="vertical"
-          margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
+          margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
         >
           <XAxis type="number" tick={{ fontSize: 11 }} />
           <YAxis 

@@ -2,18 +2,30 @@
 
 export function StatCard({ title, value, icon: Icon, iconColor, updateDate }) {
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-2 sm:p-2.5 lg:p-3 rounded-lg ${iconColor}`}>
-          <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden flex flex-col h-full">
+      {/* Content Area */}
+      <div className="p-5 lg:p-6 flex-1 flex flex-col">
+        {/* Icon and Title - Side by side */}
+        <div className="flex items-start gap-3 mb-4">
+          <div className={`p-2 rounded-xl ${iconColor} flex-shrink-0`}>
+            <Icon className="w-5 h-5 text-white" />
+          </div>
+          <h3 className="text-xs lg:text-sm font-semibold text-[#1D395E] leading-tight">
+            {title}
+          </h3>
+        </div>
+
+        {/* Value - Centered */}
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-3xl lg:text-4xl font-bold text-gray-900">
+            {value}
+          </p>
         </div>
       </div>
-      <div className="space-y-2">
-        <p className="text-xs sm:text-sm text-gray-600">{title}</p>
-        <p className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900">{value}</p>
-        <div className="bg-[#1D395E] text-white text-xs px-3 py-1.5 rounded-md inline-block whitespace-nowrap">
-          Update : {updateDate}
-        </div>
+
+      {/* Footer with Blue Background */}
+      <div className="bg-[#1D395E] text-white text-xs px-5 lg:px-6 py-2.5 text-center">
+        Update : {updateDate}
       </div>
     </div>
   );

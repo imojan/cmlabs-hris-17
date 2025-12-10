@@ -99,7 +99,7 @@ export default function AdminDashboard() {
               {/* STAT CARDS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 <StatCard
-                  title="Total Employee"
+                  title="Total Employees"
                   value={145}
                   icon={Users}
                   iconColor="bg-[#1D395E]"
@@ -109,21 +109,21 @@ export default function AdminDashboard() {
                   title="New Employees"
                   value={145}
                   icon={UserPlus}
-                  iconColor="bg-[#1D395E]"
+                  iconColor="bg-[#D4AF37]"
                   updateDate="March 16, 2025"
                 />
                 <StatCard
                   title="Active Employees"
                   value={145}
                   icon={UserCheck}
-                  iconColor="bg-[#1D395E]"
+                  iconColor="bg-[#2D5F3F]"
                   updateDate="March 16, 2025"
                 />
                 <StatCard
-                  title="Resigned Employees"
+                  title="Past Employees"
                   value={145}
                   icon={UserX}
-                  iconColor="bg-[#1D395E]"
+                  iconColor="bg-[#8B3A3A]"
                   updateDate="March 16, 2025"
                 />
               </div>
