@@ -1,36 +1,125 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 
-const data = [
-  { name: 'New', '2020': 92.42, '2021': 72.03 },
-  { name: 'Active', '2020': 35.88, '2021': 76.58 },
-  { name: 'Resign', '2020': 43.78, '2021': 15.74 },
-];
+const monthlyData = {
+  'January': [
+    { name: 'New', value: 20 },
+    { name: 'Active', value: 15 },
+    { name: 'Resign', value: 8 },
+  ],
+  'February': [
+    { name: 'New', value: 18 },
+    { name: 'Active', value: 22 },
+    { name: 'Resign', value: 5 },
+  ],
+  'March': [
+    { name: 'New', value: 25 },
+    { name: 'Active', value: 19 },
+    { name: 'Resign', value: 12 },
+  ],
+  'April': [
+    { name: 'New', value: 22 },
+    { name: 'Active', value: 28 },
+    { name: 'Resign', value: 7 },
+  ],
+  'May': [
+    { name: 'New', value: 30 },
+    { name: 'Active', value: 25 },
+    { name: 'Resign', value: 10 },
+  ],
+  'June': [
+    { name: 'New', value: 27 },
+    { name: 'Active', value: 32 },
+    { name: 'Resign', value: 6 },
+  ],
+  'July': [
+    { name: 'New', value: 23 },
+    { name: 'Active', value: 29 },
+    { name: 'Resign', value: 9 },
+  ],
+  'August': [
+    { name: 'New', value: 26 },
+    { name: 'Active', value: 24 },
+    { name: 'Resign', value: 11 },
+  ],
+  'September': [
+    { name: 'New', value: 21 },
+    { name: 'Active', value: 27 },
+    { name: 'Resign', value: 8 },
+  ],
+  'October': [
+    { name: 'New', value: 24 },
+    { name: 'Active', value: 31 },
+    { name: 'Resign', value: 7 },
+  ],
+  'November': [
+    { name: 'New', value: 28 },
+    { name: 'Active', value: 26 },
+    { name: 'Resign', value: 10 },
+  ],
+  'December': [
+    { name: 'New', value: 20 },
+    { name: 'Active', value: 23 },
+    { name: 'Resign', value: 9 },
+  ],
+};
+
+const COLORS = ['#d4a942', '#4a8b6f', '#a94442'];
 
 export function EmployeeChart() {
+  const [selectedMonth, setSelectedMonth] = useState('January');
+  const data = monthlyData[selectedMonth];
+
   return (
     <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100">
-      <div className="mb-4 sm:mb-6">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900">Employee Statistics</h3>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+        <div>
+          <p className="text-xs sm:text-sm text-gray-500">Employee Statistics</p>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Current Number of Employees</h3>
+        </div>
+        <div className="relative">
+          <select 
+            className="appearance-none bg-[#1D395E] text-white text-sm font-medium px-4 py-2 pr-10 rounded-xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            <option>January</option>
+            <option>February</option>
+            <option>March</option>
+            <option>April</option>
+            <option>May</option>
+            <option>June</option>
+            <option>July</option>
+            <option>August</option>
+            <option>September</option>
+            <option>October</option>
+            <option>November</option>
+            <option>December</option>
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white pointer-events-none" />
+        </div>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,26,0.1)" />
-          <XAxis 
-            dataKey="name" 
-            tick={{ fill: 'rgba(0,0,0,0.7)', fontSize: 12 }}
-          />
-          <YAxis 
-            tick={{ fill: 'rgba(0,0,0,0.7)', fontSize: 12 }}
-          />
-          <Tooltip />
-          <Legend 
-            wrapperStyle={{ paddingTop: '20px' }}
-            iconType="square"
-          />
-          <Bar dataKey="2020" fill="#b93c54" opacity={0.8} />
-          <Bar dataKey="2021" fill="rgba(185,60,84,0.28)" opacity={0.8} />
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="flex justify-center">
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={data} barSize={100}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,26,0.1)" />
+            <XAxis 
+              dataKey="name" 
+              tick={{ fill: 'rgba(0,0,0,0.7)', fontSize: 12 }}
+            />
+            <YAxis 
+              tick={{ fill: 'rgba(0,0,0,0.7)', fontSize: 12 }}
+            />
+            <Tooltip />
+            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
