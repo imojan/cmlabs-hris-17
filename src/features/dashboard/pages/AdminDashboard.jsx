@@ -12,9 +12,11 @@ import { EmployeeStatusChart } from "../../../components/charts/EmployeeStatusCh
 import { AttendanceChart } from "../../../components/charts/AttendanceChart";
 import { AttendanceTable } from "../../../components/ui/AttendanceTable";
 
+
 // kalau kamu taruh EmployeeDatabase di
 // src/features/employees/pages/EmployeeDatabase.jsx
 import { EmployeeDatabase } from "../../employees/pages/EmployeeDatabase";
+import { AttendanceAdmin } from "../../attendance/pages/AttendanceAdmin";
 
 // mapping nama page → judul yang muncul di header & tab browser
 const PAGE_TITLES = {
@@ -142,17 +144,7 @@ export default function AdminDashboard() {
             </>
           )}
 
-          {currentPage === "checkclock" && (
-            <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-semibold text-[#1D395E] mb-2">
-                Checkclock
-              </h2>
-              <p className="text-sm text-gray-600">
-                Halaman Checkclock nanti kamu isi di sini (component khusus
-                bisa kamu buat dan import, lalu ganti placeholder ini).
-              </p>
-            </div>
-          )}
+          {currentPage === "checkclock" && <AttendanceAdmin />}
 
           {currentPage === "work-schedule" && (
             <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6">

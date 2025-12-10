@@ -249,22 +249,22 @@ export function EmployeeDatabase() {
 
               {/* Buttons: Filter, Export, Import, Tambah Data */}
               <div className="flex flex-wrap gap-2 justify-end">
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all">
+                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
                   <Filter className="w-4 h-4" />
                   <span>Filter</span>
                 </button>
 
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all">
+                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
                   <Download className="w-4 h-4" />
                   <span>Export</span>
                 </button>
 
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all">
+                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
                   <Upload className="w-4 h-4" />
                   <span>Import</span>
                 </button>
 
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-[#B93C54] bg-[#B93C54] text-white text-sm hover:bg-[#9b3246] hover:border-[#9b3246] transition-all shadow-sm">
+                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm">
                   <Plus className="w-4 h-4" />
                   <span>Tambah Data</span>
                 </button>
