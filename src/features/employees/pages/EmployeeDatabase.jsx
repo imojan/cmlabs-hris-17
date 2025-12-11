@@ -1,12 +1,13 @@
 // src/features/employees/pages/EmployeeDatabase.jsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Filter,
   Download,
   Upload,
   Plus,
-  FileText,
+  Eye,
   Edit,
   Trash2,
   Calendar,
@@ -141,9 +142,13 @@ const employeeList = [
 ];
 
 export function EmployeeDatabase() {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState(employeeList);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   // Toggle status employee
   const toggleEmployeeStatus = (employeeNo) => {
@@ -152,6 +157,34 @@ export function EmployeeDatabase() {
         emp.no === employeeNo ? { ...emp, status: !emp.status } : emp
       )
     );
+  };
+
+  // ====== ACTION HANDLERS ======
+  const handleViewEmployee = (employee) => {
+    navigate(`/admin/employees/${employee.no}`, { state: { employee } });
+  };
+
+  const handleEditEmployee = (employee) => {
+    navigate(`/admin/employees/${employee.no}/edit`, { state: { employee } });
+  };
+
+  const handleDeleteClick = (employee) => {
+    setSelectedEmployee(employee);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!selectedEmployee) return;
+    setEmployees((prev) =>
+      prev.filter((emp) => emp.no !== selectedEmployee.no)
+    );
+    setShowDeleteModal(false);
+    setSelectedEmployee(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setSelectedEmployee(null);
   };
 
   // Pagination logic
@@ -256,15 +289,18 @@ export function EmployeeDatabase() {
 
                 <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
                   <Download className="w-4 h-4" />
-                  <span>Export</span>
+                  <span>Import</span>
                 </button>
 
                 <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
                   <Upload className="w-4 h-4" />
-                  <span>Import</span>
+                  <span>Export</span>
                 </button>
 
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm">
+                <button
+                  onClick={() => navigate("/admin/employees/add")}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm"
+                >
                   <Plus className="w-4 h-4" />
                   <span>Tambah Data</span>
                 </button>
@@ -346,13 +382,33 @@ export function EmployeeDatabase() {
                   {/* Action icons */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button className="p-2 rounded-lg bg-[rgba(124,166,191,0.15)] text-[#1D395E] hover:bg-[rgba(124,166,191,0.25)] transition">
-                        <FileText className="w-4 h-4" />
+                      {/* VIEW */}
+                      <button
+                        type="button"
+                        onClick={() => handleViewEmployee(employee)}
+                        className="p-2 rounded-lg bg-[rgba(124,166,191,0.15)] text-[#1D395E] hover:bg-[rgba(124,166,191,0.25)] transition"
+                        title="View Detail"
+                      >
+                        <Eye className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition">
+
+                      {/* EDIT */}
+                      <button
+                        type="button"
+                        onClick={() => handleEditEmployee(employee)}
+                        className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition"
+                        title="Edit Employee"
+                      >
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition">
+
+                      {/* DELETE */}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteClick(employee)}
+                        className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"
+                        title="Delete Employee"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -385,8 +441,8 @@ export function EmployeeDatabase() {
 
           {/* Center: Info text */}
           <div className="text-gray-500">
-            Showing {startIndex + 1} to{" "}
-            {Math.min(endIndex, employees.length)} of {employees.length} records
+            Showing {startIndex + 1} to {Math.min(endIndex, employees.length)}{" "}
+            of {employees.length} records
           </div>
 
           {/* Right: Pagination buttons */}
@@ -427,6 +483,65 @@ export function EmployeeDatabase() {
           </div>
         </div>
       </section>
+
+      {/* ===== DELETE CONFIRM MODAL ===== */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex justify-center mb-4">
+              <div className="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
+                <Trash2 className="w-7 h-7 text-rose-600" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+              Hapus Data Karyawan?
+            </h3>
+            <p className="text-sm text-gray-600 text-center mb-5">
+              Apakah kamu yakin ingin menghapus data karyawan{" "}
+              <span className="font-semibold">
+                {selectedEmployee?.name ?? "-"}
+              </span>{" "}
+              dari database? Tindakan ini tidak dapat dibatalkan.
+            </p>
+            <div className="bg-gray-50 rounded-lg p-4 mb-5 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span>Jabatan:</span>
+                <span className="font-medium">
+                  {selectedEmployee?.position ?? "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Cabang:</span>
+                <span className="font-medium">
+                  {selectedEmployee?.branch ?? "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Status:</span>
+                <span className="font-medium">
+                  {selectedEmployee?.status ? "Active" : "Inactive"}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleCancelDelete}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Tidak, Batalkan
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-rose-600 text-sm font-medium text-white hover:bg-rose-700"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

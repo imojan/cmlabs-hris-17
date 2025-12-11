@@ -10,44 +10,13 @@ import {
   LocateFixed,
   AlertCircle,
   CheckCircle,
+  XCircle,
 } from "lucide-react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-} from "react-leaflet";
-import L from "leaflet";
+import { Notification } from "../../../components/ui/Notification";
+import { MapComponent } from "../components/MapComponent";
 
-// Simple marker icon (biar nggak ribet path image bundler)
-const markerIcon = new L.Icon({
-  iconUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
 
-function LocationMarker({ position, onChange }) {
-  const map = useMapEvents({
-    click(e) {
-      // klik di peta → update posisi & lat/long
-      onChange(e.latlng);
-      map.flyTo(e.latlng, map.getZoom());
-    },
-  });
-
-  useEffect(() => {
-    if (position) {
-      map.setView(position, map.getZoom());
-    }
-  }, [position, map]);
-
-  return position ? <Marker position={position} icon={markerIcon} /> : null;
-}
-
-export function AddCheckclockAdmin() {
+export default function AddCheckclockAdmin() {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -67,9 +36,10 @@ export function AddCheckclockAdmin() {
   const [currentTime, setCurrentTime] = useState("");
   const [mapPosition, setMapPosition] = useState({
     lat: -7.9666,
-    lng: 112.6315, // default Malang
+    lng: 112.6315,
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   // ====== REALTIME CLOCK ======
   useEffect(() => {
@@ -114,35 +84,53 @@ export function AddCheckclockAdmin() {
     
     // Validasi field wajib
     if (!formData.employeeName) {
-      alert("Mohon pilih karyawan terlebih dahulu!");
+      setNotification({
+        type: "warning",
+        message: "Mohon pilih karyawan terlebih dahulu!",
+      });
       return;
     }
     
     if (!formData.attendanceType) {
-      alert("Mohon pilih tipe absensi terlebih dahulu!");
+      setNotification({
+        type: "warning",
+        message: "Mohon pilih tipe absensi terlebih dahulu!",
+      });
       return;
     }
     
     // Validasi khusus untuk Annual Leave
     if (formData.attendanceType === "Annual Leave") {
       if (!formData.startDate || !formData.endDate) {
-        alert("Mohon isi Start Date dan End Date untuk Annual Leave!");
+        setNotification({
+          type: "warning",
+          message: "Mohon isi Start Date dan End Date untuk Annual Leave!",
+        });
         return;
       }
     }
     
     if (!formData.location) {
-      alert("Mohon pilih lokasi terlebih dahulu!");
+      setNotification({
+        type: "warning",
+        message: "Mohon pilih lokasi terlebih dahulu!",
+      });
       return;
     }
     
     if (!formData.latitude || !formData.longitude) {
-      alert("Mohon pilih lokasi di peta atau gunakan tombol My Location!");
+      setNotification({
+        type: "warning",
+        message: "Mohon pilih lokasi di peta atau gunakan tombol My Location!",
+      });
       return;
     }
     
     if (!formData.address) {
-      alert("Mohon isi detail alamat terlebih dahulu!");
+      setNotification({
+        type: "warning",
+        message: "Mohon isi detail alamat terlebih dahulu!",
+      });
       return;
     }
     
@@ -155,36 +143,23 @@ export function AddCheckclockAdmin() {
     console.log("Form Data:", formData);
     console.log("Proof File:", proofFile);
     
-    // Simulasi success message
-    alert("Data berhasil disimpan!");
+    // Tampilkan success notification
+    setNotification({
+      type: "success",
+      message: "Data absensi berhasil disimpan!",
+    });
     
     // Tutup modal
     setShowConfirmModal(false);
     
-    // Redirect ke halaman AttendanceAdmin
-    // Sesuaikan path dengan routing aplikasi Anda
-    navigate("/admin/checkclock");
+    // Redirect ke halaman AttendanceAdmin setelah 1.5 detik
+    setTimeout(() => {
+      navigate("/admin/checkclock");
+    }, 1500);
   };
 
   const handleCancelSave = () => {
     setShowConfirmModal(false);
-  };
-
-  const handleReset = () => {
-    setFormData({
-      employeeName: "",
-      attendanceType: "",
-      capturedTime: "",
-      startDate: "",
-      endDate: "",
-      location: "",
-      address: "",
-      latitude: "",
-      longitude: "",
-      notes: "",
-    });
-    setProofFile(null);
-    setMapPosition({ lat: -7.9666, lng: 112.6315 });
   };
 
   const attendanceOptions = [
@@ -208,7 +183,10 @@ export function AddCheckclockAdmin() {
   // ==== tombol "Show My Location" ====
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
-      alert("Browser kamu tidak mendukung geolocation.");
+      setNotification({
+        type: "error",
+        message: "Browser kamu tidak mendukung geolocation.",
+      });
       return;
     }
 
@@ -219,20 +197,34 @@ export function AddCheckclockAdmin() {
 
         handleMapLocationChange({ lat, lng });
 
-        // Kalau mau, kamu bisa set lokasi dropdown ke "Remote" misalnya:
-        // setFormData(prev => ({ ...prev, location: "Remote" }));
+        setNotification({
+          type: "success",
+          message: "Lokasi berhasil diperbarui!",
+        });
       },
       (err) => {
         console.error(err);
-        alert("Gagal mengambil lokasi. Pastikan izin lokasi sudah diizinkan.");
+        setNotification({
+          type: "error",
+          message: "Gagal mengambil lokasi. Pastikan izin lokasi sudah diizinkan.",
+        });
       }
     );
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-6 relative" style={{ overflow: showConfirmModal ? 'hidden' : 'auto' }}>
+      {/* Notification Toast */}
+      {notification && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={4000}
+        />
+      )}
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-6 lg:p-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-4 lg:p-6">
           {/* Header */}
           <div className="mb-6">
             <h2 className="text-xl lg:text-2xl font-semibold text-gray-900">
@@ -451,23 +443,10 @@ export function AddCheckclockAdmin() {
                   </div>
                   
                   {/* Map Container */}
-                  <div className="relative h-64 w-full rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                    <MapContainer
-                      center={mapPosition}
-                      zoom={15}
-                      scrollWheelZoom={false}
-                      className="w-full h-full"
-                    >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      <LocationMarker
-                        position={mapPosition}
-                        onChange={handleMapLocationChange}
-                      />
-                    </MapContainer>
-                  </div>
+                  <MapComponent 
+                    mapPosition={mapPosition} 
+                    onLocationChange={handleMapLocationChange}
+                  />
                   
                   <p className="text-xs text-gray-500 mt-1.5">
                     Klik pada peta untuk memilih lokasi atau gunakan tombol "My Location"
@@ -543,14 +522,14 @@ export function AddCheckclockAdmin() {
             <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={handleReset}
+                onClick={() => navigate("/admin/checkclock")}
                 className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-lg bg-gray-900 text-sm font-medium text-white hover:bg-gray-800 transition"
+                className="px-6 py-2.5 rounded-lg bg-[#1D395E] text-sm font-medium text-white hover:bg-[#142848]"
               >
                 Save
               </button>
@@ -620,7 +599,7 @@ export function AddCheckclockAdmin() {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={handleCancelSave}
+                onClick={() => navigate("/admin/checkclock")}
                 className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Batal

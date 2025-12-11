@@ -3,10 +3,27 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react({
+      babel: {
+        parserOpts: {
+          sourceType: 'module',
+          allowImportExportEverywhere: true,
+        },
+      },
+    }), 
+    tailwindcss()
+  ],
   resolve: {
     alias: {
-      '@': '/src',              // cukup 1 alias ini
+      '@': '/src',
+    },
+  },
+  server: {
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173,
     },
   },
 })

@@ -1,5 +1,5 @@
 // src/features/dashboard/pages/AdminDashboard.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Users, UserPlus, UserCheck, UserX } from "lucide-react";
 
@@ -12,39 +12,70 @@ import { EmployeeStatusChart } from "../../../components/charts/EmployeeStatusCh
 import { AttendanceChart } from "../../../components/charts/AttendanceChart";
 import { AttendanceTable } from "../../../components/ui/AttendanceTable";
 
-
-// kalau kamu taruh EmployeeDatabase di
-// src/features/employees/pages/EmployeeDatabase.jsx
+// Pages (employees & attendance)
 import { EmployeeDatabase } from "../../employees/pages/EmployeeDatabase";
+import { AddEmployeeAdmin } from "../../employees/pages/AddEmployeeAdmin";
+import { ViewEmployeeAdmin } from "../../employees/pages/ViewEmployeeAdmin";
+import { EditEmployeeAdmin } from "../../employees/pages/EditEmployeeAdmin";
 import { AttendanceAdmin } from "../../attendance/pages/AttendanceAdmin";
-import { AddCheckclockAdmin } from "../../attendance/pages/AddCheckClockAdmin";
+
+// Lazy load AddCheckclockAdmin to fix HMR blocking issue
+const AddCheckclockAdmin = lazy(() =>
+  import("../../attendance/pages/AddCheckClockAdmin")
+);
+
+// ====================== CONSTANTS ======================
 
 // mapping nama page → judul yang muncul di header & tab browser
 const PAGE_TITLES = {
   dashboard: "Dashboard",
   "employee-database": "Employee Database",
+  "employee-add": "Add Employee Database",
+  "employee-view": "View Employee Database",
+  "employee-edit": "Edit Employee Database",
   checkclock: "Checkclock",
   "checkclock-add-admin": "Add Checkclock Admin",
   "work-schedule": "Work Schedule",
 };
 
-// mapping URL path → nama page
-const PATH_TO_PAGE = {
-  "/admin/dashboard": "dashboard",
-  "/admin/employees-database": "employee-database",
-  "/admin/checkclock": "checkclock",
-  "/admin/checkclock/add": "checkclock-add-admin",
-  "/admin/work-schedule": "work-schedule",
-};
-
-// mapping nama page → URL path
+// mapping nama page → URL path (hanya yang diakses lewat sidebar)
 const PAGE_TO_PATH = {
   dashboard: "/admin/dashboard",
   "employee-database": "/admin/employees-database",
+  "employee-add": "/admin/employees/add",
   checkclock: "/admin/checkclock",
   "checkclock-add-admin": "/admin/checkclock/add",
   "work-schedule": "/admin/work-schedule",
 };
+
+// helper untuk menentukan nama page dari pathname
+function getCurrentPage(pathname) {
+  if (pathname === "/admin/dashboard") return "dashboard";
+  if (pathname === "/admin/employees-database") return "employee-database";
+  if (pathname === "/admin/employees/add") return "employee-add";
+
+  // /admin/employees/:id/edit → employee-edit
+  if (
+    pathname.startsWith("/admin/employees/") &&
+    pathname.endsWith("/edit")
+  ) {
+    return "employee-edit";
+  }
+
+  // /admin/employees/:id → employee-view
+  if (pathname.startsWith("/admin/employees/")) {
+    return "employee-view";
+  }
+
+  if (pathname === "/admin/checkclock") return "checkclock";
+  if (pathname === "/admin/checkclock/add") return "checkclock-add-admin";
+  if (pathname === "/admin/work-schedule") return "work-schedule";
+
+  // default fallback
+  return "dashboard";
+}
+
+// ====================== COMPONENT ======================
 
 export default function AdminDashboard() {
   const location = useLocation();
@@ -52,8 +83,8 @@ export default function AdminDashboard() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // currentPage diambil dari URL, bukan dari state
-  const currentPage = PATH_TO_PAGE[location.pathname] ?? "dashboard";
+  // currentPage diambil dari URL
+  const currentPage = getCurrentPage(location.pathname);
 
   // === UPDATE <title> BERDASARKAN currentPage ===
   useEffect(() => {
@@ -94,13 +125,17 @@ export default function AdminDashboard() {
 
         {/* Konten utama */}
         <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-          {currentPage === "employee-database" && (
-            // ===== HALAMAN EMPLOYEE DATABASE =====
-            <EmployeeDatabase />
-          )}
+          {/* ================= EMPLOYEE PAGES ================= */}
+          {currentPage === "employee-database" && <EmployeeDatabase />}
 
+          {currentPage === "employee-add" && <AddEmployeeAdmin />}
+
+          {currentPage === "employee-view" && <ViewEmployeeAdmin />}
+
+          {currentPage === "employee-edit" && <EditEmployeeAdmin />}
+
+          {/* ================= DASHBOARD DEFAULT ================= */}
           {currentPage === "dashboard" && (
-            // ===== HALAMAN DASHBOARD DEFAULT =====
             <>
               {/* STAT CARDS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
@@ -148,9 +183,18 @@ export default function AdminDashboard() {
             </>
           )}
 
+          {/* ================= CHECKCLOCK PAGES ================= */}
           {currentPage === "checkclock" && <AttendanceAdmin />}
-          {currentPage === "checkclock-add-admin" && <AddCheckclockAdmin />}
 
+          {currentPage === "checkclock-add-admin" && (
+            <Suspense
+              fallback={<div className="p-8 text-center">Loading...</div>}
+            >
+              <AddCheckclockAdmin />
+            </Suspense>
+          )}
+
+          {/* ================= WORK SCHEDULE ================= */}
           {currentPage === "work-schedule" && (
             <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-semibold text-[#1D395E] mb-2">
