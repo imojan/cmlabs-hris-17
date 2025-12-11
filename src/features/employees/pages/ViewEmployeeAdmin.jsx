@@ -1,11 +1,10 @@
 // src/features/employees/pages/ViewEmployeeAdmin.jsx
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Calendar, ChevronDown, ArrowLeft } from "lucide-react";
 
 export function ViewEmployeeAdmin() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { id } = useParams();
 
   const employee = state?.employee || null;
 
