@@ -6,10 +6,13 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  CheckSquare,
-  XSquare,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Download,
   X,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const initialData = [
   {
@@ -19,10 +22,17 @@ const initialData = [
     clockIn: "08.00",
     clockOut: "16.30",
     workHours: "10h 5m",
-    approveIt: false,
-    approveHr: false,
     status: "Waiting Approval",
-    actualStatus: "On Time", // Status sebenarnya setelah diapprove
+    actualStatus: "On Time", // status setelah approved
+    approvalStatus: "pending", // "pending" | "approved" | "rejected"
+
+    // detail tambahan
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Juanita.jpeg",
   },
   {
     id: 2,
@@ -31,10 +41,16 @@ const initialData = [
     clockIn: "08.00",
     clockOut: "17.15",
     workHours: "9h 50m",
-    approveIt: true,
-    approveHr: false,
     status: "Waiting Approval",
     actualStatus: "On Time",
+    approvalStatus: "pending",
+
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Shane.jpeg",
   },
   {
     id: 3,
@@ -43,10 +59,16 @@ const initialData = [
     clockIn: "09.00",
     clockOut: "16.45",
     workHours: "10h 30m",
-    approveIt: true,
-    approveHr: true,
     status: "On Time",
     actualStatus: "On Time",
+    approvalStatus: "approved",
+
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Miles.jpeg",
   },
   {
     id: 4,
@@ -55,10 +77,16 @@ const initialData = [
     clockIn: "09.15",
     clockOut: "15.30",
     workHours: "6h 15m",
-    approveIt: false,
-    approveHr: false,
     status: "Waiting Approval",
     actualStatus: "Late",
+    approvalStatus: "pending",
+
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Flores.jpeg",
   },
   {
     id: 5,
@@ -67,10 +95,16 @@ const initialData = [
     clockIn: "0",
     clockOut: "0",
     workHours: "0",
-    approveIt: false,
-    approveHr: false,
     status: "Waiting Approval",
     actualStatus: "Annual Leave",
+    approvalStatus: "pending",
+
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Henry.jpeg",
   },
   {
     id: 6,
@@ -79,10 +113,16 @@ const initialData = [
     clockIn: "08.30",
     clockOut: "17.00",
     workHours: "8h 30m",
-    approveIt: true,
-    approveHr: true,
     status: "On Time",
     actualStatus: "On Time",
+    approvalStatus: "approved",
+
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Sarah.jpeg",
   },
   {
     id: 7,
@@ -91,10 +131,16 @@ const initialData = [
     clockIn: "09.30",
     clockOut: "17.30",
     workHours: "8h 0m",
-    approveIt: false,
-    approveHr: false,
     status: "Waiting Approval",
     actualStatus: "Late",
+    approvalStatus: "pending",
+
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Michael.jpeg",
   },
   {
     id: 8,
@@ -103,10 +149,16 @@ const initialData = [
     clockIn: "0",
     clockOut: "0",
     workHours: "0",
-    approveIt: false,
-    approveHr: false,
     status: "Waiting Approval",
     actualStatus: "Sick",
+    approvalStatus: "pending",
+
+    date: "1 March 2025",
+    location: "Kantor Pusat",
+    address: "Jl. Veteran No.1, Kota Malang",
+    lat: "-7.983908",
+    long: "112.621381",
+    proofFile: "Proof of Attendance - Lisa.jpeg",
   },
 ];
 
@@ -122,6 +174,8 @@ function statusClass(status) {
       return "bg-violet-50 text-violet-700 border border-violet-200";
     case "Absent":
       return "bg-rose-50 text-rose-700 border border-rose-200";
+    case "Rejected":
+      return "bg-rose-50 text-rose-700 border border-rose-200";
     case "Waiting Approval":
     default:
       return "bg-gray-50 text-gray-700 border border-gray-200";
@@ -129,57 +183,69 @@ function statusClass(status) {
 }
 
 export function AttendanceAdmin() {
+  const navigate = useNavigate();
   const [attendanceData, setAttendanceData] = useState(initialData);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(5);
+
+  // modal approve / reject
   const [showModal, setShowModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [approvalType, setApprovalType] = useState(""); // "hr" or "it"
+  const [decisionType, setDecisionType] = useState(""); // "approve" | "reject"
 
-  // Pagination logic
+  // panel detail
+  const [detailEmployee, setDetailEmployee] = useState(null);
+
+  // pagination
   const totalPages = Math.ceil(attendanceData.length / recordsPerPage);
   const startIndex = (currentPage - 1) * recordsPerPage;
   const endIndex = startIndex + recordsPerPage;
   const currentData = attendanceData.slice(startIndex, endIndex);
 
-  // Handle approval click
   const handleApprovalClick = (employee, type) => {
     setSelectedEmployee(employee);
-    setApprovalType(type);
+    setDecisionType(type); // "approve" atau "reject"
     setShowModal(true);
   };
 
-  // Handle approve action
-  const handleApprove = () => {
+  const handleConfirmDecision = () => {
+    if (!selectedEmployee || !decisionType) return;
+
     setAttendanceData((prev) =>
       prev.map((emp) => {
-        if (emp.id === selectedEmployee.id) {
-          const updatedEmp = { ...emp };
-          
-          if (approvalType === "hr") {
-            updatedEmp.approveHr = true;
-          } else if (approvalType === "it") {
-            updatedEmp.approveIt = true;
-          }
+        if (emp.id !== selectedEmployee.id) return emp;
 
-          // Jika kedua approval sudah true, ubah status
-          if (updatedEmp.approveHr && updatedEmp.approveIt) {
-            updatedEmp.status = updatedEmp.actualStatus;
-          }
+        const updated = { ...emp };
 
-          return updatedEmp;
+        if (decisionType === "approve") {
+          updated.approvalStatus = "approved";
+          updated.status = updated.actualStatus;
+        } else if (decisionType === "reject") {
+          updated.approvalStatus = "rejected";
+          updated.status = "Rejected";
         }
-        return emp;
+
+        return updated;
       })
     );
+
     setShowModal(false);
     setSelectedEmployee(null);
+    setDecisionType("");
   };
 
-  // Handle reject action
-  const handleReject = () => {
+  const handleCancelDecision = () => {
     setShowModal(false);
     setSelectedEmployee(null);
+    setDecisionType("");
+  };
+
+  const handleViewDetails = (employee) => {
+    setDetailEmployee(employee);
+  };
+
+  const closeDetailPanel = () => {
+    setDetailEmployee(null);
   };
 
   return (
@@ -215,7 +281,10 @@ export function AttendanceAdmin() {
                   <span>Filter</span>
                 </button>
 
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm">
+                <button
+                  onClick={() => navigate("/admin/checkclock/add")}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm"
+                >
                   <Plus className="w-4 h-4" />
                   <span>Tambah Data</span>
                 </button>
@@ -229,11 +298,15 @@ export function AttendanceAdmin() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F5F7FA] text-gray-700">
-                <th className="px-4 py-3 text-left font-medium">Employee Name</th>
+                <th className="px-4 py-3 text-left font-medium">
+                  Employee Name
+                </th>
                 <th className="px-4 py-3 text-left font-medium">Jabatan</th>
                 <th className="px-4 py-3 text-center font-medium">Clock In</th>
                 <th className="px-4 py-3 text-center font-medium">Clock Out</th>
-                <th className="px-4 py-3 text-center font-medium">Work Hours</th>
+                <th className="px-4 py-3 text-center font-medium">
+                  Work Hours
+                </th>
                 <th className="px-4 py-3 text-center font-medium">Approve</th>
                 <th className="px-4 py-3 text-center font-medium">Status</th>
                 <th className="px-4 py-3 text-center font-medium">Details</th>
@@ -273,35 +346,47 @@ export function AttendanceAdmin() {
                     {employee.workHours}
                   </td>
 
-                  {/* Approve Icons */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      {/* HR Approval */}
-                      <button
-                        onClick={() => handleApprovalClick(employee, "hr")}
-                        disabled={employee.approveHr}
-                        className="disabled:cursor-not-allowed"
-                      >
-                        {employee.approveHr ? (
-                          <CheckSquare className="w-5 h-5 text-emerald-600" />
-                        ) : (
-                          <XSquare className="w-5 h-5 text-gray-400 hover:text-gray-600 transition" />
-                        )}
-                      </button>
+                  {/* Approve Column */}
+                  <td className="px-4 py-3 text-center">
+                    {employee.approvalStatus === "pending" && (
+                      <div className="flex items-center justify-center gap-2">
+                        {/* Reject chip */}
+                        <button
+                          onClick={() =>
+                            handleApprovalClick(employee, "reject")
+                          }
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-xs font-medium border border-rose-100 hover:bg-rose-100 transition"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          <span>Reject</span>
+                        </button>
 
-                      {/* IT Approval */}
-                      <button
-                        onClick={() => handleApprovalClick(employee, "it")}
-                        disabled={employee.approveIt}
-                        className="disabled:cursor-not-allowed"
-                      >
-                        {employee.approveIt ? (
-                          <CheckSquare className="w-5 h-5 text-emerald-600" />
-                        ) : (
-                          <XSquare className="w-5 h-5 text-gray-400 hover:text-gray-600 transition" />
-                        )}
-                      </button>
-                    </div>
+                        {/* Approve chip */}
+                        <button
+                          onClick={() =>
+                            handleApprovalClick(employee, "approve")
+                          }
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100 hover:bg-emerald-100 transition"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Approve</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {employee.approvalStatus === "approved" && (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-100 justify-center">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Approved</span>
+                      </div>
+                    )}
+
+                    {employee.approvalStatus === "rejected" && (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-100 justify-center">
+                        <XCircle className="w-4 h-4" />
+                        <span>Rejected</span>
+                      </div>
+                    )}
                   </td>
 
                   {/* Status Badge */}
@@ -317,7 +402,10 @@ export function AttendanceAdmin() {
 
                   {/* Details Button */}
                   <td className="px-4 py-3 text-center">
-                    <button className="px-3 py-1.5 rounded-lg border-2 border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all">
+                    <button
+                      onClick={() => handleViewDetails(employee)}
+                      className="px-3 py-1.5 rounded-lg border-2 border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+                    >
                       View
                     </button>
                   </td>
@@ -364,7 +452,6 @@ export function AttendanceAdmin() {
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            {/* Page numbers */}
             {[...Array(totalPages)].map((_, index) => {
               const pageNumber = index + 1;
               return (
@@ -393,17 +480,19 @@ export function AttendanceAdmin() {
         </div>
       </section>
 
-      {/* ===== APPROVAL MODAL ===== */}
+      {/* ===== MODAL APPROVAL (CENTER) ===== */}
       {showModal && selectedEmployee && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">
-                Approve Attendance
+                {decisionType === "approve"
+                  ? "Approve Attendance"
+                  : "Reject Attendance"}
               </h3>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={handleCancelDecision}
                 className="p-1 rounded-lg hover:bg-gray-100 transition"
               >
                 <X className="w-5 h-5 text-gray-500" />
@@ -423,11 +512,15 @@ export function AttendanceAdmin() {
                 {/* Content */}
                 <div className="flex-1">
                   <p className="text-base text-gray-700 leading-relaxed">
-                    Are you sure you want to approve{" "}
-                    <span className="font-semibold text-gray-900">
-                      {selectedEmployee.name}'s
+                    Are you sure you want to{" "}
+                    <span className="font-semibold">
+                      {decisionType === "approve" ? "approve" : "reject"}
                     </span>{" "}
-                    attendance?
+                    attendance for{" "}
+                    <span className="font-semibold text-gray-900">
+                      {selectedEmployee.name}
+                    </span>
+                    ?
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
                     This action cannot be undone.
@@ -439,19 +532,222 @@ export function AttendanceAdmin() {
             {/* Modal Footer */}
             <div className="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
               <button
-                onClick={handleReject}
+                onClick={handleCancelDecision}
                 className="px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
               >
-                Reject
+                Cancel
               </button>
               <button
-                onClick={handleApprove}
-                className="px-4 py-2 rounded-xl border-2 border-[#1D395E] bg-[#1D395E] text-sm font-medium text-white hover:bg-[#152945] hover:border-[#152945] transition-all shadow-sm"
+                onClick={handleConfirmDecision}
+                className={`px-4 py-2 rounded-xl border-2 text-sm font-medium text-white transition-all shadow-sm ${
+                  decisionType === "approve"
+                    ? "bg-emerald-600 border-emerald-600 hover:bg-emerald-700 hover:border-emerald-700"
+                    : "bg-rose-600 border-rose-600 hover:bg-rose-700 hover:border-rose-700"
+                }`}
               >
-                Approve
+                {decisionType === "approve" ? "Approve" : "Reject"}
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ===== SIDE PANEL DETAIL (RIGHT OVERLAY) ===== */}
+      {detailEmployee && (
+        <div className="fixed inset-0 z-40 flex justify-end bg-black/30">
+          {/* klik backdrop untuk close */}
+          <button
+            className="flex-1 cursor-default"
+            onClick={closeDetailPanel}
+            aria-label="Close details overlay"
+          />
+
+          <aside className="w-full max-w-lg h-full bg-white shadow-xl border-l border-gray-200 flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[#1D395E]">
+                Attendance Details
+              </h2>
+              <button
+                onClick={closeDetailPanel}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+              {/* ==== PROFILE + STATUS APPROVE (CARD ATAS) ==== */}
+              <div className="border border-gray-200 rounded-xl px-4 py-4 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  <span className="text-gray-600 font-semibold text-xl">
+                    {detailEmployee.name.charAt(0)}
+                  </span>
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {detailEmployee.name}
+                  </p>
+                  <p className="text-xs text-gray-500">{detailEmployee.role}</p>
+                </div>
+
+                {/* pill status di sisi kanan */}
+                <div>
+                  {detailEmployee.approvalStatus === "approved" && (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-green-500 bg-green-50 px-4 py-1.5 text-[11px] font-semibold text-green-700">
+                      <span className="h-2 w-2 rounded-full bg-green-600" />
+                      Status Approve
+                    </span>
+                  )}
+
+                  {detailEmployee.approvalStatus === "rejected" && (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-rose-300 bg-rose-50 px-4 py-1.5 text-[11px] font-semibold text-rose-700">
+                      <span className="h-2 w-2 rounded-full bg-rose-500" />
+                      Rejected
+                    </span>
+                  )}
+
+                  {detailEmployee.approvalStatus === "pending" && (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-1.5 text-[11px] font-semibold text-gray-600">
+                      <span className="h-2 w-2 rounded-full bg-gray-400" />
+                      Waiting Approval
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* ==== ATTENDANCE INFORMATION ==== */}
+              <div className="border border-[#7CA6BF] rounded-xl px-5 py-4 space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Attendance Information
+                  </p>
+                </div>
+
+                <div className="h-px bg-gray-200" />
+
+                {/* Baris 1: Date, Check In, Check Out */}
+                <div className="grid grid-cols-3 gap-x-4 gap-y-3 text-xs">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Date
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.date}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1 text-center">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Check In
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.clockIn}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1 text-right">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Check Out
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.clockOut}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Baris 2: Status + Work Hours */}
+                <div className="grid grid-cols-3 gap-x-4 gap-y-3 text-xs">
+                  <div className="space-y-1 col-span-2">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Status
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.status}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1 text-right">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Work Hours
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.workHours}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ==== LOCATION INFORMATION ==== */}
+              <div className="border border-[#7CA6BF] rounded-xl px-5 py-4 space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Location Information
+                  </p>
+                </div>
+
+                <div className="h-px bg-gray-200" />
+
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Location
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.location}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Detail Address
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.address}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium text-gray-500">Lat</p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.lat}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium text-gray-500">
+                      Long
+                    </p>
+                    <p className="text-[12px] text-gray-900">
+                      {detailEmployee.long}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ==== PROOF OF ATTENDANCE ==== */}
+              <div className="border border-[#7CA6BF] rounded-xl px-5 py-4 space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Proof of Attendance
+                  </p>
+                </div>
+
+                <button className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-800 transition">
+                  <span className="truncate text-left">
+                    {detailEmployee.proofFile}
+                  </span>
+
+                  <span className="flex items-center gap-2 flex-shrink-0">
+                    <Eye className="w-4 h-4 text-gray-600" />
+                    <Download className="w-4 h-4 text-gray-600" />
+                  </span>
+                </button>
+              </div>
+            </div>
+          </aside>
         </div>
       )}
     </div>

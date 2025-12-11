@@ -25,9 +25,9 @@ function PageTitle() {
       title = "Sign Up | HRIS";
     } else if (path === "/auth/sign-in") {
       title = "Sign In | HRIS";
-    } else if (path.startsWith("/dashboard")) {
-      // termasuk /dashboard, /dashboard?tab=employees, dll
-      title = "Dashboard | HRIS";
+    } else if (path.startsWith("/admin")) {
+      // termasuk /admin/dashboard, /admin/checkclock, dll
+      title = "Admin Dashboard | HRIS";
     }
 
     document.title = title;
@@ -42,19 +42,20 @@ export default function AppRouter() {
       <PageTitle />
 
       <Routes>
-        {/* root diarahkan ke sign-in */}
-        <Route path="/" element={<Navigate to="/auth/sign-in" replace />} />
+        {/* root diarahkan ke admin dashboard */}
+        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
 
         {/* Public routes */}
         <Route path="/auth/sign-in" element={<SignIn />} />
         <Route path="/auth/sign-up" element={<SignUp />} />
 
-        {/* Protected routes */}
+        {/* Protected routes - Admin Dashboard */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<AdminDashboard />} />
-          <Route path="/employees-database" element={<AdminDashboard />} />
-          <Route path="/checkclock" element={<AdminDashboard />} />
-          <Route path="/work-schedule" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/employees-database" element={<AdminDashboard />} />
+          <Route path="/admin/checkclock" element={<AdminDashboard />} />
+          <Route path="/admin/checkclock/add" element={<AdminDashboard />} />
+          <Route path="/admin/work-schedule" element={<AdminDashboard />} />
         </Route>
 
         {/* Optional: fallback kalau path ga dikenal */}

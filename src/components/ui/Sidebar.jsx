@@ -119,7 +119,7 @@ export function Sidebar({ isOpen, onToggle, currentPage, onNavigate }) {
                   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >
-                Bantuan
+                FAQ & Help
               </span>
             </div>
             <div 

@@ -10,11 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "@tailwindcss/vite": "^4.1.14",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.545.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.10.1",
     "recharts": "^3.5.1",
     "zustand": "^5.0.8"

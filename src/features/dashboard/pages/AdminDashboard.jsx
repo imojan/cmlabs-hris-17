@@ -17,29 +17,33 @@ import { AttendanceTable } from "../../../components/ui/AttendanceTable";
 // src/features/employees/pages/EmployeeDatabase.jsx
 import { EmployeeDatabase } from "../../employees/pages/EmployeeDatabase";
 import { AttendanceAdmin } from "../../attendance/pages/AttendanceAdmin";
+import { AddCheckclockAdmin } from "../../attendance/pages/AddCheckClockAdmin";
 
 // mapping nama page → judul yang muncul di header & tab browser
 const PAGE_TITLES = {
-  "dashboard": "Dashboard",
+  dashboard: "Dashboard",
   "employee-database": "Employee Database",
-  "checkclock": "Checkclock",
+  checkclock: "Checkclock",
+  "checkclock-add-admin": "Add Checkclock Admin",
   "work-schedule": "Work Schedule",
 };
 
 // mapping URL path → nama page
 const PATH_TO_PAGE = {
-  "/dashboard": "dashboard",
-  "/employees-database": "employee-database",
-  "/checkclock": "checkclock",
-  "/work-schedule": "work-schedule",
+  "/admin/dashboard": "dashboard",
+  "/admin/employees-database": "employee-database",
+  "/admin/checkclock": "checkclock",
+  "/admin/checkclock/add": "checkclock-add-admin",
+  "/admin/work-schedule": "work-schedule",
 };
 
 // mapping nama page → URL path
 const PAGE_TO_PATH = {
-  "dashboard": "/dashboard",
-  "employee-database": "/employees-database",
-  "checkclock": "/checkclock",
-  "work-schedule": "/work-schedule",
+  dashboard: "/admin/dashboard",
+  "employee-database": "/admin/employees-database",
+  checkclock: "/admin/checkclock",
+  "checkclock-add-admin": "/admin/checkclock/add",
+  "work-schedule": "/admin/work-schedule",
 };
 
 export default function AdminDashboard() {
@@ -63,7 +67,7 @@ export default function AdminDashboard() {
 
   // dipanggil dari Sidebar, lalu kita ganti URL-nya
   const handleNavigate = (page) => {
-    const path = PAGE_TO_PATH[page] ?? "/dashboard";
+    const path = PAGE_TO_PATH[page] ?? "/admin/dashboard";
     navigate(path);
   };
 
@@ -145,6 +149,7 @@ export default function AdminDashboard() {
           )}
 
           {currentPage === "checkclock" && <AttendanceAdmin />}
+          {currentPage === "checkclock-add-admin" && <AddCheckclockAdmin />}
 
           {currentPage === "work-schedule" && (
             <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6">

@@ -115,7 +115,7 @@ export default function SignIn() {
       callback: async (response) => {
         // response.credential = JWT Google
         const { ok } = await loginWithGoogle(response.credential);
-        if (ok) navigate("/dashboard");
+        if (ok) navigate("/admin/dashboard");
       },
     });
     // (opsional) bisa render button default GIS ke elemen tertentu jika mau
@@ -135,7 +135,7 @@ export default function SignIn() {
 
     if (ok) {
       // implementasi "remember me" kalau diperlukan
-      navigate("/dashboard");
+      navigate("/admin/dashboard");
     }
   };
 
