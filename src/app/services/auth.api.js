@@ -3,11 +3,13 @@ import { http, setToken, clearToken } from "@/lib/http";
 // ↓↓↓ UBAH DI SINI SAJA JIKA PATH BERBEDA ↓↓↓
 // src/app/config/services/auth.api.js
 const PATH = {
-  login:    "/api/auth/signin",
-  register: "/api/auth/signup",
-  me:       "/api/auth/me",
-  logout:   "/api/auth/logout",
-  google:   "/api/auth/google",   // ← backend-mu ada r.post('/google', ...)
+  login:          "/api/auth/signin",
+  register:       "/api/auth/signup",
+  me:             "/api/auth/me",
+  logout:         "/api/auth/logout",
+  google:         "/api/auth/google",   // ← backend-mu ada r.post('/google', ...)
+  forgotPassword: "/api/auth/forgot-password",
+  resetPassword:  "/api/auth/reset-password",
 };
 
 export const authService = {
@@ -38,5 +40,13 @@ export const authService = {
   async signOut() {
     clearToken();
     try { await http(PATH.logout, { method: "POST" }); } catch {/* ignore */}
+  },
+
+  async forgotPassword({ email }) {
+    return http(PATH.forgotPassword, { method: "POST", body: { email } });
+  },
+
+  async resetPassword({ token, password }) {
+    return http(PATH.resetPassword, { method: "POST", body: { token, password } });
   },
 };
