@@ -127,7 +127,7 @@ function Navbar({ activeSection }) {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'navbar-scrolled' : 'bg-white'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-sm'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
@@ -172,7 +172,7 @@ function Navbar({ activeSection }) {
             </button>
             <button
               onClick={() => handleNavigate("/auth/sign-up")}
-              className="btn-hover text-[14px] text-[#1d395e] font-semibold px-4 py-2 rounded-lg border border-[#1d395e] hover:bg-[#1d395e] hover:text-white"
+              className="btn-hover text-[14px] text-[#1d395e] font-semibold px-4 py-2 rounded-lg border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white transition-all duration-300"
             >
               Coba Gratis
             </button>
@@ -203,7 +203,7 @@ function Navbar({ activeSection }) {
           <hr className="my-3" />
           <button onClick={() => { handleNavigate("/auth/sign-in"); setMobileMenuOpen(false); }} className="block w-full text-left text-[16px] text-gray-700 font-medium py-2 px-3 rounded-lg hover:bg-gray-50">Sign In</button>
           <button onClick={handleWhatsApp} className="w-full flex items-center justify-center gap-2 bg-[#1d395e] text-white text-[14px] font-semibold px-4 py-3 rounded-lg">Hubungi Sales</button>
-          <button onClick={() => { handleNavigate("/auth/sign-up"); setMobileMenuOpen(false); }} className="w-full text-[14px] text-[#1d395e] font-semibold px-4 py-3 rounded-lg border border-[#1d395e]">Coba Gratis</button>
+          <button onClick={() => { handleNavigate("/auth/sign-up"); setMobileMenuOpen(false); }} className="w-full text-[14px] text-[#1d395e] font-semibold px-4 py-3 rounded-lg border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white transition-all duration-300">Coba Gratis</button>
         </div>
       </div>
     </nav>
@@ -255,7 +255,7 @@ function HeroSection() {
               </button>
               <button
                 onClick={() => handleNavigate("/auth/sign-up")}
-                className="btn-hover text-[#1d395e] font-semibold px-6 py-3 rounded-lg border border-[#1d395e] hover:bg-[#1d395e] hover:text-white"
+                className="btn-hover text-[#1d395e] font-semibold px-6 py-3 rounded-lg border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white transition-all duration-300"
               >
                 Coba Gratis
               </button>
@@ -308,10 +308,22 @@ function FeaturesSection() {
 /* ===================== PRICING SECTION ===================== */
 function PricingSection() {
   const [activeTab, setActiveTab] = useState("package");
-  const plans = [
+
+  // Package plans (fitur lengkap)
+  const packagePlans = [
     { name: "BASIC", subtitle: "Untuk bisnis kecil", popular: false, features: ["List Hadir", "GPS based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management", "Automatic tax calculation"] },
     { name: "PREMIUM", subtitle: "Flexible & professional", popular: true, features: ["All Standard Features", "Clock in/out attendance settings", "Payroll integration", "Employee document management", "Sick leave & time off setting", "Shift management", "Overtime management (custom)"] },
     { name: "STANDART", subtitle: "Untuk tim berkembang", popular: false, features: ["List Hadir", "GPS-based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management", "Automatic tax calculation"] },
+  ];
+
+  // Seat plans (per user pricing)
+  const seatPlans = [
+    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
+    { name: "PREMIUM", price: "Rp 17.000", unit: "/user/month", description: "This package for 51 until 100 employee", popular: true },
+    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
+    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
+    { name: "PREMIUM", price: "Rp 17.000", unit: "/user/month", description: "This package for 51 until 100 employee", popular: true },
+    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
   ];
 
   return (
@@ -319,17 +331,45 @@ function PricingSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10" data-animate="fade-up">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-white">HRIS Pricing Plans</h2>
-          <p className="max-w-2xl mx-auto text-white/80">Choose the plan that best suits your business!</p>
+          <p className="max-w-2xl mx-auto text-white/80">Choose the plan that best suits your business! This HRIS offers
+both subscription and pay-as-you-go payment options,
+available in the following packages:</p>
         </div>
+
+        {/* Tab Switcher */}
         <div className="flex justify-center mb-10" data-animate="fade-up" data-animate-delay="100">
-          <div className="bg-white rounded-full p-1 flex shadow-lg">
-            <button onClick={() => setActiveTab("package")} className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "package" ? "bg-[#1d395e] text-white" : "text-gray-600 hover:text-[#1d395e]"}`}>Package</button>
-            <button onClick={() => setActiveTab("seat")} className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "seat" ? "bg-[#1d395e] text-white" : "text-gray-600 hover:text-[#1d395e]"}`}>Seat</button>
+          <div className="bg-white rounded-full p-1.5 flex shadow-lg">
+            <button 
+              onClick={() => setActiveTab("package")} 
+              className={`px-8 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "package" ? "bg-[#1d395e] text-white shadow-md" : "text-gray-600 hover:text-[#1d395e]"}`}
+            >
+              Package
+            </button>
+            <button 
+              onClick={() => setActiveTab("seat")} 
+              className={`px-8 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "seat" ? "bg-[#e85a5a] text-white shadow-md" : "text-gray-600 hover:text-[#e85a5a]"}`}
+            >
+              Seat
+            </button>
           </div>
         </div>
-        <div className="grid md:grid-cols-3 gap-6 items-start">
-          {plans.map((plan, index) => (
-            <div key={index} className={`card-hover bg-white rounded-2xl p-6 ${plan.popular ? "ring-2 ring-[#25d366] md:scale-105 shadow-xl" : "shadow-lg"}`} data-animate="fade-up" data-animate-delay={String((index + 1) * 150)}>
+
+        {/* Package Plans */}
+        <div 
+          className={`grid md:grid-cols-3 gap-6 items-start transition-all duration-500 ${
+            activeTab === "package" 
+              ? "opacity-100 translate-y-0 pointer-events-auto" 
+              : "opacity-0 translate-y-4 absolute pointer-events-none h-0 overflow-hidden"
+          }`}
+        >
+          {packagePlans.map((plan, index) => (
+            <div 
+              key={`package-${index}`} 
+              className={`card-hover bg-white rounded-2xl p-6 ${plan.popular ? "ring-2 ring-[#25d366] md:scale-105 shadow-xl" : "shadow-lg"}`}
+              style={{ 
+                animation: activeTab === "package" ? `fadeInUp 0.5s ease-out ${index * 0.1}s both` : 'none'
+              }}
+            >
               {plan.popular && <div className="text-center mb-2"><span className="inline-block text-xs text-[#25d366] font-semibold uppercase tracking-wider animate-pulse bg-[#25d366]/10 px-3 py-1 rounded-full">Most Popular</span></div>}
               <div className="text-center mb-6">
                 <h3 className="text-xl font-bold text-[#1d395e] mb-1">{plan.name}</h3>
@@ -340,7 +380,52 @@ function PricingSection() {
                   <li key={idx} className="flex items-start gap-2 text-sm text-gray-600"><Check size={16} className="text-[#25d366] mt-0.5 flex-shrink-0" /><span>{feature}</span></li>
                 ))}
               </ul>
-              <button className={`btn-hover w-full py-3 rounded-lg font-semibold text-sm ${plan.popular ? "bg-[#1d395e] text-white" : "text-[#1d395e] border border-[#1d395e] hover:bg-[#1d395e] hover:text-white"}`}>Select Package</button>
+              <button className={`btn-hover w-full py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${plan.popular ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"}`}>Select Package</button>
+            </div>
+          ))}
+        </div>
+
+        {/* Seat Plans */}
+        <div 
+          className={`grid md:grid-cols-3 gap-6 items-start transition-all duration-500 ${
+            activeTab === "seat" 
+              ? "opacity-100 translate-y-0 pointer-events-auto" 
+              : "opacity-0 translate-y-4 absolute pointer-events-none h-0 overflow-hidden"
+          }`}
+        >
+          {seatPlans.map((plan, index) => (
+            <div 
+              key={`seat-${index}`} 
+              className={`card-hover bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl ${plan.popular ? "ring-2 ring-[#e85a5a]" : ""}`}
+              style={{ 
+                animation: activeTab === "seat" ? `fadeInUp 0.5s ease-out ${index * 0.1}s both` : 'none'
+              }}
+            >
+              {/* Header */}
+              <div className={`py-4 px-6 ${plan.popular ? "bg-gradient-to-r from-[#1d395e] to-[#2a4a6e]" : "bg-[#1d395e]"}`}>
+                <h3 className="text-lg font-bold text-white text-center">{plan.name}</h3>
+              </div>
+              
+              {/* Body */}
+              <div className="p-6 text-center">
+                <div className="mb-4">
+                  <span className="text-2xl font-bold text-[#1d395e]">{plan.price}</span>
+                  <span className="text-gray-500 text-sm">{plan.unit}</span>
+                </div>
+                <p className="text-gray-500 text-sm mb-6">{plan.description}</p>
+                
+                {/* Select Button */}
+                <button className={`btn-hover inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                  plan.popular 
+                    ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" 
+                    : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"
+                }`}>
+                  Select a Package
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -412,7 +497,7 @@ function CtaSection() {
         <p className="text-gray-600 mb-8">Optimalkan pengelolaan operasi HR Anda dengan bantuan solusi terintegrasi.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button onClick={handleWhatsApp} className="btn-hover ripple flex items-center justify-center gap-2 bg-[#1d395e] text-white font-semibold px-6 py-3 rounded-lg"><img src={waWhite} alt="WhatsApp" className="w-5 h-5" />WhatsApp Sales</button>
-          <button onClick={() => handleNavigate("/auth/sign-up")} className="btn-hover text-[#1d395e] font-semibold px-6 py-3 rounded-lg border border-[#1d395e] hover:bg-[#1d395e] hover:text-white">Coba Gratis</button>
+          <button onClick={() => handleNavigate("/auth/sign-up")} className="btn-hover text-[#1d395e] font-semibold px-6 py-3 rounded-lg border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white transition-all duration-300">Coba Gratis</button>
         </div>
       </div>
     </section>
@@ -468,8 +553,8 @@ function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2"><img src={logoHris} alt="HRIS" className="h-8 brightness-0 invert" /></div>
-            <p className="text-sm text-white">© Copyright 2025 HRIS Online</p>
-            <a href="#" className="text-sm text-white hover:opacity-80 transition-opacity">View All HRIS Online</a>
+            <p className="text-sm text-white font-medium">© Copyright 2025 HRIS Online</p>
+            <a href="#" className="text-sm text-white font-medium hover:text-white/80 transition-all duration-300">View All HRIS Online</a>
           </div>
         </div>
       </div>
@@ -498,14 +583,16 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div id="page-transition" className="page-transition min-h-screen bg-white">
+    <>
       <Navbar activeSection={activeSection} />
-      <HeroSection />
-      <FeaturesSection />
-      <PricingSection />
-      <AboutSection />
-      <CtaSection />
-      <Footer />
-    </div>
+      <div id="page-transition" className="page-transition min-h-screen bg-white">
+        <HeroSection />
+        <FeaturesSection />
+        <PricingSection />
+        <AboutSection />
+        <CtaSection />
+        <Footer />
+      </div>
+    </>
   );
 }
