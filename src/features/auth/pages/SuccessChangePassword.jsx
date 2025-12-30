@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -6,6 +7,11 @@ import successIllustration from "@/assets/images/auth/success-change-password.pn
 /* ---------- Page ---------- */
 export default function SuccessChangePassword() {
   const navigate = useNavigate();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const handleLoginNow = () => {
     navigate("/auth/sign-in");
@@ -14,7 +20,7 @@ export default function SuccessChangePassword() {
   return (
     <div className="bg-white min-h-screen flex">
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20">
+      <div className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           <img
             src={successIllustration}
@@ -25,7 +31,7 @@ export default function SuccessChangePassword() {
       </div>
 
       {/* RIGHT SIDE - Content */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12">
+      <div className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           {/* Title Section */}
           <div className="mb-8">

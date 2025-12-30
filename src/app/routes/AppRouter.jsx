@@ -16,6 +16,7 @@ import CheckYourEmail from "@/features/auth/pages/CheckYourEmail.jsx";
 import SetNewPassword from "@/features/auth/pages/SetNewPassword.jsx";
 import SuccessChangePassword from "@/features/auth/pages/SuccessChangePassword.jsx";
 import LinkExpired from "@/features/auth/pages/LinkExpired.jsx";
+import LandingPage from "@/features/landing/pages/LandingPage.jsx";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard.jsx";
 import ProtectedRoute from "@/app/routes/ProtectedRoute.jsx";
 import TestHMR from "@/components/debug/TestHMR.jsx";
@@ -28,7 +29,9 @@ function PageTitle() {
     const path = location.pathname;
     let title = "HRIS";
 
-    if (path === "/auth/sign-up") {
+    if (path === "/" || path === "/landing") {
+      title = "HRIS Online - Aplikasi HR Terbaik";
+    } else if (path === "/auth/sign-up") {
       title = "Sign Up | HRIS";
     } else if (path === "/auth/sign-in") {
       title = "Sign In | HRIS";
@@ -61,8 +64,9 @@ export default function AppRouter() {
       <PageTitle />
 
       <Routes>
-        {/* root diarahkan ke admin dashboard */}
-        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        {/* Landing Page - root */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/landing" element={<LandingPage />} />
 
         {/* Debug/Test routes - no auth required */}
         <Route path="/test-hmr" element={<TestHMR />} />

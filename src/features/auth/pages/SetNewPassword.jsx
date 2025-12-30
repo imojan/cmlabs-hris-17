@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
@@ -10,6 +10,7 @@ import setNewPasswordIllustration from "@/assets/images/auth/set-new-password.pn
 export default function SetNewPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [isLoaded, setIsLoaded] = useState(false);
   
   // Get token from URL query param (sent from email link)
   const token = searchParams.get("token") || "";
@@ -21,6 +22,10 @@ export default function SetNewPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   // validation
   const isPasswordValid = newPassword.length >= 8;
@@ -115,7 +120,7 @@ export default function SetNewPassword() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20">
+      <div className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           <img
             src={setNewPasswordIllustration}
@@ -126,7 +131,7 @@ export default function SetNewPassword() {
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12">
+      <div className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           {/* Title Section */}
           <div className="mb-8">

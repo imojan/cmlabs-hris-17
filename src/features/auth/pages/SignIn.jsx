@@ -11,6 +11,12 @@ import googleLogo from "@/assets/branding/google.webp";
 /* ---------- Page ---------- */
 export default function SignIn() {
   const navigate = useNavigate();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Animation on mount
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   // store
   const login            = useAuth((s) => s.login);
@@ -119,18 +125,26 @@ export default function SignIn() {
         />
       )}
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20">
+      <div 
+        className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 transition-all duration-700 ${
+          isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+        }`}
+      >
         <div className="w-full max-w-[827px]">
           <img 
             src={signInIllustration} 
             alt="Sign In" 
-            className="w-full h-auto object-contain" 
+            className="w-full h-auto object-contain animate-float" 
           />
         </div>
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12">
+      <div 
+        className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 transition-all duration-700 delay-200 ${
+          isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
+        }`}
+      >
         <div className="w-full max-w-[842px]">
           {/* Header with Logo and Try for free */}
           <div className="flex items-center justify-between mb-11">

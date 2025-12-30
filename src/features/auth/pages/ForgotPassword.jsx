@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -9,6 +9,12 @@ import forgotPasswordIllustration from "@/assets/images/auth/forgot-password.png
 /* ---------- Page ---------- */
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Animation on mount
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   // form state
   const [email, setEmail] = useState("");
@@ -74,7 +80,7 @@ export default function ForgotPassword() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20">
+      <div className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           <img
             src={forgotPasswordIllustration}
@@ -85,7 +91,7 @@ export default function ForgotPassword() {
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12">
+      <div className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           {/* Title Section */}
           <div className="mb-8">

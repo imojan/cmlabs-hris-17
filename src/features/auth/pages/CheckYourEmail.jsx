@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -7,9 +8,14 @@ import checkEmailIllustration from "@/assets/images/auth/check-ur-email.png";
 export default function CheckYourEmail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [isLoaded, setIsLoaded] = useState(false);
   
   // Get email from URL query param
   const email = searchParams.get("email") || "your email";
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const handleOpenGmail = () => {
     window.open("https://mail.google.com", "_blank");
@@ -18,7 +24,7 @@ export default function CheckYourEmail() {
   return (
     <div className="bg-white min-h-screen flex">
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20">
+      <div className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           <img
             src={checkEmailIllustration}
@@ -29,7 +35,7 @@ export default function CheckYourEmail() {
       </div>
 
       {/* RIGHT SIDE - Content */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12">
+      <div className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
         <div className="w-full max-w-[600px]">
           {/* Title Section */}
           <div className="mb-8">
