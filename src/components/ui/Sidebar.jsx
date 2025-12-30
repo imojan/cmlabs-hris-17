@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Clock, Calendar, Settings, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, Calendar, Settings, Headphones } from 'lucide-react';
 import logoExpanded from "@/assets/images/logo-hris-2.png";
 import logoCollapsed from "@/assets/images/logo-hris-4.png";
 
@@ -8,6 +8,11 @@ export function Sidebar({ isOpen, onToggle, currentPage, onNavigate }) {
     { icon: Users, label: 'Employee Database', page: 'employee-database' },
     { icon: Clock, label: 'Checkclock', page: 'checkclock' },
     { icon: Calendar, label: 'Work Schedule', page: 'work-schedule' },
+  ];
+
+  const bottomMenuItems = [
+    { icon: Headphones, label: 'FAQ & Help', page: 'faq-help' },
+    { icon: Settings, label: 'Setting', page: 'settings' },
   ];
 
   const handleMenuClick = (e, page) => {
@@ -92,66 +97,45 @@ export function Sidebar({ isOpen, onToggle, currentPage, onNavigate }) {
 
           {/* Bottom Section */}
           <div className="pt-2 mt-auto space-y-3">
-            <div 
-              className={`
-                w-full flex items-center text-gray-400 transition-all duration-300 ease-out
-                rounded-xl px-3 py-2.5 hover:bg-gray-50 hover:text-gray-600 cursor-pointer
-                ${isOpen ? 'gap-4 justify-start' : 'justify-center'}
-              `}
-              title={!isOpen ? 'Bantuan' : undefined}
-              style={{
-                transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            >
-              <HelpCircle 
+            {bottomMenuItems.map((item, index) => (
+              <div 
+                key={index}
+                onClick={(e) => handleMenuClick(e, item.page)}
                 className={`
-                  flex-shrink-0 transition-all duration-300 ease-out
-                  ${isOpen ? 'w-5 h-5' : 'w-6 h-6'}
-                `} 
-                strokeWidth={2} 
-              />
-              <span 
-                className={`
-                  text-sm font-medium transition-all duration-300 ease-out
-                  ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0'}
+                  w-full flex items-center transition-all duration-300 ease-out cursor-pointer pointer-events-auto
+                  rounded-xl px-3 py-2.5
+                  ${currentPage === item.page
+                    ? 'text-[#1D395E] bg-[#1D395E]/5' 
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                  }
+                  ${isOpen ? 'gap-4 justify-start' : 'justify-center'}
                 `}
+                title={!isOpen ? item.label : undefined}
                 style={{
                   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >
-                FAQ & Help
-              </span>
-            </div>
-            <div 
-              className={`
-                w-full flex items-center text-gray-400 transition-all duration-300 ease-out
-                rounded-xl px-3 py-2.5 hover:bg-gray-50 hover:text-gray-600 cursor-pointer
-                ${isOpen ? 'gap-4 justify-start' : 'justify-center'}
-              `}
-              title={!isOpen ? 'Setting' : undefined}
-              style={{
-                transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            >
-              <Settings 
-                className={`
-                  flex-shrink-0 transition-all duration-300 ease-out
-                  ${isOpen ? 'w-5 h-5' : 'w-6 h-6'}
-                `} 
-                strokeWidth={2} 
-              />
-              <span 
-                className={`
-                  text-sm font-medium transition-all duration-300 ease-out
-                  ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0'}
-                `}
-                style={{
-                  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                Setting
-              </span>
-            </div>
+                <item.icon 
+                  className={`
+                    flex-shrink-0 transition-all duration-300 ease-out
+                    ${isOpen ? 'w-5 h-5' : 'w-6 h-6'}
+                  `} 
+                  strokeWidth={currentPage === item.page ? 2.5 : 2} 
+                />
+                <span 
+                  className={`
+                    text-sm whitespace-nowrap transition-all duration-300 ease-out
+                    ${currentPage === item.page ? 'font-semibold' : 'font-medium'}
+                    ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0'}
+                  `}
+                  style={{
+                    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  {item.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </aside>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -10,6 +10,12 @@ import signInIdIllustration from "@/assets/images/auth/sign-in-id.png";
 /* ---------- Page ---------- */
 export default function SignInIdEmployee() {
   const navigate = useNavigate();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Animation on mount
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   // store
   const login = useAuth((s) => s.login);
@@ -25,6 +31,26 @@ export default function SignInIdEmployee() {
   const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [notification, setNotification] = useState(null);
+
+  // Load saved credentials on mount (Remember Me feature)
+  useEffect(() => {
+    const savedCredentials = localStorage.getItem("hris_remember_signin_id");
+    if (savedCredentials) {
+      try {
+        const { companyUsername, idEmployee, remember: wasRemembered } = JSON.parse(savedCredentials);
+        if (wasRemembered) {
+          setValues(prev => ({ 
+            ...prev, 
+            companyUsername: companyUsername || "",
+            idEmployee: idEmployee || ""
+          }));
+          setRemember(true);
+        }
+      } catch (e) {
+        localStorage.removeItem("hris_remember_signin_id");
+      }
+    }
+  }, []);
 
   const onChange = (e) =>
     setValues((s) => ({ ...s, [e.target.name]: e.target.value }));
@@ -84,6 +110,16 @@ export default function SignInIdEmployee() {
     });
 
     if (ok) {
+      // Handle Remember Me - save or remove credentials
+      if (remember) {
+        localStorage.setItem("hris_remember_signin_id", JSON.stringify({
+          companyUsername: values.companyUsername,
+          idEmployee: values.idEmployee,
+          remember: true
+        }));
+      } else {
+        localStorage.removeItem("hris_remember_signin_id");
+      }
       navigate("/admin/dashboard");
     } else {
       setNotification({
@@ -101,7 +137,7 @@ export default function SignInIdEmployee() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex">
+    <div className="bg-white min-h-screen flex auth-page-enter">
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -113,18 +149,18 @@ export default function SignInIdEmployee() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20">
+      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 auth-illustration-enter">
         <div className="w-full max-w-[827px]">
           <img
             src={signInIdIllustration}
             alt="Sign In with ID Employee"
-            className="w-full h-auto object-contain"
+            className="w-full h-auto object-contain illustration-bounce"
           />
         </div>
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12">
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter">
         <div className="w-full max-w-[842px]">
           {/* Header with Logo */}
           <div className="flex items-center justify-start mb-11">

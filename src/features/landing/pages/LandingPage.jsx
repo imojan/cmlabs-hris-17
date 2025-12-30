@@ -9,7 +9,10 @@ import {
   Users,
   ChevronDown,
   MapPin,
-  Check
+  Check,
+  Key,
+  Phone,
+  UserPlus
 } from "lucide-react";
 
 // Assets
@@ -18,7 +21,11 @@ import dashboardExample from "@/assets/images/dashboard-example.png";
 import waWhite from "@/assets/images/wa-white.png";
 import instagramWhite from "@/assets/images/instagram-white.png";
 import tiktokWhite from "@/assets/images/tiktok-white.png";
-import gmailWhite from "@/assets/images/gmail-white.png";
+import emailWhite from "@/assets/images/email-white.png";
+import linkedinWhite from "@/assets/images/linkedin-white.png";
+import youtubeWhite from "@/assets/images/youtube-white.png";
+import xWhite from "@/assets/images/x-white.png";
+import facebookWhite from "@/assets/images/facebook-white.png";
 
 /* ===================== HOOK: useScrollAnimations ===================== */
 // Mirip pattern isuzu-karabha - observe [data-animate] elements
@@ -239,8 +246,8 @@ function HeroSection() {
               Aplikasi HRIS
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1d395e] leading-tight mb-6">
-              Tinggalkan arsip fisik,<br />
-              gunakan software HRIS online
+              Tinggalkan Arsip Fisik,<br />
+              Gunakan Layanan HRIS Online
             </h1>
             <p className="text-gray-600 text-lg mb-8 max-w-lg mx-auto lg:mx-0">
               Kelola operasional HR, mulai dari sistem database karyawan hingga rekrutmen, dalam satu aplikasi HRIS komprehensif berbasis cloud yang aman.
@@ -279,22 +286,37 @@ function HeroSection() {
 /* ===================== FEATURES SECTION ===================== */
 function FeaturesSection() {
   const features = [
-    { icon: <Monitor className="w-8 h-8 text-[#1d395e]" />, title: "Akses data secara online", description: "Data disimpan dalam server berstandar keamanan internasional dan bisa diakses kapan saja secara online." },
-    { icon: <MessageSquare className="w-8 h-8 text-[#1d395e]" />, title: "Kurangi miskomunikasi", description: "Kelola alur informasi, persetujuan, dan pekerjaan dalam perusahaan secara menyeluruh." },
-    { icon: <Users className="w-8 h-8 text-[#1d395e]" />, title: "Automasikan rekrutmen", description: "Pastikan tidak ada yang terlewat dalam proses rekrutmen sampai offboarding dengan mengurangi dokumen fisik." },
+    { 
+      icon: <Key className="w-8 h-8 text-white" />, 
+      bgColor: "bg-[#8B2942]", // Dark red matching HRIS blue tone
+      title: "Akses Data Secara Online", 
+      description: "Data disimpan dalam server berstandar keamanan internasional dan bisa diakses kapan saja secara online." 
+    },
+    { 
+      icon: <Phone className="w-8 h-8 text-white" />, 
+      bgColor: "bg-[#B8860B]", // Dark golden yellow matching tone
+      title: "Kurangi Miskomunikasi", 
+      description: "Kelola alur informasi, persetujuan, dan pekerjaan dalam perusahaan secara menyeluruh." 
+    },
+    { 
+      icon: <UserPlus className="w-8 h-8 text-white" />, 
+      bgColor: "bg-[#2E7D4F]", // Dark green matching tone
+      title: "Automasikan Rekrutmen", 
+      description: "Pastikan tidak ada yang terlewat dalam proses rekrutmen sampai offboarding dengan mengurangi dokumen fisik." 
+    },
   ];
 
   return (
     <section id="solusi" className="py-16 lg:py-24 bg-[#f8fafc] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12" data-animate="fade-up">
-          <p className="text-[#1d395e] text-sm font-medium mb-2">Serba cepat dengan pengelolaan HR online</p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#1d395e]">Manajemen data terintegrasi dengan<br />aplikasi HRIS online</h2>
+          <p className="text-[#1d395e] text-sm font-medium mb-2">Serba Cepat dengan Pengelolaan HR Online by CMLABS</p>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#1d395e]">Manajemen Data Terintegrasi dengan<br />Aplikasi HRIS Online</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div key={index} className="card-hover bg-white rounded-xl p-6 shadow-sm cursor-pointer" data-animate="fade-up" data-animate-delay={String((index + 1) * 150)}>
-              <div className="w-16 h-16 bg-[#eef4f8] rounded-xl flex items-center justify-center mb-4">{feature.icon}</div>
+              <div className={`w-16 h-16 ${feature.bgColor} rounded-xl flex items-center justify-center mb-4`}>{feature.icon}</div>
               <h3 className="text-lg font-semibold text-[#1d395e] mb-2">{feature.title}</h3>
               <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
             </div>
@@ -514,10 +536,10 @@ function Footer() {
     perusahaan: ["Help Center", "Hubungi Support", "Keamanan", "Pemberitahuan Privasi", "Syarat & Ketentuan"],
   };
   const offices = [
-    { city: "Jakarta", address: "Mid Plaza 2, Jl. Jenderal Sudirman No.4, Jakarta 10220" },
-    { city: "Surabaya", address: "Jl. Ngagel Jaya Selatan No.158, Surabaya 60294" },
-    { city: "Bandung", address: "Jl. K. Yani No.371A, Bandung 40114" },
-    { city: "Medan", address: "Ayani Medan" },
+    { city: "Jakarta", address: "Jl. Pluit Kencana Raya No.63, RT.4/RW.6, Pluit, Kecamatan Penjaringan, Jkt Utara, Daerah Khusus Ibukota Jakarta 14450" },
+    { city: "Malang", address: "Jl. Raya Blimbing Indah No.10 Blok A4, Polowijen, Kec. Blimbing, Kota Malang, Jawa Timur 65126" },
+    { city: "Solo", address: "Jl. Kutai Utara No.1, Sumber, Kec. Banjarsari, Kota Surakarta, Jawa Tengah 57138" },
+    { city: "Surabaya", address: "Jl. Pakuwon Trade Center No.2, Lontar, Kec. Wiyung, Surabaya, Jawa Timur 60227" },
   ];
 
   return (
@@ -532,10 +554,16 @@ function Footer() {
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <img src={logoHris} alt="HRIS" className="h-8 mb-4" />
             <div className="flex gap-3 mt-4">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-sm"><img src={instagramWhite} alt="Instagram" className="w-5 h-5" /></a>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-sm"><img src={tiktokWhite} alt="TikTok" className="w-5 h-5" /></a>
-              <button onClick={handleWhatsApp} className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-sm"><img src={waWhite} alt="WhatsApp" className="w-5 h-5" /></button>
-              <a href="mailto:support@hris.com" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-sm"><img src={gmailWhite} alt="Gmail" className="w-5 h-5" /></a>
+              <a href="https://instagram.com/cmlabsco" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={instagramWhite} alt="Instagram" className="w-5 h-5" /></a>
+              <a href="https://www.tiktok.com/@cmlabs" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={tiktokWhite} alt="TikTok" className="w-5 h-5" /></a>
+              <button onClick={handleWhatsApp} className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={waWhite} alt="WhatsApp" className="w-5 h-5" /></button>
+              <a href="mailto:business@cmlabs.co" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={emailWhite} alt="Gmail" className="w-5 h-5" /></a>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <a href="https://x.com/cmlabsco" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={xWhite} alt="X" className="w-5 h-5" /></a>
+              <a href="https://www.youtube.com/@cmlabsco" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={youtubeWhite} alt="YouTube" className="w-5 h-5" /></a>
+              <a href="https://www.linkedin.com/company/cmlabs-co" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={linkedinWhite} alt="LinkedIn" className="w-5 h-5" /></a>              
+              <a href="https://www.facebook.com/cmlabsco" target="_blank" rel="noopener noreferrer" className="icon-bounce w-9 h-9 bg-gradient-to-br from-[#1d395e] to-[#3a5a7c] rounded-lg flex items-center justify-center shadow-sm hover:shadow-md"><img src={facebookWhite} alt="Facebook" className="w-5 h-5" /></a>
             </div>
           </div>
           <div><h4 className="font-semibold mb-4 text-[#1d395e]">Fitur</h4><ul className="space-y-2">{footerLinks.fitur.map((link, idx) => <li key={idx}><a href="#" className="text-sm text-[#1d395e]/80 hover:text-[#1d395e] hover:translate-x-1 inline-block transition-all duration-300">{link}</a></li>)}</ul></div>
@@ -553,7 +581,7 @@ function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2"><img src={logoHris} alt="HRIS" className="h-8 brightness-0 invert" /></div>
-            <p className="text-sm text-white font-medium">© Copyright 2025 HRIS Online</p>
+            <p className="text-sm text-white font-medium">© Copyright 2025 HRIS | CMLABS Group 17 Project</p>
             <a href="#" className="text-sm text-white font-medium hover:text-white/80 transition-all duration-300">View All HRIS Online</a>
           </div>
         </div>

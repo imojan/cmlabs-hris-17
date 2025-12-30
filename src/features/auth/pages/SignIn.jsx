@@ -31,6 +31,22 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  // Load saved credentials on mount (Remember Me feature)
+  useEffect(() => {
+    const savedCredentials = localStorage.getItem("hris_remember_signin");
+    if (savedCredentials) {
+      try {
+        const { identifier, remember: wasRemembered } = JSON.parse(savedCredentials);
+        if (wasRemembered && identifier) {
+          setValues(prev => ({ ...prev, identifier }));
+          setRemember(true);
+        }
+      } catch (e) {
+        localStorage.removeItem("hris_remember_signin");
+      }
+    }
+  }, []);
+
   const onChange = (e) => setValues((s) => ({ ...s, [e.target.name]: e.target.value }));
   const onBlur = (e) => {
     setTouched((t) => ({ ...t, [e.target.name]: true }));
@@ -95,6 +111,15 @@ export default function SignIn() {
     });
 
     if (ok) {
+      // Handle Remember Me - save or remove credentials
+      if (remember) {
+        localStorage.setItem("hris_remember_signin", JSON.stringify({
+          identifier: values.identifier,
+          remember: true
+        }));
+      } else {
+        localStorage.removeItem("hris_remember_signin");
+      }
       navigate("/admin/dashboard");
     } else {
       setNotification({
@@ -114,7 +139,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex">
+    <div className="bg-white min-h-screen flex auth-page-enter">
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -125,26 +150,18 @@ export default function SignIn() {
         />
       )}
       {/* LEFT SIDE - Illustration */}
-      <div 
-        className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 transition-all duration-700 ${
-          isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
-        }`}
-      >
+      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 auth-illustration-enter">
         <div className="w-full max-w-[827px]">
           <img 
             src={signInIllustration} 
             alt="Sign In" 
-            className="w-full h-auto object-contain animate-float" 
+            className="w-full h-auto object-contain illustration-bounce" 
           />
         </div>
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div 
-        className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 transition-all duration-700 delay-200 ${
-          isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
-        }`}
-      >
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter">
         <div className="w-full max-w-[842px]">
           {/* Header with Logo and Try for free */}
           <div className="flex items-center justify-between mb-11">

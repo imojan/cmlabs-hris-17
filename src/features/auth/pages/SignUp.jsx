@@ -134,7 +134,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex">
+    <div className="bg-white min-h-screen flex auth-page-enter">
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -146,26 +146,18 @@ export default function SignUp() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div 
-        className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-12 transition-all duration-700 ${
-          isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
-        }`}
-      >
+      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-12 auth-illustration-enter">
         <div className="w-full max-w-[827px]">
           <img
             src={signUpIllustration}
             alt="Sign Up"
-            className="w-full h-auto object-contain animate-float"
+            className="w-full h-auto object-contain illustration-bounce"
           />
         </div>
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div 
-        className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-8 transition-all duration-700 delay-200 ${
-          isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
-        }`}
-      >
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-8 auth-content-enter">
         <div className="w-full max-w-[842px]">
           {/* Header with Logo and Try for free */}
           <div className="flex items-center justify-between mb-6">

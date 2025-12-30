@@ -30,7 +30,7 @@ function PageTitle() {
     let title = "HRIS";
 
     if (path === "/" || path === "/landing") {
-      title = "HRIS Online - Aplikasi HR Terbaik";
+      title = "HRIS by cmlabs - Aplikasi HR Terbaik";
     } else if (path === "/auth/sign-up") {
       title = "Sign Up | HRIS";
     } else if (path === "/auth/sign-in") {
@@ -91,6 +91,8 @@ export default function AppRouter() {
           <Route path="/admin/checkclock" element={<AdminDashboard />} />      {/* ⬅️ TAMBAHAN */}
           <Route path="/admin/checkclock/add" element={<AdminDashboard />} />
           <Route path="/admin/work-schedule" element={<AdminDashboard />} />
+          <Route path="/admin/faq-help" element={<AdminDashboard />} />
+          <Route path="/admin/settings" element={<AdminDashboard />} />
         </Route>
 
         {/* Optional fallback */}

@@ -19,6 +19,7 @@ import { ViewEmployeeAdmin } from "../../employees/pages/ViewEmployeeAdmin";
 import { EditEmployeeAdmin } from "../../employees/pages/EditEmployeeAdmin";
 import { AttendanceAdmin } from "../../attendance/pages/AttendanceAdmin";
 import { WorkScheduleAdmin } from "../../work-schedule/pages/WorkScheduleAdmin";
+import FaqHelpAdmin from "../../faq-help/pages/FaqHelpAdmin";
 
 // Lazy load AddCheckclockAdmin to fix HMR blocking issue
 const AddCheckclockAdmin = lazy(() =>
@@ -37,6 +38,8 @@ const PAGE_TITLES = {
   checkclock: "Checkclock",
   "checkclock-add-admin": "Add Checkclock Admin",
   "work-schedule": "Work Schedule",
+  "faq-help": "FAQ & Help",
+  settings: "Settings",
 };
 
 // mapping nama page → URL path (hanya yang diakses lewat sidebar)
@@ -47,6 +50,8 @@ const PAGE_TO_PATH = {
   checkclock: "/admin/checkclock",
   "checkclock-add-admin": "/admin/checkclock/add",
   "work-schedule": "/admin/work-schedule",
+  "faq-help": "/admin/faq-help",
+  settings: "/admin/settings",
 };
 
 // helper untuk menentukan nama page dari pathname
@@ -71,6 +76,8 @@ function getCurrentPage(pathname) {
   if (pathname === "/admin/checkclock") return "checkclock";
   if (pathname === "/admin/checkclock/add") return "checkclock-add-admin";
   if (pathname === "/admin/work-schedule") return "work-schedule";
+  if (pathname === "/admin/faq-help") return "faq-help";
+  if (pathname === "/admin/settings") return "settings";
 
   // default fallback
   return "dashboard";
@@ -197,6 +204,17 @@ export default function AdminDashboard() {
 
           {/* ================= WORK SCHEDULE ================= */}
           {currentPage === "work-schedule" && <WorkScheduleAdmin />}
+
+          {/* ================= FAQ & HELP ================= */}
+          {currentPage === "faq-help" && <FaqHelpAdmin />}
+
+          {/* ================= SETTINGS ================= */}
+          {currentPage === "settings" && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <h2 className="text-xl font-bold text-[#1D395E] mb-4">Settings</h2>
+              <p className="text-gray-600">Halaman pengaturan dalam pengembangan.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

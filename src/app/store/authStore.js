@@ -39,9 +39,15 @@ export const useAuth = create((set, get) => ({
     }
   },
 
-  logout() {
+  logout(clearRememberMe = false) {
     authService.signOut().catch(() => {});
     set({ token: null, user: null });
+    
+    // Clear remember me credentials if explicitly requested
+    if (clearRememberMe) {
+      localStorage.removeItem("hris_remember_signin");
+      localStorage.removeItem("hris_remember_signin_id");
+    }
   },
 
   async fetchMe() {

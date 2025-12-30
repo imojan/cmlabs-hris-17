@@ -66,6 +66,76 @@ p {
    ANIMATIONS - Web3 Style
    =============================== */
 
+/* ============ PAGE TRANSITIONS - Figma Style ============ */
+/* Auth page fade in animation */
+.auth-page-enter {
+  animation: authPageFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes authPageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Illustration slide in from left */
+.auth-illustration-enter {
+  animation: authIllustrationSlide 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes authIllustrationSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Form content slide in from right */
+.auth-content-enter {
+  animation: authContentSlide 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+  opacity: 0;
+}
+
+@keyframes authContentSlide {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Illustration bounce animation - gentle floating */
+.illustration-bounce {
+  animation: illustrationFloat 4s ease-in-out infinite;
+}
+
+@keyframes illustrationFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  25% {
+    transform: translateY(-8px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  75% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ============ END PAGE TRANSITIONS ============ */
+
 /* Fade In Up Animation */
 @keyframes fadeInUp {
   from {
@@ -449,9 +519,19 @@ p {
   width: 100%;
 }
 
-/* Icon bounce on hover */
+/* Icon bounce on hover - smooth transition without glitch */
+.icon-bounce {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
 .icon-bounce:hover {
-  animation: bounce 0.5s ease;
+  transform: translateY(-3px) scale(1.08);
+}
+
+.icon-bounce:active {
+  transform: translateY(0) scale(0.95);
+  transition-duration: 0.1s;
 }
 
 /* Smooth image zoom */

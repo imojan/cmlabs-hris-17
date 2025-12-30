@@ -18,20 +18,20 @@ export default function SuccessChangePassword() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex">
+    <div className="bg-white min-h-screen flex auth-page-enter">
       {/* LEFT SIDE - Illustration */}
-      <div className={`hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
+      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 auth-illustration-enter">
         <div className="w-full max-w-[600px]">
           <img
             src={successIllustration}
             alt="Password Reset Success"
-            className="w-full h-auto object-contain"
+            className="w-full h-auto object-contain illustration-bounce"
           />
         </div>
       </div>
 
       {/* RIGHT SIDE - Content */}
-      <div className={`w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 transition-all duration-700 delay-150 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter">
         <div className="w-full max-w-[600px]">
           {/* Title Section */}
           <div className="mb-8">
