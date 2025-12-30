@@ -2,82 +2,11 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
-import AuthLayout from "@/app/layouts/AuthLayout.jsx";
 import { authService } from "@/app/services/auth.api";
+import { Notification } from "@/components/ui/Notification";
 import logo from "@/assets/branding/logo-hris-1.png";
-import illustration from "@/assets/images/auth/signupcontoh.png";
+import signUpIllustration from "@/assets/images/auth/sign-up.png";
 import googleLogo from "@/assets/branding/google.webp";
-
-/* ---------- small ui helpers ---------- */
-function Label({ htmlFor, children }) {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className="mb-1 text-xs md:text-sm font-medium text-neutral-700"
-    >
-      {children}
-    </label>
-  );
-}
-
-function TextInput({
-  id,
-  type = "text",
-  placeholder,
-  value,
-  onChange,
-  onBlur,
-  error,
-  rightIcon,        // <Eye/> | <EyeOff/>
-  onRightIconClick, // handler toggle
-}) {
-  const base =
-    "w-full rounded-2xl bg-white px-4 py-3 text-sm md:text-base outline-none " +
-    "transition-all duration-150 placeholder:text-neutral-400";
-  const ok =
-    "border-2 border-neutral-900/70 hover:border-blue-400 " +
-    "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
-  const err =
-    "border-2 border-red-500 hover:border-red-500 " +
-    "focus:border-red-600 focus:ring-2 focus:ring-red-500/20";
-  const withIcon = rightIcon ? " pr-12" : "";
-
-  return (
-    <div className="relative">
-      <input
-        id={id}
-        name={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        aria-invalid={!!error}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className={base + withIcon + " " + (error ? err : ok)}
-      />
-
-      {rightIcon && (
-        <button
-          type="button"
-          onClick={onRightIconClick}
-          className={`absolute inset-y-0 right-2 flex items-center justify-center
-                      p-2 rounded-md transition-colors
-                      ${error ? "text-red-400 hover:text-red-600" : "text-neutral-400 hover:text-blue-800"}`}
-          aria-label="toggle password visibility"
-        >
-          {rightIcon}
-        </button>
-      )}
-
-      {error && (
-        <p id={`${id}-error`} className="mt-1 text-xs text-red-600">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
 
 /* ---------- page component ---------- */
 export default function SignUp() {
@@ -90,17 +19,36 @@ export default function SignUp() {
     email: "",
     password: "",
     confirmPassword: "",
+    companyName: "",
   });
   const [touched, setTouched] = useState({});
   const [agree, setAgree] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
+  const [notification, setNotification] = useState(null);
 
   const onChange = (e) =>
     setValues((s) => ({ ...s, [e.target.name]: e.target.value }));
-  const onBlur = (e) => setTouched((t) => ({ ...t, [e.target.name]: true }));
+
+  const onBlur = (e) => {
+    setTouched((t) => ({ ...t, [e.target.name]: true }));
+    const { name, value } = e.target;
+    if (!value.trim()) {
+      const fieldNames = {
+        firstName: "First Name",
+        lastName: "Last Name",
+        email: "Email",
+        password: "Password",
+        confirmPassword: "Confirm Password",
+        companyName: "Company Name",
+      };
+      setNotification({
+        type: "warning",
+        message: `Please fill in ${fieldNames[name] || name} field.`,
+      });
+    }
+  };
 
   // validation rules
   const errors = useMemo(() => {
@@ -131,244 +79,304 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // mark all as touched to show errors if any
     setTouched({
       firstName: true,
       lastName: true,
       email: true,
       password: true,
       confirmPassword: true,
+      companyName: true,
       submit: true,
     });
-    setSubmitError("");
 
-    if (!isValid) return;
+    if (!isValid) {
+      setNotification({
+        type: "warning",
+        message: "Please fill in all required fields correctly.",
+      });
+      return;
+    }
 
     try {
       setLoading(true);
-      // adapt payload sesuai backend temanmu (mis. "name" gabungan)
       const payload = {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         password: values.password,
         confirmPassword: values.confirmPassword,
+        companyName: values.companyName,
       };
       await authService.signUp(payload);
 
-      // setelah sukses, arahkan ke Sign In
-      navigate("/auth/sign-in");
+      setNotification({
+        type: "success",
+        message: "Account created successfully! Redirecting to sign in...",
+      });
+
+      setTimeout(() => {
+        navigate("/auth/sign-in");
+      }, 1500);
     } catch (err) {
-      setSubmitError(err.message || "Failed to sign up.");
+      setNotification({
+        type: "error",
+        message: err.message || "Failed to sign up. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthLayout>
-      {/* MOBILE ILLUSTRATION (atas) */}
-      <div className="md:hidden mb-8">
-        <img
-          src={illustration}
-          alt="Sign up illustration"
-          className="mx-auto h-auto w-72"
-          loading="lazy"
+    <div className="bg-white min-h-screen flex">
+      {/* Notification Toast */}
+      {notification && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={4000}
         />
-      </div>
+      )}
 
-      <div className="grid items-start gap-10 md:grid-cols-2">
-        {/* DESKTOP ILLUSTRATION (kiri) */}
-        <div className="hidden md:block">
+      {/* LEFT SIDE - Illustration */}
+      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-12">
+        <div className="w-full max-w-[827px]">
           <img
-            src={illustration}
-            alt="Sign up illustration"
-            className="mx-auto h-auto w-[88%] max-w-xl"
-            loading="lazy"
+            src={signUpIllustration}
+            alt="Sign Up"
+            className="w-full h-auto object-contain"
           />
         </div>
+      </div>
 
-        {/* FORM */}
-        <div className="mx-auto w-full max-w-xl">
-          {/* Header */}
-          <div className="mb-6 flex items-center justify-between">
-            <img src={logo} alt="HRIS" className="h-10 w-auto" />
-            <a href="#try" className="text-sm font-semibold text-brand-accent underline underline-offset-4">
+      {/* RIGHT SIDE - Form */}
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-8">
+        <div className="w-full max-w-[842px]">
+          {/* Header with Logo and Try for free */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-[148px]">
+              <img src={logo} alt="HRIS" className="w-auto h-auto max-h-16 object-contain" />
+            </div>
+            <a
+              href="#try"
+              style={{ textDecoration: "underline" }}
+              className="text-[#b93c54] text-[20px] font-bold tracking-[0.6px] hover:opacity-80 transition-opacity"
+            >
               Try for free!
             </a>
           </div>
 
-          <h1 className="text-[44px] leading-[1.1] font-semibold text-brand">Sign Up</h1>
-          <p className="mt-2 text-neutral-700 md:text-base text-sm">
-            Create your account and streamline your employee management.
-          </p>
+          {/* Title Section */}
+          <div className="mb-4">
+            <h1 className="text-[48px] font-bold text-[#2a2a2a] tracking-[1.8px] leading-tight mb-1">
+              Sign Up
+            </h1>
+            <p className="text-[18px] text-black tracking-[0.72px] leading-[28px]">
+              Create your account and streamline your employee management.
+            </p>
+          </div>
 
-          <form className="mt-4 space-y-4" noValidate onSubmit={handleSubmit}>
-            {/* Names */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="flex flex-col">
-                <Label htmlFor="firstName">First Name</Label>
-                <TextInput
+          {/* Form */}
+          <form className="space-y-3" noValidate onSubmit={handleSubmit}>
+            {/* First Name & Last Name - Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* First Name */}
+              <div className="space-y-1">
+                <label htmlFor="firstName" className="block text-[16px] text-black tracking-[0.48px]">
+                  First Name
+                </label>
+                <input
                   id="firstName"
-                  placeholder="Enter Your First Name"
+                  name="firstName"
+                  type="text"
                   value={values.firstName}
                   onChange={onChange}
                   onBlur={onBlur}
-                  error={touched.firstName && errors.firstName}
+                  placeholder="Enter Your First Name"
+                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
                 />
               </div>
-              <div className="flex flex-col">
-                <Label htmlFor="lastName">Last Name</Label>
-                <TextInput
+
+              {/* Last Name */}
+              <div className="space-y-1">
+                <label htmlFor="lastName" className="block text-[16px] text-black tracking-[0.48px]">
+                  Last Name
+                </label>
+                <input
                   id="lastName"
-                  placeholder="Enter Your Last Name"
+                  name="lastName"
+                  type="text"
                   value={values.lastName}
                   onChange={onChange}
                   onBlur={onBlur}
-                  error={touched.lastName && errors.lastName}
+                  placeholder="Enter Your Last Name"
+                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
                 />
               </div>
             </div>
 
             {/* Email */}
-            <div className="flex flex-col">
-              <Label htmlFor="email">Email</Label>
-              <TextInput
+            <div className="space-y-1">
+              <label htmlFor="email" className="block text-[16px] text-black tracking-[0.48px]">
+                Email
+              </label>
+              <input
                 id="email"
+                name="email"
                 type="email"
-                placeholder="Enter Your Email"
                 value={values.email}
                 onChange={onChange}
                 onBlur={onBlur}
-                error={touched.email && errors.email}
+                placeholder="Enter Your Email"
+                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
               />
             </div>
 
-            {/* Password */}
-            <div className="flex flex-col">
-              <Label htmlFor="password">Password</Label>
-              <TextInput
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter Your Password"
-                value={values.password}
-                onChange={onChange}
-                onBlur={onBlur}
-                error={touched.password && errors.password}
-                rightIcon={showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                onRightIconClick={() => setShowPassword((v) => !v)}
-              />
+            {/* Password & Confirm Password - Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Password */}
+              <div className="space-y-1">
+                <label htmlFor="password" className="block text-[16px] text-black tracking-[0.48px]">
+                  Password
+                </label>
+                <div className="relative h-[60px]">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={values.password}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    placeholder="Enter Your Password"
+                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-0 bottom-0 flex items-center text-[#C4C4C4] hover:text-[#1d395e] transition-colors"
+                    aria-label="toggle password visibility"
+                  >
+                    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div className="space-y-1">
+                <label htmlFor="confirmPassword" className="block text-[16px] text-black tracking-[0.48px]">
+                  Confirm Password
+                </label>
+                <div className="relative h-[60px]">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirm ? "text" : "password"}
+                    value={values.confirmPassword}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    placeholder="Confirm Your Password"
+                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-4 top-0 bottom-0 flex items-center text-[#C4C4C4] hover:text-[#1d395e] transition-colors"
+                    aria-label="toggle confirm password visibility"
+                  >
+                    {showConfirm ? <EyeOff size={22} /> : <Eye size={22} />}
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Confirm Password */}
-            <div className="flex flex-col">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <TextInput
-                id="confirmPassword"
-                type={showConfirm ? "text" : "password"}
-                placeholder="Confirm Your Password"
-                value={values.confirmPassword}
-                onChange={onChange}
-                onBlur={onBlur}
-                error={touched.confirmPassword && errors.confirmPassword}
-                rightIcon={showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
-                onRightIconClick={() => setShowConfirm((v) => !v)}
-              />
-            </div>
-
-            {/* Terms */}
-            <label className="mt-1 flex items-center gap-3 text-sm text-neutral-700">
+            {/* Company Name */}
+            <div className="space-y-1">
+              <label htmlFor="companyName" className="block text-[16px] text-black tracking-[0.48px]">
+                Company Name
+              </label>
               <input
-                type="checkbox"
-                checked={agree}
-                onChange={(e) => setAgree(e.target.checked)}
-                className="
-                  h-5 w-5 cursor-pointer appearance-none rounded-full border-2 border-blue-950 bg-white
-                  transition-all duration-200 hover:border-blue-800
-                  checked:border-blue-900 checked:bg-blue-950
-                  relative
-                  before:content-[''] before:absolute before:inset-0 before:m-auto
-                  before:rounded-full before:scale-0 before:bg-white before:transition-transform before:duration-200
-                  checked:before:scale-[0.5]
-                "
-                aria-invalid={!!(!agree && touched.submit)}
+                id="companyName"
+                name="companyName"
+                type="text"
+                value={values.companyName}
+                onChange={onChange}
+                onBlur={onBlur}
+                placeholder="Enter Your Company"
+                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
               />
-              <span className="select-none">
-                I agree with the terms of use of
-                <span className="font-semibold text-blue-950 ml-1">HRIS</span>
-              </span>
-            </label>
-            {!agree && touched.submit && (
-              <p className="text-xs text-red-600">Please agree to the terms to continue.</p>
-            )}
-
-            {/* Primary CTA */}
-            <button
-              type="submit"
-              onClick={() => setTouched((t) => ({ ...t, submit: true }))}
-              disabled={!isValid || loading}
-              className="
-                group mt-2 w-full rounded-full
-                border-2 border-transparent
-                bg-blue-950 px-6 py-3.5
-                text-[13px] md:text-sm font-semibold tracking-wide text-white
-                transition-all duration-200 ease-out
-                enabled:hover:bg-white enabled:hover:text-blue-950 enabled:hover:border-blue-950
-                enabled:active:bg-white enabled:active:text-blue-950
-                enabled:focus:outline-none enabled:focus:ring-2 enabled:focus:ring-blue-950/30
-                enabled:shadow-soft
-                disabled:opacity-50 disabled:cursor-not-allowed
-              "
-            >
-              {loading ? "Signing up..." : "SIGN UP"}
-            </button>
-
-            {/* Error submit (server) */}
-            {submitError && (
-              <p className="text-xs text-red-600">{submitError}</p>
-            )}
-
-            {/* Google CTA (dummy) */}
-            <button
-              type="button"
-              className="
-                group w-full rounded-full
-                border border-neutral-400 bg-white px-6 py-3
-                text-sm md:text-base font-medium text-neutral-900
-                shadow-soft transition-all duration-200 ease-out
-                hover:bg-blue-950 hover:text-white hover:border-blue-950
-                active:bg-blue-950 active:text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-950/30
-              "
-            >
-              <span className="inline-flex items-center justify-center gap-3">
-                <img src={googleLogo} alt="Google" className="h-5 w-5" />
-                Continue With Google
-              </span>
-            </button>
-
-            {/* Divider + Login link */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-neutral-200" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-white px-3 text-neutral-500"></span>
-              </div>
             </div>
 
-            <div className="text-center text-xs md:text-sm text-neutral-600">
-              Already have an account?{" "}
-              <a
-                href="/auth/sign-in"
-                className="font-semibold text-blue-950 hover:underline hover:text-blue-900 transition-colors"
+            {/* Terms Checkbox */}
+            <div className="flex items-center pt-2">
+              <label className="inline-flex items-center gap-3 cursor-pointer">
+                <div className="relative flex-shrink-0 w-6 h-6">
+                  <input
+                    type="checkbox"
+                    checked={agree}
+                    onChange={(e) => setAgree(e.target.checked)}
+                    className="peer w-6 h-6 appearance-none rounded-full border border-[#1D395E] bg-white cursor-pointer transition-all checked:bg-[#1D395E] checked:border-[#1D395E]"
+                  />
+                  <svg
+                    className="absolute inset-0 m-auto w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-[16px] text-black">
+                  I agree with the terms of use of <span className="font-semibold text-[#1d395e]">HRIS</span>
+                </span>
+              </label>
+            </div>
+
+            {/* Sign Up Button */}
+            <div className="pt-3">
+              <button
+                type="submit"
+                disabled={!isValid || loading}
+                className="w-full h-[59.516px] bg-[#1d395e] text-white text-[18px] font-bold uppercase leading-[16.427px] rounded-[17.601px] hover:bg-[#2a4a6e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in here
-              </a>
+                {loading ? "Signing up..." : "SIGN UP"}
+              </button>
+            </div>
+
+            {/* Continue with Google */}
+            <div className="pt-2">
+              <button
+                type="button"
+                style={{ border: "1px solid rgba(0,0,0,0.5)" }}
+                className="w-full h-[59.516px] bg-white rounded-[17.601px] flex items-center justify-center gap-3 text-[18px] font-bold text-black hover:bg-[#1d395e] hover:text-white hover:border-transparent active:bg-[#152a47] transition-all duration-200"
+              >
+                <img src={googleLogo} alt="Google" className="w-[37.44px] h-[37.44px]" />
+                <span>Continue With Google</span>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="py-2">
+              <div className="border-t border-black"></div>
+            </div>
+
+            {/* Sign In Link */}
+            <div className="text-center">
+              <p className="text-[16px] font-bold leading-[16.427px]">
+                <span className="text-[rgba(0,0,0,0.5)]">Already have an account? </span>
+                <a
+                  href="/auth/sign-in"
+                  style={{ textDecoration: "underline" }}
+                  className="text-[#b93c54] hover:opacity-80 transition-opacity"
+                >
+                  Sign in here
+                </a>
+              </p>
             </div>
           </form>
         </div>
       </div>
-    </AuthLayout>
+    </div>
   );
 }

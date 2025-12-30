@@ -82,54 +82,45 @@ export default function AddCheckclockAdmin() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validasi field wajib
+    // Validasi field wajib dengan pesan lengkap
+    const requiredFields = [];
+    
     if (!formData.employeeName) {
-      setNotification({
-        type: "warning",
-        message: "Mohon pilih karyawan terlebih dahulu!",
-      });
-      return;
+      requiredFields.push("Nama Karyawan");
     }
     
     if (!formData.attendanceType) {
-      setNotification({
-        type: "warning",
-        message: "Mohon pilih tipe absensi terlebih dahulu!",
-      });
-      return;
+      requiredFields.push("Tipe Absensi");
     }
     
     // Validasi khusus untuk Annual Leave
     if (formData.attendanceType === "Annual Leave") {
-      if (!formData.startDate || !formData.endDate) {
-        setNotification({
-          type: "warning",
-          message: "Mohon isi Start Date dan End Date untuk Annual Leave!",
-        });
-        return;
+      if (!formData.startDate) {
+        requiredFields.push("Start Date (untuk Annual Leave)");
+      }
+      if (!formData.endDate) {
+        requiredFields.push("End Date (untuk Annual Leave)");
       }
     }
     
     if (!formData.location) {
-      setNotification({
-        type: "warning",
-        message: "Mohon pilih lokasi terlebih dahulu!",
-      });
-      return;
+      requiredFields.push("Lokasi");
     }
     
     if (!formData.latitude || !formData.longitude) {
-      setNotification({
-        type: "warning",
-        message: "Mohon pilih lokasi di peta atau gunakan tombol My Location!",
-      });
-      return;
+      requiredFields.push("Koordinat Lokasi (Pilih di peta atau gunakan My Location)");
     }
     
     if (!formData.address) {
+      requiredFields.push("Detail Alamat");
+    }
+    
+    // Jika ada field yang belum diisi, tampilkan notifikasi
+    if (requiredFields.length > 0) {
+      const fieldList = requiredFields.map(field => `• ${field}`).join("\n");
       setNotification({
         type: "warning",
-        message: "Mohon isi detail alamat terlebih dahulu!",
+        message: `Mohon isi semua field wajib:\n${fieldList}`,
       });
       return;
     }
@@ -234,7 +225,7 @@ export default function AddCheckclockAdmin() {
 
           {/* Main Form - Hidden when modal is open */}
           {!showConfirmModal && (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
             <div className="grid gap-6 lg:grid-cols-2">
               {/* ================== LEFT COLUMN ================== */}
               <div className="space-y-5">
@@ -249,7 +240,6 @@ export default function AddCheckclockAdmin() {
                       value={formData.employeeName}
                       onChange={handleInputChange}
                       className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                      required
                     >
                       <option value="">Pilih Karyawan</option>
                       <option value="Juanita">Juanita - CEO</option>
@@ -274,7 +264,6 @@ export default function AddCheckclockAdmin() {
                         handleAttendanceTypeChange(e.target.value)
                       }
                       className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                      required
                     >
                       <option value="">Pilih Tipe Absensi</option>
                       {attendanceOptions.map((opt) => (
@@ -324,7 +313,6 @@ export default function AddCheckclockAdmin() {
                           value={formData.startDate}
                           onChange={handleInputChange}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
                         />
                         <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                       </div>
@@ -340,7 +328,6 @@ export default function AddCheckclockAdmin() {
                           value={formData.endDate}
                           onChange={handleInputChange}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
                         />
                         <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                       </div>
@@ -411,7 +398,6 @@ export default function AddCheckclockAdmin() {
                       value={formData.location}
                       onChange={handleInputChange}
                       className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                      required
                     >
                       <option value="">Pilih Lokasi</option>
                       <option value="Kantor Pusat">Kantor Pusat</option>
@@ -465,7 +451,6 @@ export default function AddCheckclockAdmin() {
                     onChange={handleInputChange}
                     placeholder="Nama Jalan, No. Rumah/Apartemen dan lainnya"
                     className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   />
                 </div>
 

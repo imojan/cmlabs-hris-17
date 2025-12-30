@@ -18,6 +18,7 @@ import { AddEmployeeAdmin } from "../../employees/pages/AddEmployeeAdmin";
 import { ViewEmployeeAdmin } from "../../employees/pages/ViewEmployeeAdmin";
 import { EditEmployeeAdmin } from "../../employees/pages/EditEmployeeAdmin";
 import { AttendanceAdmin } from "../../attendance/pages/AttendanceAdmin";
+import { WorkScheduleAdmin } from "../../work-schedule/pages/WorkScheduleAdmin";
 
 // Lazy load AddCheckclockAdmin to fix HMR blocking issue
 const AddCheckclockAdmin = lazy(() =>
@@ -195,17 +196,7 @@ export default function AdminDashboard() {
           )}
 
           {/* ================= WORK SCHEDULE ================= */}
-          {currentPage === "work-schedule" && (
-            <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-semibold text-[#1D395E] mb-2">
-                Work Schedule
-              </h2>
-              <p className="text-sm text-gray-600">
-                Halaman Work Schedule nanti kamu isi di sini (component khusus
-                bisa kamu buat dan import, lalu ganti placeholder ini).
-              </p>
-            </div>
-          )}
+          {currentPage === "work-schedule" && <WorkScheduleAdmin />}
         </div>
       </div>
     </div>

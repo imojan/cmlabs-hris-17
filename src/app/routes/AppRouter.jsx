@@ -10,6 +10,7 @@ import { useEffect } from "react";
 
 import SignUp from "@/features/auth/pages/SignUp.jsx";
 import SignIn from "@/features/auth/pages/SignIn.jsx";
+import SignInIdEmployee from "@/features/auth/pages/SignInIdEmployee.jsx";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard.jsx";
 import ProtectedRoute from "@/app/routes/ProtectedRoute.jsx";
 import TestHMR from "@/components/debug/TestHMR.jsx";
@@ -26,6 +27,8 @@ function PageTitle() {
       title = "Sign Up | HRIS";
     } else if (path === "/auth/sign-in") {
       title = "Sign In | HRIS";
+    } else if (path === "/auth/sign-in-id") {
+      title = "Sign In with ID Employee | HRIS";
     } else if (path.startsWith("/admin")) {
       // termasuk /admin/dashboard, /admin/checkclock, dll
       title = "Admin Dashboard | HRIS";
@@ -52,6 +55,7 @@ export default function AppRouter() {
         {/* Public routes */}
         <Route path="/auth/sign-in" element={<SignIn />} />
         <Route path="/auth/sign-up" element={<SignUp />} />
+        <Route path="/auth/sign-in-id" element={<SignInIdEmployee />} />
 
         {/* Protected routes - semua admin page dibungkus AdminDashboard */}
         <Route element={<ProtectedRoute />}>
