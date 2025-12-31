@@ -42,10 +42,15 @@ function LocationMarker({ position, onChange }) {
 }
 
 export function MapComponent({ mapPosition, onLocationChange }) {
+  // Convert object to array format for Leaflet if needed
+  const center = Array.isArray(mapPosition) 
+    ? mapPosition 
+    : [mapPosition.lat, mapPosition.lng];
+  
   return (
     <div className="relative h-64 w-full rounded-lg overflow-hidden border border-gray-200 shadow-sm">
       <MapContainer
-        center={mapPosition}
+        center={center}
         zoom={15}
         scrollWheelZoom={false}
         className="w-full h-full"
@@ -55,7 +60,7 @@ export function MapComponent({ mapPosition, onLocationChange }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <LocationMarker
-          position={mapPosition}
+          position={center}
           onChange={onLocationChange}
         />
       </MapContainer>

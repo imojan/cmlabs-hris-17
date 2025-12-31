@@ -11,22 +11,15 @@ import googleLogo from "@/assets/branding/google.webp";
 /* ---------- Page ---------- */
 export default function SignIn() {
   const navigate = useNavigate();
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Animation on mount
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
 
   // store
   const login            = useAuth((s) => s.login);
   const loginWithGoogle  = useAuth((s) => s.loginWithGoogle);
   const loading          = useAuth((s) => s.loading);
-  const errorAuth        = useAuth((s) => s.error);
 
   // form state
   const [values, setValues] = useState({ identifier: "", password: "" });
-  const [touched, setTouched] = useState({});
+  const [_touched, setTouched] = useState({});
   const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [notification, setNotification] = useState(null);
@@ -41,7 +34,7 @@ export default function SignIn() {
           setValues(prev => ({ ...prev, identifier }));
           setRemember(true);
         }
-      } catch (e) {
+      } catch {
         localStorage.removeItem("hris_remember_signin");
       }
     }
@@ -203,7 +196,7 @@ export default function SignIn() {
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Enter Your Email or Username"
-                  className="w-full h-[73px] px-5 py-6 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  className="w-full h-[73px] px-5 py-6 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
                 />
                 {/* warning kecil di bawah input dihilangkan, hanya pakai notifikasi pop-up */}
               </div>
@@ -223,7 +216,7 @@ export default function SignIn() {
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Enter Your Password"
-                  className="w-full h-full px-5 py-6 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-16"
+                  className="w-full h-full px-5 py-6 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-16"
                 />
                 <button
                   type="button"

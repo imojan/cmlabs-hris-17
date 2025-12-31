@@ -162,7 +162,7 @@ export default function SetNewPassword() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   onBlur={onBlurNewPassword}
                   placeholder="Enter Your Password"
-                  className="w-full h-full px-5 py-6 pr-14 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  className="w-full h-full px-5 py-6 pr-14 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
                 />
                 <button
                   type="button"
@@ -194,7 +194,7 @@ export default function SetNewPassword() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onBlur={onBlurConfirmPassword}
                   placeholder="Enter Your Password"
-                  className="w-full h-full px-5 py-6 pr-14 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  className="w-full h-full px-5 py-6 pr-14 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
                 />
                 <button
                   type="button"

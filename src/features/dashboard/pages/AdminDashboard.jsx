@@ -21,6 +21,10 @@ import { AttendanceAdmin } from "../../attendance/pages/AttendanceAdmin";
 import { WorkScheduleAdmin } from "../../work-schedule/pages/WorkScheduleAdmin";
 import FaqHelpAdmin from "../../faq-help/pages/FaqHelpAdmin";
 
+// Settings pages (universal - works for both admin and user)
+import Settings from "../../settings/pages/Settings";
+import ProfileSettings from "../../settings/pages/ProfileSettings";
+
 // Lazy load AddCheckclockAdmin to fix HMR blocking issue
 const AddCheckclockAdmin = lazy(() =>
   import("../../attendance/pages/AddCheckClockAdmin")
@@ -39,7 +43,8 @@ const PAGE_TITLES = {
   "checkclock-add-admin": "Add Checkclock Admin",
   "work-schedule": "Work Schedule",
   "faq-help": "FAQ & Help",
-  settings: "Settings",
+  settings: "Setting",
+  "settings-profile": "Pengaturan Profil",
 };
 
 // mapping nama page → URL path (hanya yang diakses lewat sidebar)
@@ -52,6 +57,7 @@ const PAGE_TO_PATH = {
   "work-schedule": "/admin/work-schedule",
   "faq-help": "/admin/faq-help",
   settings: "/admin/settings",
+  "settings-profile": "/admin/settings/profile",
 };
 
 // helper untuk menentukan nama page dari pathname
@@ -77,6 +83,7 @@ function getCurrentPage(pathname) {
   if (pathname === "/admin/checkclock/add") return "checkclock-add-admin";
   if (pathname === "/admin/work-schedule") return "work-schedule";
   if (pathname === "/admin/faq-help") return "faq-help";
+  if (pathname === "/admin/settings/profile") return "settings-profile";
   if (pathname === "/admin/settings") return "settings";
 
   // default fallback
@@ -209,12 +216,8 @@ export default function AdminDashboard() {
           {currentPage === "faq-help" && <FaqHelpAdmin />}
 
           {/* ================= SETTINGS ================= */}
-          {currentPage === "settings" && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-[#1D395E] mb-4">Settings</h2>
-              <p className="text-gray-600">Halaman pengaturan dalam pengembangan.</p>
-            </div>
-          )}
+          {currentPage === "settings" && <Settings />}
+          {currentPage === "settings-profile" && <ProfileSettings />}
         </div>
       </div>
     </div>

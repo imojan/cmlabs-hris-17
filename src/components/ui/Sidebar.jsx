@@ -2,17 +2,26 @@ import { LayoutDashboard, Users, Clock, Calendar, Settings, Headphones } from 'l
 import logoExpanded from "@/assets/images/logo-hris-2.png";
 import logoCollapsed from "@/assets/images/logo-hris-4.png";
 
-export function Sidebar({ isOpen, onToggle, currentPage, onNavigate }) {
-  const menuItems = [
+export function Sidebar({ isOpen, onToggle, currentPage, onNavigate, role = "admin" }) {
+  // Menu items based on role
+  const adminMenuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard' },
     { icon: Users, label: 'Employee Database', page: 'employee-database' },
     { icon: Clock, label: 'Checkclock', page: 'checkclock' },
     { icon: Calendar, label: 'Work Schedule', page: 'work-schedule' },
   ];
 
+  const userMenuItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard' },
+    { icon: Clock, label: 'Checkclock', page: 'checkclock' },
+  ];
+
+  // Use menu items based on role
+  const menuItems = role === "admin" ? adminMenuItems : userMenuItems;
+
   const bottomMenuItems = [
     { icon: Headphones, label: 'FAQ & Help', page: 'faq-help' },
-    { icon: Settings, label: 'Setting', page: 'settings' },
+    { icon: Settings, label: 'Pengaturan', page: 'settings' },
   ];
 
   const handleMenuClick = (e, page) => {

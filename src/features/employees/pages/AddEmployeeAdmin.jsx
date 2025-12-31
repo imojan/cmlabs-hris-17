@@ -150,7 +150,7 @@ export function AddEmployeeAdmin() {
                   value={formData.firstName}
                   onChange={handleChange}
                   placeholder="Enter the first name"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent bg-white"
                 />
               </div>
               <div>
@@ -163,7 +163,7 @@ export function AddEmployeeAdmin() {
                   value={formData.lastName}
                   onChange={handleChange}
                   placeholder="Enter the last name"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent bg-white"
                 />
               </div>
             </div>
@@ -180,7 +180,7 @@ export function AddEmployeeAdmin() {
                   value={formData.mobileNumber}
                   onChange={handleChange}
                   placeholder="Enter the Mobile Number"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
               <div>
@@ -193,7 +193,7 @@ export function AddEmployeeAdmin() {
                   value={formData.nik}
                   onChange={handleChange}
                   placeholder="Enter the NIK"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
             </div>
@@ -252,7 +252,7 @@ export function AddEmployeeAdmin() {
                   value={formData.birthPlace}
                   onChange={handleChange}
                   placeholder="Masukan Tempat Lahir"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
               <div>
@@ -265,7 +265,7 @@ export function AddEmployeeAdmin() {
                     name="birthDate"
                     value={formData.birthDate}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                   />
                   <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -284,7 +284,7 @@ export function AddEmployeeAdmin() {
                   value={formData.position}
                   onChange={handleChange}
                   placeholder="Enter the jabatan"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
               <div>
@@ -297,7 +297,7 @@ export function AddEmployeeAdmin() {
                   value={formData.branch}
                   onChange={handleChange}
                   placeholder="Enter the cabang"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
             </div>
@@ -338,7 +338,7 @@ export function AddEmployeeAdmin() {
                   value={formData.grade}
                   onChange={handleChange}
                   placeholder="Masukan Grade Anda"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
             </div>
@@ -375,7 +375,7 @@ export function AddEmployeeAdmin() {
                   value={formData.accountNumber}
                   onChange={handleChange}
                   placeholder="Masukan Nomor Rekening"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
             </div>
@@ -392,7 +392,7 @@ export function AddEmployeeAdmin() {
                   value={formData.accountName}
                   onChange={handleChange}
                   placeholder="Masukkan A/N Rekening"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                 />
               </div>
               <div>

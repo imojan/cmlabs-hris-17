@@ -18,6 +18,7 @@ import SuccessChangePassword from "@/features/auth/pages/SuccessChangePassword.j
 import LinkExpired from "@/features/auth/pages/LinkExpired.jsx";
 import LandingPage from "@/features/landing/pages/LandingPage.jsx";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard.jsx";
+import UserDashboard from "@/features/dashboard/pages/UserDashboard.jsx";
 import ProtectedRoute from "@/app/routes/ProtectedRoute.jsx";
 import TestHMR from "@/components/debug/TestHMR.jsx";
 
@@ -48,8 +49,9 @@ function PageTitle() {
     } else if (path === "/auth/link-expired") {
       title = "Link Expired | HRIS";
     } else if (path.startsWith("/admin")) {
-      // termasuk /admin/dashboard, /admin/checkclock, dll
       title = "Admin Dashboard | HRIS";
+    } else if (path.startsWith("/user")) {
+      title = "Employee Dashboard | HRIS";
     }
 
     document.title = title;
@@ -81,18 +83,29 @@ export default function AppRouter() {
         <Route path="/auth/success-change-password" element={<SuccessChangePassword />} />
         <Route path="/auth/link-expired" element={<LinkExpired />} />
 
-        {/* Protected routes - semua admin page dibungkus AdminDashboard */}
+        {/* Protected routes - Admin pages */}
         <Route element={<ProtectedRoute />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/employees-database" element={<AdminDashboard />} />
           <Route path="/admin/employees/add" element={<AdminDashboard />} />
           <Route path="/admin/employees/:id" element={<AdminDashboard />} />
           <Route path="/admin/employees/:id/edit" element={<AdminDashboard />} />
-          <Route path="/admin/checkclock" element={<AdminDashboard />} />      {/* ⬅️ TAMBAHAN */}
+          <Route path="/admin/checkclock" element={<AdminDashboard />} />
           <Route path="/admin/checkclock/add" element={<AdminDashboard />} />
           <Route path="/admin/work-schedule" element={<AdminDashboard />} />
           <Route path="/admin/faq-help" element={<AdminDashboard />} />
           <Route path="/admin/settings" element={<AdminDashboard />} />
+          <Route path="/admin/settings/profile" element={<AdminDashboard />} />
+        </Route>
+
+        {/* Protected routes - User/Employee pages */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/user/dashboard" element={<UserDashboard />} />
+          <Route path="/user/checkclock" element={<UserDashboard />} />
+          <Route path="/user/checkclock/add" element={<UserDashboard />} />
+          <Route path="/user/faq-help" element={<UserDashboard />} />
+          <Route path="/user/settings" element={<UserDashboard />} />
+          <Route path="/user/settings/profile" element={<UserDashboard />} />
         </Route>
 
         {/* Optional fallback */}

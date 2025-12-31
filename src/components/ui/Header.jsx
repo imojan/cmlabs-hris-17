@@ -133,8 +133,10 @@ export function Header({ title = "Dashboard" }) {
                         <button
                           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors group"
                           onClick={() => {
-                            console.log("Account Settings clicked");
                             setIsDropdownOpen(false);
+                            // Navigate to settings profile based on user role
+                            const basePath = user?.isAdmin ? "/admin" : "/user";
+                            navigate(`${basePath}/settings/profile`);
                           }}
                         >
                           <Settings className="w-4 h-4 text-gray-400 group-hover:text-blue-600" />

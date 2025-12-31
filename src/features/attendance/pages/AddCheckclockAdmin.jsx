@@ -239,7 +239,7 @@ export default function AddCheckclockAdmin() {
                       name="employeeName"
                       value={formData.employeeName}
                       onChange={handleInputChange}
-                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                     >
                       <option value="">Pilih Karyawan</option>
                       <option value="Juanita">Juanita - CEO</option>
@@ -263,7 +263,7 @@ export default function AddCheckclockAdmin() {
                       onChange={(e) =>
                         handleAttendanceTypeChange(e.target.value)
                       }
-                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                     >
                       <option value="">Pilih Tipe Absensi</option>
                       {attendanceOptions.map((opt) => (
@@ -312,7 +312,7 @@ export default function AddCheckclockAdmin() {
                           name="startDate"
                           value={formData.startDate}
                           onChange={handleInputChange}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                         <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                       </div>
@@ -327,7 +327,7 @@ export default function AddCheckclockAdmin() {
                           name="endDate"
                           value={formData.endDate}
                           onChange={handleInputChange}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                         <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                       </div>
@@ -397,7 +397,7 @@ export default function AddCheckclockAdmin() {
                       name="location"
                       value={formData.location}
                       onChange={handleInputChange}
-                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                     >
                       <option value="">Pilih Lokasi</option>
                       <option value="Kantor Pusat">Kantor Pusat</option>
@@ -450,7 +450,7 @@ export default function AddCheckclockAdmin() {
                     value={formData.address}
                     onChange={handleInputChange}
                     placeholder="Nama Jalan, No. Rumah/Apartemen dan lainnya"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 

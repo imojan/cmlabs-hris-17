@@ -200,7 +200,7 @@ export default function SignUp() {
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Enter Your First Name"
-                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
                 />
               </div>
 
@@ -217,7 +217,7 @@ export default function SignUp() {
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Enter Your Last Name"
-                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
                 />
               </div>
             </div>
@@ -235,7 +235,7 @@ export default function SignUp() {
                 onChange={onChange}
                 onBlur={onBlur}
                 placeholder="Enter Your Email"
-                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
               />
             </div>
 
@@ -255,7 +255,7 @@ export default function SignUp() {
                     onChange={onChange}
                     onBlur={onBlur}
                     placeholder="Enter Your Password"
-                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
+                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
                   />
                   <button
                     type="button"
@@ -282,7 +282,7 @@ export default function SignUp() {
                     onChange={onChange}
                     onBlur={onBlur}
                     placeholder="Confirm Your Password"
-                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
+                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
                   />
                   <button
                     type="button"
@@ -309,7 +309,7 @@ export default function SignUp() {
                 onChange={onChange}
                 onBlur={onBlur}
                 placeholder="Enter Your Company"
-                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] placeholder:text-[rgba(0,0,0,0.5)] focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
               />
             </div>
 
