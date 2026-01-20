@@ -27,7 +27,7 @@ import ProfileSettings from "../../settings/pages/ProfileSettings";
 
 // Lazy load AddCheckclockAdmin to fix HMR blocking issue
 const AddCheckclockAdmin = lazy(() =>
-  import("../../attendance/pages/AddCheckClockAdmin")
+  import("../../attendance/pages/AddCheckclockAdmin")
 );
 
 // ====================== CONSTANTS ======================
