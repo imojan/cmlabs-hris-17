@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Minus, Plus, Check, User, LogIn } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Check, User, LogIn, AlertCircle } from "lucide-react";
 import { useAuth } from "@/app/store/authStore";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 // Assets
 import logoHris from "@/assets/images/logo-hris-2.png";
@@ -172,6 +173,10 @@ export default function PaymentInformation() {
   const [employeeCount, setEmployeeCount] = useState(initialState.employeeCount || 3);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Modal states
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -244,24 +249,12 @@ export default function PaymentInformation() {
   const handleConfirmPayment = () => {
     // Check if user is authenticated
     if (!isAuthenticated) {
-      const confirmLogin = window.confirm(
-        "Untuk melanjutkan pembayaran, Anda harus masuk ke akun terlebih dahulu.\n\nKlik OK untuk masuk atau membuat akun baru."
-      );
-      if (confirmLogin) {
-        // Save payment state to sessionStorage for after login redirect
-        sessionStorage.setItem("pendingPayment", JSON.stringify({
-          planType,
-          selectedPlan,
-          billingPeriod,
-          employeeCount,
-        }));
-        navigate("/auth/sign-in", { state: { from: "/payment" } });
-      }
+      setShowLoginModal(true);
       return;
     }
 
     if (!selectedPaymentMethod) {
-      alert("Silakan pilih metode pembayaran terlebih dahulu.");
+      setShowPaymentMethodModal(true);
       return;
     }
 
@@ -280,8 +273,46 @@ export default function PaymentInformation() {
     });
   };
 
+  // Handle login confirmation
+  const handleLoginConfirm = () => {
+    // Save payment state to sessionStorage for after login redirect
+    sessionStorage.setItem("pendingPayment", JSON.stringify({
+      planType,
+      selectedPlan,
+      billingPeriod,
+      employeeCount,
+    }));
+    navigate("/auth/sign-in", { state: { from: "/payment" } });
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-[#e8f4fc] to-[#f0f7ff] ${isLoaded ? "page-enter" : "opacity-0"}`}>
+      {/* Login Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onConfirm={handleLoginConfirm}
+        type="login"
+        title="Masuk ke Akun"
+        message="Untuk melanjutkan pembayaran, Anda harus masuk ke akun terlebih dahulu.
+
+Klik 'Sign In' untuk masuk atau membuat akun baru."
+        confirmText="Sign In"
+        cancelText="Batal"
+      />
+
+      {/* Payment Method Required Modal */}
+      <ConfirmModal
+        isOpen={showPaymentMethodModal}
+        onClose={() => setShowPaymentMethodModal(false)}
+        onConfirm={() => setShowPaymentMethodModal(false)}
+        type="warning"
+        title="Pilih Metode Pembayaran"
+        message="Silakan pilih metode pembayaran terlebih dahulu sebelum melanjutkan."
+        confirmText="OK, Mengerti"
+        cancelText="Tutup"
+      />
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10 slide-up-enter" style={{ animationDelay: '0.1s' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

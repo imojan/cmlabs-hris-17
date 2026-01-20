@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
 import { MapComponent } from "../components/MapComponent";
+import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 
 export default function AddCheckclockUser() {
   const navigate = useNavigate();
@@ -235,22 +236,17 @@ export default function AddCheckclockUser() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Tipe Absensi
                     </label>
-                    <div className="relative">
-                      <select
-                        name="attendanceType"
-                        value={formData.attendanceType}
-                        onChange={(e) => handleAttendanceTypeChange(e.target.value)}
-                        className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                      >
-                        <option value="">Pilih Tipe Absensi</option>
-                        {attendanceOptions.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
+                    <CustomDropdown
+                      name="attendanceType"
+                      value={formData.attendanceType}
+                      onChange={(e) => handleAttendanceTypeChange(e.target.value)}
+                      placeholder="Pilih Tipe Absensi"
+                      options={attendanceOptions.map((opt) => ({
+                        value: opt,
+                        label: opt,
+                        icon: opt === "Clock In" ? "🟢" : opt === "Clock Out" ? "🔴" : opt === "Absent" ? "⚫" : opt === "Annual Leave" ? "🏖️" : "🏥",
+                      }))}
+                    />
 
                     {/* Waktu Realtime */}
                     <div className="mt-4 space-y-1.5">
@@ -369,20 +365,17 @@ export default function AddCheckclockUser() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lokasi
                     </label>
-                    <div className="relative">
-                      <select
-                        name="location"
-                        value={formData.location}
-                        onChange={handleInputChange}
-                        className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                      >
-                        <option value="">Select Location</option>
-                        <option value="Kantor Pusat">Kantor Pusat</option>
-                        <option value="Kantor Cabang">Kantor Cabang</option>
-                        <option value="Remote / WFH">Remote / WFH</option>
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
+                    <CustomDropdown
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      placeholder="Select Location"
+                      options={[
+                        { value: "Kantor Pusat", label: "Kantor Pusat", icon: "📍" },
+                        { value: "Kantor Cabang", label: "Kantor Cabang", icon: "📍" },
+                        { value: "Remote / WFH", label: "Remote / WFH", icon: "🏠" },
+                      ]}
+                    />
                   </div>
 
                   {/* Detail Alamat */}

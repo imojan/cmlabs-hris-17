@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
 import { MapComponent } from "../components/MapComponent";
+import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 
 
 export default function AddCheckclockAdmin() {
@@ -41,6 +42,30 @@ export default function AddCheckclockAdmin() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  // Preset koordinat untuk setiap lokasi
+  // Koordinat dari Google Maps links:
+  // Kantor Pusat: https://maps.app.goo.gl/PcHCR5tcULvLqVARA → CMLABS Office
+  // Cabang A: https://maps.app.goo.gl/h9hb4vohTXPxcTa38 → Branch A
+  const locationPresets = {
+    "Kantor Pusat": {
+      lat: -7.933548190754428,
+      lng:  112.65195908118368,
+      address: "Kantor Pusat CMLABS - Jl. Raya Blimbing Indah No.10 Blok A4, Polowijen, Kec. Blimbing, Kota Malang, Jawa Timur",
+    },
+    "Kantor Jakarta": {
+      lat: -6.12119346695709,
+      lng: 106.78825499466268,
+      address: "Kantor CMLABS JAKARTA - Jl. Pluit Kencana Raya No.63, RT.4/RW.6, Pluit, Kecamatan Penjaringan, Jkt Utara, Daerah Khusus Ibukota Jakarta",
+    },
+    "Kantor Solo": {
+      lat: -7.9567890,
+      lng: 112.6145678,
+      address: "Kantor CMLABS SOLO - Jl. Kutai Utara No.1, Sumber, Kec. Banjarsari, Kota Surakarta, Jawa Tengah",
+    },
+    "Remote": null,
+    "Lainnya": null,
+  };
+
   // ====== REALTIME CLOCK ======
   useEffect(() => {
     const updateTime = () => {
@@ -62,6 +87,40 @@ export default function AddCheckclockAdmin() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Handler khusus untuk perubahan lokasi dropdown
+  const handleLocationChange = (e) => {
+    const { value } = e.target;
+    const preset = locationPresets[value];
+
+    if (preset) {
+      // Jika lokasi punya preset koordinat, update map dan form
+      setMapPosition({ lat: preset.lat, lng: preset.lng });
+      setFormData((prev) => ({
+        ...prev,
+        location: value,
+        latitude: preset.lat.toFixed(6),
+        longitude: preset.lng.toFixed(6),
+        address: preset.address || prev.address,
+      }));
+      setNotification({
+        type: "info",
+        message: `Peta diarahkan ke ${value}`,
+      });
+    } else {
+      // Untuk Remote/Lainnya, hanya update location tanpa mengubah peta
+      setFormData((prev) => ({
+        ...prev,
+        location: value,
+      }));
+      if (value === "Remote" || value === "Lainnya") {
+        setNotification({
+          type: "info",
+          message: "Silakan pilih lokasi di peta atau gunakan tombol My Location",
+        });
+      }
+    }
   };
 
   // Saat tipe absensi dipilih → capture jam realtime ke capturedTime
@@ -234,21 +293,18 @@ export default function AddCheckclockAdmin() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Karyawan
                   </label>
-                  <div className="relative">
-                    <select
-                      name="employeeName"
-                      value={formData.employeeName}
-                      onChange={handleInputChange}
-                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                    >
-                      <option value="">Pilih Karyawan</option>
-                      <option value="Juanita">Juanita - CEO</option>
-                      <option value="Shane">Shane - OB</option>
-                      <option value="Miles">Miles - Head of HR</option>
-                      <option value="Flores">Flores - Manager</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
+                  <CustomDropdown
+                    name="employeeName"
+                    value={formData.employeeName}
+                    onChange={handleInputChange}
+                    placeholder="Pilih Karyawan"
+                    options={[
+                      { value: "Juanita", label: "Juanita - CEO" },
+                      { value: "Shane", label: "Shane - OB" },
+                      { value: "Miles", label: "Miles - Head of HR" },
+                      { value: "Flores", label: "Flores - Manager" },
+                    ]}
+                  />
                 </div>
 
                 {/* Tipe Absensi + Waktu Realtime */}
@@ -256,24 +312,17 @@ export default function AddCheckclockAdmin() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Tipe Absensi
                   </label>
-                  <div className="relative">
-                    <select
-                      name="attendanceType"
-                      value={formData.attendanceType}
-                      onChange={(e) =>
-                        handleAttendanceTypeChange(e.target.value)
-                      }
-                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                    >
-                      <option value="">Pilih Tipe Absensi</option>
-                      {attendanceOptions.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
+                  <CustomDropdown
+                    name="attendanceType"
+                    value={formData.attendanceType}
+                    onChange={(e) => handleAttendanceTypeChange(e.target.value)}
+                    placeholder="Pilih Tipe Absensi"
+                    options={attendanceOptions.map((opt) => ({
+                      value: opt,
+                      label: opt,
+                      icon: opt === "Clock In" ? "🟢" : opt === "Clock Out" ? "🔴" : opt === "Absent" ? "⚫" : opt === "Annual Leave" ? "🏖️" : "🏥",
+                    }))}
+                  />
 
                   {/* Waktu Realtime */}
                   <div className="mt-4 space-y-1.5">
@@ -392,22 +441,19 @@ export default function AddCheckclockAdmin() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Lokasi
                   </label>
-                  <div className="relative">
-                    <select
-                      name="location"
-                      value={formData.location}
-                      onChange={handleInputChange}
-                      className="w-full appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                    >
-                      <option value="">Pilih Lokasi</option>
-                      <option value="Kantor Pusat">Kantor Pusat</option>
-                      <option value="Cabang A">Cabang A</option>
-                      <option value="Cabang B">Cabang B</option>
-                      <option value="Remote">Remote</option>
-                      <option value="Lainnya">Lainnya</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
+                  <CustomDropdown
+                    name="location"
+                    value={formData.location}
+                    onChange={handleLocationChange}
+                    placeholder="Pilih Lokasi"
+                    options={[
+                      { value: "Kantor Pusat", label: "Kantor Pusat", icon: "📍" },
+                      { value: "Kantor Jakarta", label: "Kantor Jakarta", icon: "📍" },
+                      { value: "Kantor Solo", label: "Kantor Solo", icon: "📍" },
+                      { value: "Remote", label: "Remote", icon: "🏠" },
+                      { value: "Lainnya", label: "Lainnya", icon: "📌" },
+                    ]}
+                  />
                 </div>
 
                 {/* Map Section dengan Tombol My Location yang Terpisah */}
@@ -450,7 +496,7 @@ export default function AddCheckclockAdmin() {
                     value={formData.address}
                     onChange={handleInputChange}
                     placeholder="Nama Jalan, No. Rumah/Apartemen dan lainnya"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
@@ -466,7 +512,7 @@ export default function AddCheckclockAdmin() {
                       value={formData.latitude}
                       onChange={handleInputChange}
                       placeholder="Lat Lokasi"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                       readOnly
                     />
                   </div>
@@ -480,7 +526,7 @@ export default function AddCheckclockAdmin() {
                       value={formData.longitude}
                       onChange={handleInputChange}
                       placeholder="Long Lokasi"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                       readOnly
                     />
                   </div>
@@ -499,7 +545,7 @@ export default function AddCheckclockAdmin() {
                 onChange={handleInputChange}
                 placeholder="Tambahkan keterangan tambahan jika diperlukan..."
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
             </div>
 

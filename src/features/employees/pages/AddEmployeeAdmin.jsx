@@ -1,8 +1,9 @@
 // src/features/employees/pages/AddEmployeeAdmin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Calendar, ChevronDown, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Upload, Calendar, ChevronDown, AlertCircle, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
+import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 
 export function AddEmployeeAdmin() {
   const navigate = useNavigate();
@@ -11,6 +12,9 @@ export function AddEmployeeAdmin() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
+    employeeId: "",
+    email: "",
+    password: "",
     firstName: "",
     lastName: "",
     mobileNumber: "",
@@ -29,6 +33,8 @@ export function AddEmployeeAdmin() {
     spType: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -42,10 +48,34 @@ export function AddEmployeeAdmin() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Validasi field wajib
+    if (!formData.employeeId || !formData.email || !formData.password) {
+      setNotification({
+        type: "warning",
+        message: "Mohon isi ID Employee, Email, dan Password!",
+      });
+      return;
+    }
     if (!formData.firstName || !formData.lastName || !formData.mobileNumber || !formData.nik) {
       setNotification({
         type: "warning",
         message: "Mohon isi semua field wajib (Nama, NIK, No. HP)!",
+      });
+      return;
+    }
+    // Validasi format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setNotification({
+        type: "warning",
+        message: "Format email tidak valid!",
+      });
+      return;
+    }
+    // Validasi password minimal 6 karakter
+    if (formData.password.length < 6) {
+      setNotification({
+        type: "warning",
+        message: "Password minimal 6 karakter!",
       });
       return;
     }
@@ -138,6 +168,80 @@ export function AddEmployeeAdmin() {
 
           {/* FORM */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Section: Account Login Employee */}
+            <div className="bg-white rounded-xl border border-[#1D395E]/20 p-4 md:p-5">
+              <h3 className="text-sm font-semibold text-[#1D395E] mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#1D395E] text-white text-xs flex items-center justify-center">1</span>
+                Account Login Employee
+              </h3>
+              
+              {/* Employee ID */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Employee ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="employeeId"
+                    value={formData.employeeId}
+                    onChange={handleChange}
+                    placeholder="e.g. EMP001"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent bg-white"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">ID ini akan digunakan untuk login karyawan</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="employee@company.com"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent bg-white"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Untuk recovery password</p>
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Password <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Minimal 6 karakter"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-12 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent bg-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Password default untuk login pertama kali</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section: Personal Information */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
+              <h3 className="text-sm font-semibold text-[#1D395E] mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#1D395E] text-white text-xs flex items-center justify-center">2</span>
+                Personal Information
+              </h3>
+
             {/* Baris 1: First / Last Name */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
@@ -204,39 +308,33 @@ export function AddEmployeeAdmin() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Gender
                 </label>
-                <div className="relative">
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Choose Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  placeholder="Choose Gender"
+                  options={[
+                    { value: "Male", label: "Male", icon: "👨" },
+                    { value: "Female", label: "Female", icon: "👩" },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Pendidikan Terakhir
                 </label>
-                <div className="relative">
-                  <select
-                    name="education"
-                    value={formData.education}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Pilih Pendidikan Terakhir</option>
-                    <option value="SMA/SMK">SMA/SMK</option>
-                    <option value="D3">D3</option>
-                    <option value="S1">S1</option>
-                    <option value="S2">S2</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="education"
+                  value={formData.education}
+                  onChange={handleChange}
+                  placeholder="Pilih Pendidikan Terakhir"
+                  options={[
+                    { value: "SMA/SMK", label: "SMA/SMK", icon: "🎓" },
+                    { value: "D3", label: "D3", icon: "🎓" },
+                    { value: "S1", label: "S1", icon: "🎓" },
+                    { value: "S2", label: "S2", icon: "🎓" },
+                  ]}
+                />
               </div>
             </div>
 
@@ -349,21 +447,18 @@ export function AddEmployeeAdmin() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Bank
                 </label>
-                <div className="relative">
-                  <select
-                    name="bank"
-                    value={formData.bank}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Pilih Bank</option>
-                    <option value="BCA">BCA</option>
-                    <option value="BNI">BNI</option>
-                    <option value="BRI">BRI</option>
-                    <option value="Mandiri">Mandiri</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="bank"
+                  value={formData.bank}
+                  onChange={handleChange}
+                  placeholder="Pilih Bank"
+                  options={[
+                    { value: "BCA", label: "BCA", icon: "🏦" },
+                    { value: "BNI", label: "BNI", icon: "🏦" },
+                    { value: "BRI", label: "BRI", icon: "🏦" },
+                    { value: "Mandiri", label: "Mandiri", icon: "🏦" },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -399,21 +494,19 @@ export function AddEmployeeAdmin() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Tipe SP
                 </label>
-                <div className="relative">
-                  <select
-                    name="spType"
-                    value={formData.spType}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Pilih SP</option>
-                    <option value="SP1">SP1</option>
-                    <option value="SP2">SP2</option>
-                    <option value="SP3">SP3</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="spType"
+                  value={formData.spType}
+                  onChange={handleChange}
+                  placeholder="Pilih SP"
+                  options={[
+                    { value: "SP1", label: "SP1", icon: "⚠️" },
+                    { value: "SP2", label: "SP2", icon: "⚠️" },
+                    { value: "SP3", label: "SP3", icon: "⚠️" },
+                  ]}
+                />
               </div>
+            </div>
             </div>
 
             {/* Action buttons di kanan bawah */}
@@ -467,6 +560,18 @@ export function AddEmployeeAdmin() {
 
             {/* Summary Info */}
             <div className="bg-gray-50 rounded-lg p-4 mb-5 space-y-2.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Employee ID:</span>
+                <span className="font-medium text-gray-900">
+                  {formData.employeeId || "-"}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Email:</span>
+                <span className="font-medium text-gray-900">
+                  {formData.email || "-"}
+                </span>
+              </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Nama:</span>
                 <span className="font-medium text-gray-900">

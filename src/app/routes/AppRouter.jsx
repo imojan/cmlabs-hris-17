@@ -16,6 +16,7 @@ import CheckYourEmail from "@/features/auth/pages/CheckYourEmail.jsx";
 import SetNewPassword from "@/features/auth/pages/SetNewPassword.jsx";
 import SuccessChangePassword from "@/features/auth/pages/SuccessChangePassword.jsx";
 import LinkExpired from "@/features/auth/pages/LinkExpired.jsx";
+import CompanyName from "@/features/auth/pages/CompanyName.jsx";
 import LandingPage from "@/features/landing/pages/LandingPage.jsx";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard.jsx";
 import UserDashboard from "@/features/dashboard/pages/UserDashboard.jsx";
@@ -51,6 +52,8 @@ function PageTitle() {
       title = "Password Reset Success | HRIS";
     } else if (path === "/auth/link-expired") {
       title = "Link Expired | HRIS";
+    } else if (path === "/auth/company-name") {
+      title = "Company Setup | HRIS";
     } else if (path === "/payment") {
       title = "Payment Information | HRIS";
     } else if (path === "/payment/confirmation") {
@@ -96,6 +99,7 @@ export default function AppRouter() {
         <Route path="/auth/set-new-password" element={<SetNewPassword />} />
         <Route path="/auth/success-change-password" element={<SuccessChangePassword />} />
         <Route path="/auth/link-expired" element={<LinkExpired />} />
+        <Route path="/auth/company-name" element={<CompanyName />} />
 
         {/* Protected routes - Admin pages */}
         <Route element={<ProtectedRoute />}>

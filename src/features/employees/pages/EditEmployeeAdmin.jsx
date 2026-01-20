@@ -10,6 +10,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
+import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 
 export function EditEmployeeAdmin() {
   const navigate = useNavigate();
@@ -200,39 +201,33 @@ export function EditEmployeeAdmin() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Gender
                 </label>
-                <div className="relative">
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Choose Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  placeholder="Choose Gender"
+                  options={[
+                    { value: "Male", label: "Male", icon: "👨" },
+                    { value: "Female", label: "Female", icon: "👩" },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Pendidikan Terakhir
                 </label>
-                <div className="relative">
-                  <select
-                    name="education"
-                    value={formData.education}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Pilih Pendidikan Terakhir</option>
-                    <option value="SMA/SMK">SMA/SMK</option>
-                    <option value="D3">D3</option>
-                    <option value="S1">S1</option>
-                    <option value="S2">S2</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="education"
+                  value={formData.education}
+                  onChange={handleChange}
+                  placeholder="Pilih Pendidikan Terakhir"
+                  options={[
+                    { value: "SMA/SMK", label: "SMA/SMK", icon: "🎓" },
+                    { value: "D3", label: "D3", icon: "🎓" },
+                    { value: "S1", label: "S1", icon: "🎓" },
+                    { value: "S2", label: "S2", icon: "🎓" },
+                  ]}
+                />
               </div>
             </div>
 
@@ -321,21 +316,18 @@ export function EditEmployeeAdmin() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Bank
                 </label>
-                <div className="relative">
-                  <select
-                    name="bank"
-                    value={formData.bank}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Pilih Bank</option>
-                    <option value="BCA">BCA</option>
-                    <option value="BNI">BNI</option>
-                    <option value="BRI">BRI</option>
-                    <option value="Mandiri">Mandiri</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="bank"
+                  value={formData.bank}
+                  onChange={handleChange}
+                  placeholder="Pilih Bank"
+                  options={[
+                    { value: "BCA", label: "BCA", icon: "🏦" },
+                    { value: "BNI", label: "BNI", icon: "🏦" },
+                    { value: "BRI", label: "BRI", icon: "🏦" },
+                    { value: "Mandiri", label: "Mandiri", icon: "🏦" },
+                  ]}
+                />
               </div>
               <Field
                 label="Nomor Rekening"
@@ -359,20 +351,17 @@ export function EditEmployeeAdmin() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Tipe SP
                 </label>
-                <div className="relative">
-                  <select
-                    name="spType"
-                    value={formData.spType}
-                    onChange={handleChange}
-                    className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="">Pilih SP</option>
-                    <option value="SP1">SP1</option>
-                    <option value="SP2">SP2</option>
-                    <option value="SP3">SP3</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
+                <CustomDropdown
+                  name="spType"
+                  value={formData.spType}
+                  onChange={handleChange}
+                  placeholder="Pilih SP"
+                  options={[
+                    { value: "SP1", label: "SP1", icon: "⚠️" },
+                    { value: "SP2", label: "SP2", icon: "⚠️" },
+                    { value: "SP3", label: "SP3", icon: "⚠️" },
+                  ]}
+                />
               </div>
             </div>
 

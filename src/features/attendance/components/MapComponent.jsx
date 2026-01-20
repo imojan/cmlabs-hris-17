@@ -48,7 +48,19 @@ export function MapComponent({ mapPosition, onLocationChange }) {
     : [mapPosition.lat, mapPosition.lng];
   
   return (
-    <div className="relative h-64 w-full rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+    <div className="relative h-64 w-full rounded-lg overflow-hidden border border-gray-200 shadow-sm map-container">
+      <style>{`
+        .map-container .leaflet-control-container {
+          z-index: 400 !important;
+        }
+        .map-container .leaflet-control-zoom {
+          z-index: 400 !important;
+        }
+        .map-container .leaflet-top,
+        .map-container .leaflet-bottom {
+          z-index: 400 !important;
+        }
+      `}</style>
       <MapContainer
         center={center}
         zoom={15}

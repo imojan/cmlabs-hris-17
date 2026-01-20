@@ -16,6 +16,7 @@ import {
   X,
   Save,
 } from "lucide-react";
+import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 
 // Dummy data untuk jadwal kerja
 const initialSchedules = [
@@ -733,7 +734,8 @@ export function WorkScheduleAdmin() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Tipe Shift
                   </label>
-                  <select
+                  <CustomDropdown
+                    name="shiftType"
                     value={selectedSchedule.shiftType}
                     onChange={(e) =>
                       setSelectedSchedule({
@@ -741,14 +743,15 @@ export function WorkScheduleAdmin() {
                         shiftType: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
-                  >
-                    <option value="Regular">Regular</option>
-                    <option value="Shift Pagi">Shift Pagi</option>
-                    <option value="Shift Siang">Shift Siang</option>
-                    <option value="Shift Malam">Shift Malam</option>
-                    <option value="Flexible">Flexible</option>
-                  </select>
+                    placeholder="Pilih Shift"
+                    options={[
+                      { value: "Regular", label: "Regular", icon: "⏰" },
+                      { value: "Shift Pagi", label: "Shift Pagi", icon: "🌅" },
+                      { value: "Shift Siang", label: "Shift Siang", icon: "☀️" },
+                      { value: "Shift Malam", label: "Shift Malam", icon: "🌙" },
+                      { value: "Flexible", label: "Flexible", icon: "📅" },
+                    ]}
+                  />
                 </div>
               </div>
 
