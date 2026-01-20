@@ -269,7 +269,7 @@ export function AttendanceAdmin() {
                 <input
                   type="text"
                   placeholder="Search Employee"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1D395E]" />
               </div>
