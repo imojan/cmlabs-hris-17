@@ -329,27 +329,48 @@ function FeaturesSection() {
 
 /* ===================== PRICING SECTION ===================== */
 function PricingSection() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("package");
 
   // Package plans (fitur lengkap)
   const packagePlans = [
-    { name: "BASIC", subtitle: "Untuk bisnis kecil", popular: false, features: ["List Hadir", "GPS based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management", "Automatic tax calculation"] },
+    { name: "BASIC", subtitle: "Untuk bisnis kecil & tim awal", popular: false, features: ["Attendance & List Hadir", "GPS based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management"] },
     { name: "PREMIUM", subtitle: "Flexible & professional", popular: true, features: ["All Standard Features", "Clock in/out attendance settings", "Payroll integration", "Employee document management", "Sick leave & time off setting", "Shift management", "Overtime management (custom)"] },
-    { name: "STANDART", subtitle: "Untuk tim berkembang", popular: false, features: ["List Hadir", "GPS-based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management", "Automatic tax calculation"] },
+    { name: "STANDARD", subtitle: "Untuk tim berkembang & Operasional stabil", popular: false, features: ["Attendance & List Hadir", "GPS-based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management", "Automatic tax calculation"] },
   ];
 
   // Seat plans (per user pricing)
   const seatPlans = [
-    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
-    { name: "PREMIUM", price: "Rp 17.000", unit: "/user/month", description: "This package for 51 until 100 employee", popular: true },
-    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
-    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
-    { name: "PREMIUM", price: "Rp 17.000", unit: "/user/month", description: "This package for 51 until 100 employee", popular: true },
-    { name: "STANDART", price: "Rp 12.000", unit: "/user/month", description: "This package for 1 until 51 employee", popular: false },
+    { name: "STARTER", price: "Rp 9.000", unit: "/user/month", description: "This package for 1 until 20 employee, suitable for a small team.", popular: false },
+    { name: "STANDARD", price: "Rp 29.000", unit: "/user/month", description: "This package for 21 until 50 employee, suitable for growing team.", popular: false },
+    { name: "PREMIUM", price: "Rp 49.000", unit: "/user/month", description: "This package for 51 until 100 employee, suitable for complex operations business ready.", popular: true },
+    { name: "BUSINESS", price: "Rp 79.000", unit: "/user/month", description: "This package for 101 until 200 employee, suitable for company scale up ", popular: false },
+    { name: "ENTERPRISE", price: "Rp 129.000", unit: "/user/month", description: "This package for 201 until 500 employee, suitable for advanced HR solutions.", popular: false },
+    { name: "ENTERPRISE PLUS",  description: "This package for 500+ employee, suitable for custom solution.", popular: false },
   ];
 
+  // Handle package selection - navigate to payment page with smooth transition
+  const handleSelectPackage = (planName, planType = "package") => {
+    // Add page leave animation
+    const pageContent = document.getElementById('landing-content');
+    if (pageContent) {
+      pageContent.classList.add('page-leave');
+    }
+    
+    // Navigate after animation
+    setTimeout(() => {
+      navigate("/payment", {
+        state: {
+          selectedPlan: planName,
+          planType: planType,
+          employeeCount: 3,
+        },
+      });
+    }, 250);
+  };
+
   return (
-    <section className="py-16 lg:py-24 bg-[#1d395e] overflow-hidden">
+    <section id="pricing" className="py-16 lg:py-24 bg-[#1d395e] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10" data-animate="fade-up">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-white">HRIS Pricing Plans</h2>
@@ -402,7 +423,12 @@ available in the following packages:</p>
                   <li key={idx} className="flex items-start gap-2 text-sm text-gray-600"><Check size={16} className="text-[#25d366] mt-0.5 flex-shrink-0" /><span>{feature}</span></li>
                 ))}
               </ul>
-              <button className={`btn-hover w-full py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${plan.popular ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"}`}>Select Package</button>
+              <button 
+                onClick={() => handleSelectPackage(plan.name, "package")}
+                className={`btn-hover w-full py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${plan.popular ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"}`}
+              >
+                Select Package
+              </button>
             </div>
           ))}
         </div>
@@ -437,11 +463,14 @@ available in the following packages:</p>
                 <p className="text-gray-500 text-sm mb-6">{plan.description}</p>
                 
                 {/* Select Button */}
-                <button className={`btn-hover inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                  plan.popular 
-                    ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" 
-                    : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"
-                }`}>
+                <button 
+                  onClick={() => handleSelectPackage(plan.name, "seat")}
+                  className={`btn-hover inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                    plan.popular 
+                      ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" 
+                      : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"
+                  }`}
+                >
                   Select a Package
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -614,12 +643,14 @@ export default function LandingPage() {
     <>
       <Navbar activeSection={activeSection} />
       <div id="page-transition" className="page-transition min-h-screen bg-white">
-        <HeroSection />
-        <FeaturesSection />
-        <PricingSection />
-        <AboutSection />
-        <CtaSection />
-        <Footer />
+        <div id="landing-content">
+          <HeroSection />
+          <FeaturesSection />
+          <PricingSection />
+          <AboutSection />
+          <CtaSection />
+          <Footer />
+        </div>
       </div>
     </>
   );

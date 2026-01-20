@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Notification } from "@/components/ui/Notification";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 import { useAuth } from "@/app/store/authStore";
@@ -11,6 +11,10 @@ import googleLogo from "@/assets/branding/google.webp";
 /* ---------- Page ---------- */
 export default function SignIn() {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if redirected from payment page
+  const fromPayment = location.state?.from === "/payment";
 
   // store
   const login            = useAuth((s) => s.login);
@@ -78,12 +82,19 @@ export default function SignIn() {
       callback: async (response) => {
         // response.credential = JWT Google
         const { ok } = await loginWithGoogle(response.credential);
-        if (ok) navigate("/admin/dashboard");
+        if (ok) {
+          // Redirect back to payment if came from there
+          if (fromPayment) {
+            navigate("/payment");
+          } else {
+            navigate("/admin/dashboard");
+          }
+        }
       },
     });
     // (opsional) bisa render button default GIS ke elemen tertentu jika mau
     // window.google.accounts.id.renderButton(document.getElementById('google-btn'), { theme: 'outline' });
-  }, [loginWithGoogle, navigate]);
+  }, [loginWithGoogle, navigate, fromPayment]);
 
   // handlers
   const handleSubmit = async (ev) => {
@@ -113,7 +124,13 @@ export default function SignIn() {
       } else {
         localStorage.removeItem("hris_remember_signin");
       }
-      navigate("/admin/dashboard");
+      
+      // Redirect back to payment if came from there
+      if (fromPayment) {
+        navigate("/payment");
+      } else {
+        navigate("/admin/dashboard");
+      }
     } else {
       setNotification({
         type: "error",

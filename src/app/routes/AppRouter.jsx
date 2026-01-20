@@ -21,6 +21,9 @@ import AdminDashboard from "@/features/dashboard/pages/AdminDashboard.jsx";
 import UserDashboard from "@/features/dashboard/pages/UserDashboard.jsx";
 import ProtectedRoute from "@/app/routes/ProtectedRoute.jsx";
 import TestHMR from "@/components/debug/TestHMR.jsx";
+import PaymentInformation from "@/features/payment/pages/PaymentInformation.jsx";
+import PaymentConfirmation from "@/features/payment/pages/PaymentConfirmation.jsx";
+import PaymentSuccess from "@/features/payment/pages/PaymentSuccess.jsx";
 
 // Komponen kecil untuk update <title> tiap ganti halaman
 function PageTitle() {
@@ -48,6 +51,12 @@ function PageTitle() {
       title = "Password Reset Success | HRIS";
     } else if (path === "/auth/link-expired") {
       title = "Link Expired | HRIS";
+    } else if (path === "/payment") {
+      title = "Payment Information | HRIS";
+    } else if (path === "/payment/confirmation") {
+      title = "Payment Confirmation | HRIS";
+    } else if (path === "/payment/success") {
+      title = "Payment Success | HRIS";
     } else if (path.startsWith("/admin")) {
       title = "Admin Dashboard | HRIS";
     } else if (path.startsWith("/user")) {
@@ -72,6 +81,11 @@ export default function AppRouter() {
 
         {/* Debug/Test routes - no auth required */}
         <Route path="/test-hmr" element={<TestHMR />} />
+
+        {/* Payment page - public */}
+        <Route path="/payment" element={<PaymentInformation />} />
+        <Route path="/payment/confirmation" element={<PaymentConfirmation />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
 
         {/* Public routes */}
         <Route path="/auth/sign-in" element={<SignIn />} />

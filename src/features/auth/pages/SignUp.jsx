@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 import { authService } from "@/app/services/auth.api";
@@ -11,7 +11,11 @@ import googleLogo from "@/assets/branding/google.webp";
 /* ---------- page component ---------- */
 export default function SignUp() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Check if redirected from payment page
+  const fromPayment = location.state?.from === "/payment";
 
   // Animation on mount
   useEffect(() => {
@@ -117,11 +121,14 @@ export default function SignUp() {
 
       setNotification({
         type: "success",
-        message: "Account created successfully! Redirecting to sign in...",
+        message: fromPayment 
+          ? "Account created! Redirecting to sign in to continue payment..."
+          : "Account created successfully! Redirecting to sign in...",
       });
 
       setTimeout(() => {
-        navigate("/auth/sign-in");
+        // Pass the fromPayment state to sign-in page
+        navigate("/auth/sign-in", { state: fromPayment ? { from: "/payment" } : {} });
       }, 1500);
     } catch (err) {
       setNotification({
