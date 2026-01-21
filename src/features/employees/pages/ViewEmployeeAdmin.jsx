@@ -1,40 +1,125 @@
 // src/features/employees/pages/ViewEmployeeAdmin.jsx
-import { useLocation, useNavigate } from "react-router-dom";
-import { Calendar, ChevronDown, ArrowLeft } from "lucide-react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Calendar, ChevronDown, ArrowLeft, Loader2 } from "lucide-react";
+import { employeeService } from "@/app/services/employee.api";
+import { Notification } from "@/components/ui/Notification";
 
 export function ViewEmployeeAdmin() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { id } = useParams();
 
-  const employee = state?.employee || null;
+  const [employee, setEmployee] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(null);
 
-  // fallback text kalau belum terhubung ke backend
-  const display = {
-    firstName: employee?.name?.split(" ")[0] || "",
-    lastName: employee?.name?.split(" ").slice(1).join(" ") || "",
-    mobileNumber: employee?.phone || "",
-    nik: "1234567890123456",
-    gender:
-      employee?.gender === "Perempuan"
-        ? "Female"
-        : employee?.gender === "Laki-Laki"
-        ? "Male"
-        : "",
-    birthPlace: "Malang",
-    birthDate: "2000-01-01",
-    education: "S1",
-    branch: employee?.branch || "",
-    position: employee?.position || "",
-    contractType: employee?.status ? "Tetap" : "Kontrak",
-    grade: employee?.grade || "",
-    bank: "BCA",
-    accountNumber: "1234567890",
-    accountName: employee?.name || "",
-    spType: "",
+  // Mapping backend -> frontend
+  const CONTRACT_TYPE_MAP = {
+    "permanent": "Tetap",
+    "contract": "Kontrak",
+    "intern": "Magang",
+    "resign": "Resign",
   };
+
+  const EDUCATION_MAP = {
+    "sma": "SMA/SMK",
+    "smk": "SMA/SMK",
+    "d3": "D3",
+    "s1": "S1",
+    "s2": "S2",
+    "s3": "S3",
+  };
+
+  // Fetch employee data
+  useEffect(() => {
+    async function fetchEmployee() {
+      // If we have employee data from navigation state, use it
+      if (state?.employee) {
+        setEmployee(state.employee);
+        setLoading(false);
+        return;
+      }
+
+      // Otherwise fetch from API
+      try {
+        setLoading(true);
+        const response = await employeeService.getById(id);
+        
+        if (response.success && response.data) {
+          setEmployee(response.data);
+        } else {
+          setNotification({
+            type: "error",
+            message: "Data karyawan tidak ditemukan",
+          });
+          setTimeout(() => navigate("/admin/employees-database"), 2000);
+        }
+      } catch (error) {
+        console.error("Error fetching employee:", error);
+        setNotification({
+          type: "error",
+          message: error.message || "Gagal memuat data karyawan",
+        });
+        setTimeout(() => navigate("/admin/employees-database"), 2000);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchEmployee();
+  }, [id, state, navigate]);
+
+  // Build display data from employee
+  const getDisplayData = () => {
+    if (!employee) return {};
+    
+    // Get avatar URL
+    let avatarUrl = null;
+    if (employee.avatar) {
+      avatarUrl = employee.avatar.startsWith("http")
+        ? employee.avatar
+        : `${import.meta.env.VITE_API_URL}${employee.avatar}`;
+    }
+
+    return {
+      firstName: employee.firstName || "",
+      lastName: employee.lastName || "",
+      fullName: `${employee.firstName || ""} ${employee.lastName || ""}`.trim() || "Unknown Employee",
+      mobileNumber: employee.phone || "",
+      nik: employee.nik || "-",
+      gender: employee.gender || "-",
+      birthPlace: employee.birthPlace || "-",
+      birthDate: employee.birthDate ? employee.birthDate.split("T")[0] : "",
+      education: EDUCATION_MAP[employee.education] || employee.education || "-",
+      branch: employee.branch || "-",
+      position: employee.jobdesk || "-",
+      contractType: CONTRACT_TYPE_MAP[employee.contractType] || employee.contractType || "-",
+      grade: employee.grade || "-",
+      bank: employee.bank || "-",
+      accountNumber: employee.accountNumber || "-",
+      accountName: employee.accountName || "-",
+      spType: employee.spType || "-",
+      email: employee.User?.email || "-",
+      avatarUrl,
+      isActive: employee.contractType !== "resign",
+    };
+  };
+
+  const display = getDisplayData();
 
   return (
     <div className="space-y-6">
+      {/* Notification Toast */}
+      {notification && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={4000}
+        />
+      )}
+
       {/* Header top: back + title */}
       <div className="flex items-center gap-3">
         <button
@@ -50,6 +135,15 @@ export function ViewEmployeeAdmin() {
         </h1>
       </div>
 
+      {/* Loading state */}
+      {loading ? (
+        <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm p-6 lg:p-8">
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="w-10 h-10 text-[#1D395E] animate-spin mb-4" />
+            <p className="text-gray-600">Memuat data karyawan...</p>
+          </div>
+        </section>
+      ) : (
       <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm p-6 lg:p-8">
         <h2 className="text-lg md:text-xl font-semibold text-[#1D395E] mb-5">
           View Employee Information
@@ -59,18 +153,29 @@ export function ViewEmployeeAdmin() {
           {/* Avatar + basic info */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-28 h-28 rounded-lg bg-gray-200 flex items-center justify-center">
-                <span className="text-xl font-semibold text-gray-600">
-                  {employee?.name?.charAt(0) ?? "E"}
-                </span>
+              <div className="w-28 h-28 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
+                {display.avatarUrl ? (
+                  <img 
+                    src={display.avatarUrl} 
+                    alt={display.fullName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xl font-semibold text-gray-600">
+                    {display.firstName?.charAt(0) || "E"}
+                  </span>
+                )}
               </div>
               <div>
                 <p className="text-base font-semibold text-gray-900">
-                  {employee?.name ?? "Unknown Employee"}
+                  {display.fullName}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {employee?.position} • {employee?.branch}
+                  {display.position} • {display.branch}
                 </p>
+                {display.email !== "-" && (
+                  <p className="text-sm text-gray-500 mt-1">{display.email}</p>
+                )}
               </div>
             </div>
 
@@ -79,10 +184,10 @@ export function ViewEmployeeAdmin() {
                 Status:{" "}
                 <span
                   className={`font-semibold ${
-                    employee?.status ? "text-emerald-600" : "text-rose-600"
+                    display.isActive ? "text-emerald-600" : "text-rose-600"
                   }`}
                 >
-                  {employee?.status ? "Active" : "Inactive"}
+                  {display.isActive ? "Active" : "Inactive"}
                 </span>
               </p>
             </div>
@@ -176,6 +281,7 @@ export function ViewEmployeeAdmin() {
           </div>
         </div>
       </section>
+      )}
     </div>
   );
 }

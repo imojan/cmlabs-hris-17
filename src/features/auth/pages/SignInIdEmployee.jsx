@@ -18,7 +18,7 @@ export default function SignInIdEmployee() {
   }, []);
 
   // store
-  const login = useAuth((s) => s.login);
+  const loginEmployee = useAuth((s) => s.loginEmployee);
   const loading = useAuth((s) => s.loading);
 
   // form state
@@ -101,12 +101,12 @@ export default function SignInIdEmployee() {
       return;
     }
 
-    // Call login with ID Employee credentials
-    const { ok, error } = await login({
-      companyUsername: values.companyUsername,
-      idEmployee: values.idEmployee,
+    // Call loginEmployee with Employee ID credentials
+    // Map: companyUsername -> companyUser, idEmployee -> employeeId
+    const { ok, error } = await loginEmployee({
+      companyUser: values.companyUsername,
+      employeeId: values.idEmployee,
       password: values.password,
-      loginType: "idEmployee", // indicate login type for backend
     });
 
     if (ok) {
@@ -120,7 +120,8 @@ export default function SignInIdEmployee() {
       } else {
         localStorage.removeItem("hris_remember_signin_id");
       }
-      navigate("/admin/dashboard");
+      // Redirect ke user dashboard (employee bukan admin)
+      navigate("/user/dashboard");
     } else {
       setNotification({
         type: "error",

@@ -1,6 +1,6 @@
 // src/features/settings/pages/ProfileSettings.jsx
 // Universal Profile Settings page for both Admin and User/Employee
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -14,63 +14,127 @@ import {
   EyeOff,
   Pencil,
   Upload,
-  X
+  X,
+  Lock
 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
+import { authService } from "@/app/services/auth.api";
+import { useAuth } from "@/app/store/authStore";
+import { ENV } from "@/app/config/env";
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
   const location = useLocation();
   const fileInputRef = useRef(null);
+  const { setUser, fetchMe } = useAuth();
   
   // Determine role based on current URL path
   const isAdmin = location.pathname.startsWith("/admin");
   const basePath = isAdmin ? "/admin" : "/user";
 
-  // Simulate existing profile photo (from server)
-  const [existingAvatar, setExistingAvatar] = useState(
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-  );
-
   // States
+  const [existingAvatar, setExistingAvatar] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showDeletePhotoModal, setShowDeletePhotoModal] = useState(false);
   const [showPhotoOverlay, setShowPhotoOverlay] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Initial form data - to track changes (use state so it can be updated after save)
+  // Password change states
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  // Initial form data - to track changes
   const [initialFormData, setInitialFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    mobileNumber: "081234567890",
-    nik: "3201234567890001",
-    gender: "male",
-    education: "S1",
-    birthPlace: "Jakarta",
-    birthDate: "1995-06-15",
-    bank: "BCA",
-    accountNumber: "1234567890",
-    accountName: "John Doe",
+    firstName: "",
+    lastName: "",
+    mobileNumber: "",
+    nik: "",
+    gender: "",
+    education: "",
+    birthPlace: "",
+    birthDate: "",
+    bank: "",
+    accountNumber: "",
+    accountName: "",
   });
 
-  // Form data - simulating existing user data
+  // Form data
   const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    mobileNumber: "081234567890",
-    nik: "3201234567890001",
-    gender: "male",
-    education: "S1",
-    birthPlace: "Jakarta",
-    birthDate: "1995-06-15",
-    bank: "BCA",
-    accountNumber: "1234567890",
-    accountName: "John Doe",
+    firstName: "",
+    lastName: "",
+    mobileNumber: "",
+    nik: "",
+    gender: "",
+    education: "",
+    birthPlace: "",
+    birthDate: "",
+    bank: "",
+    accountNumber: "",
+    accountName: "",
   });
+
+  // Fetch profile on mount
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    setIsFetching(true);
+    try {
+      const res = await authService.getProfile();
+      const data = res?.data || res;
+      
+      // Format birthDate for input date
+      let birthDateFormatted = "";
+      if (data.birthDate) {
+        const d = new Date(data.birthDate);
+        birthDateFormatted = d.toISOString().split("T")[0];
+      }
+
+      const profileData = {
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
+        mobileNumber: data.mobileNumber || data.phone || "",
+        nik: data.nik || "",
+        gender: data.gender || "",
+        education: data.education || "",
+        birthPlace: data.birthPlace || "",
+        birthDate: birthDateFormatted,
+        bank: data.bank || "",
+        accountNumber: data.accountNumber || "",
+        accountName: data.accountName || "",
+      };
+
+      setFormData(profileData);
+      setInitialFormData(profileData);
+
+      // Set avatar
+      if (data.avatar) {
+        setExistingAvatar(`${ENV.API_URL}${data.avatar}`);
+      }
+    } catch (err) {
+      console.error("Failed to fetch profile:", err);
+      setNotification({
+        type: "error",
+        message: "Gagal mengambil data profile",
+      });
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   // Dropdown states
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
@@ -146,18 +210,27 @@ export default function ProfileSettings() {
     }
   };
 
-  const confirmDeletePhoto = () => {
-    setAvatarFile(null);
-    setAvatarPreview(null);
-    setExistingAvatar(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const confirmDeletePhoto = async () => {
+    try {
+      await authService.deleteAvatar();
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setExistingAvatar(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setShowDeletePhotoModal(false);
+      setNotification({
+        type: "success",
+        message: "Foto profil berhasil dihapus!",
+      });
+    } catch (err) {
+      console.error("Failed to delete avatar:", err);
+      setNotification({
+        type: "error",
+        message: err.message || "Gagal menghapus foto profil",
+      });
     }
-    setShowDeletePhotoModal(false);
-    setNotification({
-      type: "success",
-      message: "Foto profil berhasil dihapus!",
-    });
   };
 
   const validateForm = () => {
@@ -183,27 +256,99 @@ export default function ProfileSettings() {
   const handleConfirmSave = async () => {
     setIsLoading(true);
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log("Profile updated:", formData);
-    console.log("Avatar:", avatarFile);
-    
-    if (avatarPreview) {
-      setExistingAvatar(avatarPreview);
-      setAvatarFile(null);
-      setAvatarPreview(null);
+    try {
+      // 1. Update profile data
+      const res = await authService.updateProfile(formData);
+      
+      // 2. Upload avatar jika ada file baru
+      let newAvatarPath = null;
+      if (avatarFile) {
+        const avatarRes = await authService.updateAvatar(avatarFile);
+        if (avatarRes?.data?.avatar) {
+          newAvatarPath = avatarRes.data.avatar;
+          setExistingAvatar(`${ENV.API_URL}${newAvatarPath}`);
+        }
+        setAvatarFile(null);
+        setAvatarPreview(null);
+      }
+      
+      // Update initial form data to match current (so hasChanges returns false)
+      setInitialFormData({ ...formData });
+      
+      // Refresh user data dari server untuk update header
+      await fetchMe();
+
+      setNotification({
+        type: "success",
+        message: "Profil berhasil diperbarui!",
+      });
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      setNotification({
+        type: "error",
+        message: err.message || "Gagal memperbarui profil",
+      });
     }
-    
-    // Update initialFormData to match current formData (so hasChanges returns false)
-    setInitialFormData({ ...formData });
-    
-    setNotification({
-      type: "success",
-      message: "Profil berhasil diperbarui!",
-    });
     
     setShowConfirmModal(false);
     setIsLoading(false);
+  };
+
+  // Handle change password
+  const handleChangePassword = async () => {
+    // Validasi
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setNotification({
+        type: "warning",
+        message: "Semua field password wajib diisi!",
+      });
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setNotification({
+        type: "warning",
+        message: "Password baru minimal 6 karakter!",
+      });
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setNotification({
+        type: "warning",
+        message: "Konfirmasi password tidak cocok!",
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      await authService.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
+
+      setNotification({
+        type: "success",
+        message: "Password berhasil diubah!",
+      });
+      
+      // Reset form dan tutup modal
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setShowChangePasswordModal(false);
+    } catch (err) {
+      console.error("Failed to change password:", err);
+      setNotification({
+        type: "error",
+        message: err.message || "Gagal mengubah password",
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleBack = () => {
@@ -519,25 +664,19 @@ export default function ProfileSettings() {
                       <label className={labelClass}>Password</label>
                       <div className="relative">
                         <input
-                          type={showPassword ? "text" : "password"}
+                          type="password"
                           value="********"
                           readOnly
                           className={`${inputClass} bg-gray-100 cursor-not-allowed pr-12`}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
+                        <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       </div>
                       <button
                         type="button"
-                        onClick={() => window.open("/auth/forgot-password", "_blank")}
+                        onClick={() => setShowChangePasswordModal(true)}
                         className="mt-2 text-sm text-[#1D395E] hover:underline font-medium"
                       >
-                        Change Password
+                        Ubah Password
                       </button>
                     </div>
                   </div>
@@ -812,6 +951,142 @@ export default function ProfileSettings() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => !isChangingPassword && setShowChangePasswordModal(false)}
+          />
+          
+          {/* Modal */}
+          <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#1D395E]/10 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-[#1D395E]" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">
+                Ubah Password
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Masukkan password lama dan password baru Anda
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Current Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Password Lama <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={passwordData.currentPassword}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                    placeholder="Masukkan password lama"
+                    className="w-full h-[48px] px-4 bg-white border border-gray-300 rounded-xl text-[15px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Password Baru <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                    placeholder="Masukkan password baru (min. 6 karakter)"
+                    className="w-full h-[48px] px-4 bg-white border border-gray-300 rounded-xl text-[15px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm New Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Konfirmasi Password Baru <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    placeholder="Ketik ulang password baru"
+                    className="w-full h-[48px] px-4 bg-white border border-gray-300 rounded-xl text-[15px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowChangePasswordModal(false);
+                  setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                }}
+                disabled={isChangingPassword}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleChangePassword}
+                disabled={isChangingPassword}
+                className="flex-1 px-4 py-2.5 bg-[#1D395E] text-white rounded-xl font-medium hover:bg-[#2a4a6e] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isChangingPassword ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    Menyimpan...
+                  </>
+                ) : (
+                  "Ubah Password"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Overlay */}
+      {isFetching && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
+          <div className="flex flex-col items-center gap-3">
+            <span className="w-10 h-10 border-4 border-[#1D395E]/30 border-t-[#1D395E] rounded-full animate-spin"></span>
+            <p className="text-sm text-gray-600">Memuat data profile...</p>
           </div>
         </div>
       )}

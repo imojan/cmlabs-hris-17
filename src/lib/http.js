@@ -11,18 +11,41 @@ export function clearToken() {
   localStorage.removeItem("hris_token");
 }
 
+// ============================================
+// Global Auth Event Handler
+// Komponen lain bisa listen event ini untuk handle 401
+// ============================================
+const AUTH_EVENTS = {
+  UNAUTHORIZED: 'auth:unauthorized',
+  TOKEN_EXPIRED: 'auth:token_expired',
+};
+
+export function onUnauthorized(callback) {
+  window.addEventListener(AUTH_EVENTS.UNAUTHORIZED, callback);
+  return () => window.removeEventListener(AUTH_EVENTS.UNAUTHORIZED, callback);
+}
+
+function emitUnauthorized() {
+  window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED));
+}
+
 /**
  * Wrapper fetch:
  * - auto JSON
  * - auto inject Authorization
  * - auto throw error kalau status bukan 2xx
+ * - emit event jika 401 (token expired/invalid)
  */
-export async function http(path, { method = "GET", body, headers, useCookie } = {}) {
+export async function http(path, { method = "GET", body, headers, useCookie, isFormData = false } = {}) {
   const url = new URL(path, BASE_URL).toString();
   const h = {
-    "Content-Type": "application/json",
     ...(headers || {}),
   };
+
+  // Hanya set Content-Type jika bukan FormData
+  if (!isFormData) {
+    h["Content-Type"] = "application/json";
+  }
 
   // tambahkan Bearer token kalau ada
   const token = getToken();
@@ -31,7 +54,7 @@ export async function http(path, { method = "GET", body, headers, useCookie } = 
   const res = await fetch(url, {
     method,
     headers: h,
-    body: body ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : (body ? JSON.stringify(body) : undefined),
     credentials: useCookie ? "include" : "same-origin",
   });
 
@@ -47,6 +70,12 @@ export async function http(path, { method = "GET", body, headers, useCookie } = 
     const err = new Error(message);
     err.status = res.status;
     err.data = data;
+    
+    // Handle 401 Unauthorized - token expired/invalid
+    if (res.status === 401) {
+      emitUnauthorized();
+    }
+    
     throw err;
   }
 

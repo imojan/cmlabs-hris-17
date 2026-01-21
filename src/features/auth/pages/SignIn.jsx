@@ -63,10 +63,19 @@ export default function SignIn() {
   const errors = useMemo(() => {
     const e = {};
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRe = /^[0-9+\-\s()]{9,}$/;
-    if (!values.identifier.trim()) e.identifier = "Email or phone is required.";
-    else if (!emailRe.test(values.identifier) && !phoneRe.test(values.identifier))
-      e.identifier = "Enter a valid email or phone number.";
+    const usernameRe = /^[a-zA-Z0-9_]{3,}$/; // username: min 3 chars, alphanumeric + underscore
+    
+    if (!values.identifier.trim()) {
+      e.identifier = "Email or Username is required.";
+    } else {
+      // Accept email OR username (not phone anymore since UI says "Email or Username")
+      const isEmail = emailRe.test(values.identifier);
+      const isUsername = usernameRe.test(values.identifier);
+      if (!isEmail && !isUsername) {
+        e.identifier = "Enter a valid email or username.";
+      }
+    }
+    
     if (!values.password) e.password = "Password is required.";
     return e;
   }, [values]);
@@ -81,13 +90,18 @@ export default function SignIn() {
       client_id: cid,
       callback: async (response) => {
         // response.credential = JWT Google
-        const { ok } = await loginWithGoogle(response.credential);
+        const { ok, user } = await loginWithGoogle(response.credential);
         if (ok) {
-          // Redirect back to payment if came from there
+          // Redirect based on priority and role
           if (fromPayment) {
             navigate("/payment");
           } else {
-            navigate("/admin/dashboard");
+            const userRole = user?.role || "admin";
+            if (userRole === "employee" || userRole === "user") {
+              navigate("/user/dashboard");
+            } else {
+              navigate("/admin/dashboard");
+            }
           }
         }
       },
@@ -109,7 +123,7 @@ export default function SignIn() {
       return;
     }
 
-    const { ok, error } = await login({
+    const { ok, error, user } = await login({
       identifier: values.identifier,
       password: values.password,
     });
@@ -125,11 +139,19 @@ export default function SignIn() {
         localStorage.removeItem("hris_remember_signin");
       }
       
-      // Redirect back to payment if came from there
+      // Redirect based on priority and role
       if (fromPayment) {
+        // Jika dari payment page, kembali ke payment
         navigate("/payment");
       } else {
-        navigate("/admin/dashboard");
+        // Auto-redirect berdasarkan role
+        const userRole = user?.role || "admin";
+        if (userRole === "employee" || userRole === "user") {
+          navigate("/user/dashboard");
+        } else {
+          // admin atau role lain → admin dashboard
+          navigate("/admin/dashboard");
+        }
       }
     } else {
       setNotification({

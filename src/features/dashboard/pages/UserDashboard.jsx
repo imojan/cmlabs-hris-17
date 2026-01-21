@@ -15,6 +15,7 @@ import {
 import { Header } from "../../../components/ui/Header";
 import { Sidebar } from "../../../components/ui/Sidebar";
 import { StatCard } from "../../../components/ui/StatCard";
+import dashboardService from "../../../app/services/dashboard.api";
 
 // Attendance pages for user
 import { AttendanceUser } from "../../attendance/pages/AttendanceUser";
@@ -23,6 +24,9 @@ import FaqHelpUser from "../../faq-help/pages/FaqHelpUser";
 // Settings pages (universal - works for both admin and user)
 import Settings from "../../settings/pages/Settings";
 import ProfileSettings from "../../settings/pages/ProfileSettings";
+
+// Notifications page
+import NotificationsPage from "../../notifications/pages/NotificationsPage";
 
 // Lazy load AddCheckclockUser
 const AddCheckclockUser = lazy(() =>
@@ -39,6 +43,7 @@ const PAGE_TITLES = {
   "faq-help": "FAQ & Help",
   settings: "Pengaturan",
   "settings-profile": "Pengaturan Profil",
+  notifications: "Notifications",
 };
 
 // mapping nama page → URL path (hanya yang diakses lewat sidebar)
@@ -59,6 +64,7 @@ function getCurrentPage(pathname) {
   if (pathname === "/user/faq-help") return "faq-help";
   if (pathname === "/user/settings/profile") return "settings-profile";
   if (pathname === "/user/settings") return "settings";
+  if (pathname === "/user/notifications") return "notifications";
 
   // default fallback
   return "dashboard";
@@ -138,6 +144,9 @@ export default function UserDashboard() {
           {/* ================= SETTINGS ================= */}
           {currentPage === "settings" && <Settings />}
           {currentPage === "settings-profile" && <ProfileSettings />}
+
+          {/* ================= NOTIFICATIONS ================= */}
+          {currentPage === "notifications" && <NotificationsPage />}
         </div>
       </div>
     </div>
@@ -153,44 +162,110 @@ function UserDashboardContent() {
   const [showLeaveDropdown, setShowLeaveDropdown] = useState(false);
   const [showWorkHoursDropdown, setShowWorkHoursDropdown] = useState(false);
 
-  // Sample data for attendance donut chart
-  const attendanceData = {
-    ontime: 142,
-    late: 4,
-    absent: 9,
-    total: 155
+  // API data state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dashboardData, setDashboardData] = useState(null);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Get current month in format "2026-01"
+        const now = new Date();
+        const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        
+        const data = await dashboardService.getUserDashboard(month);
+        setDashboardData(data);
+      } catch (err) {
+        console.error('Failed to fetch user dashboard:', err);
+        setError(err.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  // Default data structure if API fails
+  const attendanceData = dashboardData?.attendance ? {
+    ontime: dashboardData.attendance.ON_TIME,
+    late: dashboardData.attendance.LATE,
+    absent: dashboardData.attendance.ABSENT,
+    total: dashboardData.attendance.ON_TIME + dashboardData.attendance.LATE + dashboardData.attendance.ABSENT
+  } : {
+    ontime: 0,
+    late: 0,
+    absent: 0,
+    total: 0
   };
 
-  // Sample data for leave (used in UI)
-  const LEAVE_DATA = {
+  const LEAVE_DATA = dashboardData?.leave ? {
+    totalQuota: dashboardData.leave.quotaDays,
+    taken: dashboardData.leave.takenDays,
+    remaining: dashboardData.leave.remainingDays
+  } : {
     totalQuota: 12,
-    taken: 3,
-    remaining: 9
+    taken: 0,
+    remaining: 12
   };
 
-  // Sample data for work hours bar chart (monthly)
-  const workHoursData = [
-    { month: "Jan", hours: 45 },
-    { month: "Feb", hours: 52 },
-    { month: "Mar", hours: 48 },
-    { month: "Apr", hours: 55 },
-    { month: "May", hours: 58 },
-    { month: "Jun", hours: 72 },
-    { month: "Jul", hours: 42 },
-    { month: "Aug", hours: 50 },
-    { month: "Sep", hours: 35 },
-    { month: "Oct", hours: 38 },
-    { month: "Nov", hours: 48 },
-    { month: "Dec", hours: 55 },
+  const workHoursData = dashboardData?.workHoursChart || [
+    { month: "Jan", hours: 0 },
+    { month: "Feb", hours: 0 },
+    { month: "Mar", hours: 0 },
+    { month: "Apr", hours: 0 },
+    { month: "May", hours: 0 },
+    { month: "Jun", hours: 0 },
+    { month: "Jul", hours: 0 },
+    { month: "Aug", hours: 0 },
+    { month: "Sep", hours: 0 },
+    { month: "Oct", hours: 0 },
+    { month: "Nov", hours: 0 },
+    { month: "Dec", hours: 0 },
   ];
 
-  const maxHours = Math.max(...workHoursData.map(d => d.hours));
+  const stats = dashboardData?.stats || {
+    workHours: 0,
+    workMinutes: 0,
+    onTime: 0,
+    late: 0,
+    absent: 0
+  };
+
+  const displayMonth = dashboardData?.displayMonth || 'Loading...';
+  const totalWorkDisplay = `${stats.workHours}h ${stats.workMinutes}m`;
+
+  const maxHours = Math.max(...workHoursData.map(d => d.hours), 1);
 
   // Calculate donut chart angles
-  const total = attendanceData.ontime + attendanceData.late + attendanceData.absent;
+  const total = attendanceData.ontime + attendanceData.late + attendanceData.absent || 1;
   const ontimePercent = (attendanceData.ontime / total) * 100;
   const latePercent = (attendanceData.late / total) * 100;
   const absentPercent = (attendanceData.absent / total) * 100;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1D395E]"></div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        <p className="font-medium">Error loading dashboard</p>
+        <p className="text-sm mt-1">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -198,31 +273,31 @@ function UserDashboardContent() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         <StatCard
           title="Work Hours"
-          value="145"
+          value={totalWorkDisplay}
           icon={Clock}
           iconColor="bg-[#1D395E]"
-          updateDate="Desember 2025"
+          updateDate={displayMonth}
         />
         <StatCard
           title="On Time"
-          value="145"
+          value={String(stats.onTime)}
           icon={CheckCircle}
           iconColor="bg-[#2D5F3F]"
-          updateDate="Desember 2025"
+          updateDate={displayMonth}
         />
         <StatCard
           title="Late"
-          value="145"
+          value={String(stats.late)}
           icon={AlertCircle}
           iconColor="bg-[#D4AF37]"
-          updateDate="Desember 2025"
+          updateDate={displayMonth}
         />
         <StatCard
           title="Absent"
-          value="145"
+          value={String(stats.absent)}
           icon={XCircle}
           iconColor="bg-[#8B3A3A]"
-          updateDate="Desember 2025"
+          updateDate={displayMonth}
         />
       </div>
 
@@ -412,7 +487,7 @@ function UserDashboardContent() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h3 className="text-lg font-semibold text-[#1D395E]">Your Work Hours</h3>
-            <p className="text-2xl font-bold text-gray-900 mt-1">120h 54m</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{totalWorkDisplay}</p>
           </div>
           <div className="relative">
             <button

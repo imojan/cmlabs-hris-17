@@ -1,18 +1,26 @@
 // src/features/attendance/pages/AttendanceAdmin.jsx
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Search,
-  Filter,
   Plus,
   ChevronLeft,
   ChevronRight,
   CheckCircle,
   XCircle,
   Eye,
+  Upload,
   Download,
   X,
+  Loader2,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { attendanceService } from "@/app/services/attendance.api";
+import { Notification } from "@/components/ui/Notification";
+import { FilterDropdown } from "@/components/ui/FilterDropdown";
+import { ImportModal } from "@/components/ui/ImportModal";
+import { exportToExcel } from "@/lib/exportExcel";
 
 const initialData = [
   {
@@ -168,14 +176,19 @@ function statusClass(status) {
       return "bg-emerald-50 text-emerald-700 border border-emerald-200";
     case "Late":
       return "bg-amber-50 text-amber-700 border border-amber-200";
+    case "ANNUAL LEAVE":
     case "Annual Leave":
       return "bg-sky-50 text-sky-700 border border-sky-200";
+    case "SICK LEAVE":
+    case "Sick Leave":
     case "Sick":
       return "bg-violet-50 text-violet-700 border border-violet-200";
+    case "ABSENT":
     case "Absent":
       return "bg-rose-50 text-rose-700 border border-rose-200";
     case "Rejected":
       return "bg-rose-50 text-rose-700 border border-rose-200";
+    case "Pending":
     case "Waiting Approval":
     default:
       return "bg-gray-50 text-gray-700 border border-gray-200";
@@ -184,23 +197,219 @@ function statusClass(status) {
 
 export function AttendanceAdmin() {
   const navigate = useNavigate();
-  const [attendanceData, setAttendanceData] = useState(initialData);
+  
+  // Data & loading states
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null);
+  
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage, setRecordsPerPage] = useState(5);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
+  
+  // Search & Filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Sort & Filter
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  const [exporting, setExporting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  // Filter columns
+  const filterColumns = [
+    { key: "name", label: "Nama Karyawan" },
+    { key: "role", label: "Jabatan" },
+    { key: "clockIn", label: "Clock In" },
+    { key: "clockOut", label: "Clock Out" },
+    { key: "status", label: "Status" },
+    { key: "approvalStatus", label: "Approval" },
+  ];
 
   // modal approve / reject
   const [showModal, setShowModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [decisionType, setDecisionType] = useState(""); // "approve" | "reject"
+  const [approving, setApproving] = useState(false);
 
   // panel detail
   const [detailEmployee, setDetailEmployee] = useState(null);
 
-  // pagination
-  const totalPages = Math.ceil(attendanceData.length / recordsPerPage);
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch attendance data
+  const fetchAttendance = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await attendanceService.getAll({
+        page: currentPage,
+        limit: recordsPerPage,
+      });
+      
+      // Backend returns array directly
+      const data = Array.isArray(response) ? response : (response?.data || []);
+      
+      // Map backend data to frontend format
+      const mappedData = data.map((item) => ({
+        id: item.id,
+        employeeId: item.employeeId,
+        name: item.employeeName || "Unknown",
+        role: item.jobdesk || "-",
+        avatar: item.avatar,
+        clockIn: item.clockIn || "-",
+        clockOut: item.clockOut || "-",
+        workHours: item.workHours || "-",
+        status: item.status || "-",
+        actualStatus: item.status || "-",
+        approvalStatus: item.approval?.toLowerCase() === "approved" 
+          ? "approved" 
+          : item.approval?.toLowerCase() === "rejected" 
+          ? "rejected" 
+          : "pending",
+        attendanceType: item.attendanceType,
+        createdByRole: item.createdByRole,
+        canClockOut: item.canClockOut,
+        // Detail info
+        date: item.startDate 
+          ? new Date(item.startDate).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+          : new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+        location: item.locationName || "-",
+        address: item.address || "-",
+        lat: item.latitude || "-",
+        long: item.longitude || "-",
+        // Clock In proof
+        proofFile: item.proofName || (item.proofUrl ? "Clock In Proof" : null),
+        proofUrl: item.proofUrl,
+        // Clock Out proof (NEW)
+        clockOutProofFile: item.clockOutProofName || (item.clockOutProofUrl ? "Clock Out Proof" : null),
+        clockOutProofUrl: item.clockOutProofUrl,
+        notes: item.notes,
+        startDate: item.startDate,
+        endDate: item.endDate,
+      }));
+      
+      setAttendanceData(mappedData);
+      setTotalRecords(response?.pagination?.total || mappedData.length);
+      
+    } catch (err) {
+      console.error("Error fetching attendance:", err);
+      setError(err?.message || "Gagal memuat data attendance");
+      setNotification({
+        type: "error",
+        message: err?.message || "Gagal memuat data attendance",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, recordsPerPage]);
+
+  // Fetch on mount and when filters change
+  useEffect(() => {
+    fetchAttendance();
+  }, [fetchAttendance]);
+
+  // Search, Sort & Filter data (client-side)
+  const processedData = useMemo(() => {
+    let result = [...attendanceData];
+    
+    // Apply search filter
+    if (debouncedSearch) {
+      const searchLower = debouncedSearch.toLowerCase();
+      result = result.filter((item) => 
+        item.name.toLowerCase().includes(searchLower) ||
+        item.role.toLowerCase().includes(searchLower) ||
+        item.status.toLowerCase().includes(searchLower) ||
+        (item.employeeId && item.employeeId.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    // Apply sorting
+    if (sortConfig.key && sortConfig.direction) {
+      result.sort((a, b) => {
+        let aVal = a[sortConfig.key] ? String(a[sortConfig.key]).toLowerCase() : "";
+        let bVal = b[sortConfig.key] ? String(b[sortConfig.key]).toLowerCase() : "";
+        
+        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    
+    return result;
+  }, [attendanceData, debouncedSearch, sortConfig]);
+
+  // Pagination calculation
+  const totalPages = Math.ceil(processedData.length / recordsPerPage) || 1;
   const startIndex = (currentPage - 1) * recordsPerPage;
   const endIndex = startIndex + recordsPerPage;
-  const currentData = attendanceData.slice(startIndex, endIndex);
+  const currentData = processedData.slice(startIndex, endIndex);
+
+  // ====== EXPORT HANDLER ======
+  const handleExport = () => {
+    setExporting(true);
+    
+    try {
+      const exportData = processedData.map((item) => ({
+        nama: item.name,
+        jabatan: item.role,
+        tanggal: item.date,
+        clockIn: item.clockIn,
+        clockOut: item.clockOut,
+        workHours: item.workHours,
+        lokasi: item.location,
+        status: item.status,
+        approval: item.approvalStatus === "approved" ? "Approved" : item.approvalStatus === "rejected" ? "Rejected" : "Pending",
+      }));
+
+      exportToExcel({
+        title: "DATA ABSENSI KARYAWAN",
+        companyName: "CMLABS INDONESIA",
+        reportDate: new Date().toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        columns: [
+          { header: "No.", key: "no", width: 5 },
+          { header: "Nama Karyawan", key: "nama", width: 20 },
+          { header: "Jabatan", key: "jabatan", width: 15 },
+          { header: "Tanggal", key: "tanggal", width: 20 },
+          { header: "Clock In", key: "clockIn", width: 10 },
+          { header: "Clock Out", key: "clockOut", width: 10 },
+          { header: "Jam Kerja", key: "workHours", width: 12 },
+          { header: "Lokasi", key: "lokasi", width: 20 },
+          { header: "Status", key: "status", width: 15 },
+          { header: "Approval", key: "approval", width: 12 },
+        ],
+        data: exportData,
+        filename: "data_absensi",
+      });
+
+      setNotification({
+        type: "success",
+        message: `Berhasil mengekspor ${exportData.length} data absensi`,
+      });
+    } catch (err) {
+      console.error("Export error:", err);
+      setNotification({
+        type: "error",
+        message: "Gagal mengekspor data",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const handleApprovalClick = (employee, type) => {
     setSelectedEmployee(employee);
@@ -208,30 +417,35 @@ export function AttendanceAdmin() {
     setShowModal(true);
   };
 
-  const handleConfirmDecision = () => {
+  const handleConfirmDecision = async () => {
     if (!selectedEmployee || !decisionType) return;
 
-    setAttendanceData((prev) =>
-      prev.map((emp) => {
-        if (emp.id !== selectedEmployee.id) return emp;
-
-        const updated = { ...emp };
-
-        if (decisionType === "approve") {
-          updated.approvalStatus = "approved";
-          updated.status = updated.actualStatus;
-        } else if (decisionType === "reject") {
-          updated.approvalStatus = "rejected";
-          updated.status = "Rejected";
-        }
-
-        return updated;
-      })
-    );
-
-    setShowModal(false);
-    setSelectedEmployee(null);
-    setDecisionType("");
+    setApproving(true);
+    
+    try {
+      const action = decisionType === "approve" ? "APPROVED" : "REJECTED";
+      await attendanceService.approve(selectedEmployee.id, action);
+      
+      setNotification({
+        type: "success",
+        message: `Attendance berhasil ${decisionType === "approve" ? "disetujui" : "ditolak"}`,
+      });
+      
+      // Refresh data
+      fetchAttendance();
+      
+    } catch (err) {
+      console.error("Error approving attendance:", err);
+      setNotification({
+        type: "error",
+        message: err?.message || `Gagal ${decisionType === "approve" ? "menyetujui" : "menolak"} attendance`,
+      });
+    } finally {
+      setApproving(false);
+      setShowModal(false);
+      setSelectedEmployee(null);
+      setDecisionType("");
+    }
   };
 
   const handleCancelDecision = () => {
@@ -250,6 +464,16 @@ export function AttendanceAdmin() {
 
   return (
     <div className="space-y-6">
+      {/* Notification Toast */}
+      {notification && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={4000}
+        />
+      )}
+
       {/* ===== WRAPPER TABEL ATTENDANCE ===== */}
       <section className="bg-white rounded-xl border border-gray-200/70 shadow-sm p-6">
         {/* Header tabel + action bar */}
@@ -269,16 +493,38 @@ export function AttendanceAdmin() {
                 <input
                   type="text"
                   placeholder="Search Employee"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1D395E]" />
               </div>
 
-              {/* Buttons: Filter, Tambah Data */}
+              {/* Buttons: Refresh, Filter, Export, Tambah Data */}
               <div className="flex flex-wrap gap-2 justify-end">
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
-                  <Filter className="w-4 h-4" />
-                  <span>Filter</span>
+                <button 
+                  onClick={fetchAttendance}
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+                  <span>Refresh</span>
+                </button>
+
+                {/* Filter Dropdown */}
+                <FilterDropdown
+                  columns={filterColumns}
+                  sortConfig={sortConfig}
+                  onSortChange={setSortConfig}
+                />
+
+                <button 
+                  onClick={handleExport}
+                  disabled={exporting || attendanceData.length === 0}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Export</span>
                 </button>
 
                 <button
@@ -293,6 +539,32 @@ export function AttendanceAdmin() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="w-10 h-10 text-[#1D395E] animate-spin mb-4" />
+            <p className="text-gray-600">Memuat data attendance...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <AlertCircle className="w-10 h-10 text-rose-500 mb-4" />
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={fetchAttendance}
+              className="px-4 py-2 rounded-lg bg-[#1D395E] text-white text-sm hover:bg-[#142848]"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        ) : processedData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <AlertCircle className="w-10 h-10 text-gray-400 mb-4" />
+            <p className="text-gray-600">
+              {debouncedSearch ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data attendance"}
+            </p>
+          </div>
+        ) : (
+        <>
         {/* ===== TABLE ===== */}
         <div className="overflow-x-auto rounded-xl border border-gray-200/70">
           <table className="w-full text-sm">
@@ -324,10 +596,18 @@ export function AttendanceAdmin() {
                   {/* Employee Name with Avatar */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-600 font-medium">
-                          {employee.name.charAt(0)}
-                        </span>
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                        {employee.avatar ? (
+                          <img 
+                            src={employee.avatar.startsWith("http") ? employee.avatar : `${import.meta.env.VITE_API_URL}${employee.avatar}`}
+                            alt={employee.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-600 font-medium">
+                            {employee.name.charAt(0)}
+                          </span>
+                        )}
                       </div>
                       <span className="font-medium text-gray-900">
                         {employee.name}
@@ -437,9 +717,9 @@ export function AttendanceAdmin() {
 
           {/* Center: Info text */}
           <div className="text-gray-500">
-            Showing {startIndex + 1} to{" "}
-            {Math.min(endIndex, attendanceData.length)} of{" "}
-            {attendanceData.length} records
+            Showing {processedData.length > 0 ? startIndex + 1 : 0} to{" "}
+            {Math.min(endIndex, processedData.length)} of{" "}
+            {processedData.length} records
           </div>
 
           {/* Right: Pagination buttons */}
@@ -478,6 +758,8 @@ export function AttendanceAdmin() {
             </button>
           </div>
         </div>
+        </>
+        )}
       </section>
 
       {/* ===== MODAL APPROVAL (CENTER) ===== */}
@@ -533,19 +815,28 @@ export function AttendanceAdmin() {
             <div className="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
               <button
                 onClick={handleCancelDecision}
-                className="px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+                disabled={approving}
+                className="px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDecision}
-                className={`px-4 py-2 rounded-xl border-2 text-sm font-medium text-white transition-all shadow-sm ${
+                disabled={approving}
+                className={`px-4 py-2 rounded-xl border-2 text-sm font-medium text-white transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 ${
                   decisionType === "approve"
                     ? "bg-emerald-600 border-emerald-600 hover:bg-emerald-700 hover:border-emerald-700"
                     : "bg-rose-600 border-rose-600 hover:bg-rose-700 hover:border-rose-700"
                 }`}
               >
-                {decisionType === "approve" ? "Approve" : "Reject"}
+                {approving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  decisionType === "approve" ? "Approve" : "Reject"
+                )}
               </button>
             </div>
           </div>
@@ -581,9 +872,19 @@ export function AttendanceAdmin() {
               {/* ==== PROFILE + STATUS APPROVE (CARD ATAS) ==== */}
               <div className="border border-gray-200 rounded-xl px-4 py-4 flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                  <span className="text-gray-600 font-semibold text-xl">
-                    {detailEmployee.name.charAt(0)}
-                  </span>
+                  {detailEmployee.avatar ? (
+                    <img
+                      src={detailEmployee.avatar.startsWith("http") 
+                        ? detailEmployee.avatar 
+                        : `${import.meta.env.VITE_API_URL}${detailEmployee.avatar}`}
+                      alt={detailEmployee.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-600 font-semibold text-xl">
+                      {detailEmployee.name.charAt(0)}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex-1">
@@ -735,16 +1036,124 @@ export function AttendanceAdmin() {
                   </p>
                 </div>
 
-                <button className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-800 transition">
-                  <span className="truncate text-left">
-                    {detailEmployee.proofFile}
-                  </span>
+                {/* Check if any proof exists */}
+                {(detailEmployee.proofUrl || detailEmployee.clockOutProofUrl) ? (
+                  <div className="space-y-4">
+                    {/* ========== CLOCK IN PROOF ========== */}
+                    {detailEmployee.proofUrl && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-blue-600 flex items-center gap-1">
+                          🟢 Clock In Proof
+                        </p>
+                        
+                        {/* Preview Image if proof is an image */}
+                        {detailEmployee.proofUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+                          <div className="rounded-lg overflow-hidden border border-gray-200">
+                            <img 
+                              src={detailEmployee.proofUrl.startsWith("http") 
+                                ? detailEmployee.proofUrl 
+                                : `${import.meta.env.VITE_API_URL}${detailEmployee.proofUrl}`}
+                              alt="Clock In Proof"
+                              className="w-full h-40 object-cover"
+                            />
+                          </div>
+                        )}
 
-                  <span className="flex items-center gap-2 flex-shrink-0">
-                    <Eye className="w-4 h-4 text-gray-600" />
-                    <Download className="w-4 h-4 text-gray-600" />
-                  </span>
-                </button>
+                        {/* File info with actions */}
+                        <div className="flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50">
+                          <span className="truncate text-xs text-gray-800">
+                            {detailEmployee.proofFile || "Clock In Proof"}
+                          </span>
+
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                              onClick={() => {
+                                const url = detailEmployee.proofUrl.startsWith("http")
+                                  ? detailEmployee.proofUrl
+                                  : `${import.meta.env.VITE_API_URL}${detailEmployee.proofUrl}`;
+                                window.open(url, "_blank");
+                              }}
+                              className="p-1.5 rounded hover:bg-gray-200 transition"
+                              title="View file"
+                            >
+                              <Eye className="w-4 h-4 text-gray-600" />
+                            </button>
+                            
+                            <a
+                              href={detailEmployee.proofUrl.startsWith("http")
+                                ? detailEmployee.proofUrl
+                                : `${import.meta.env.VITE_API_URL}${detailEmployee.proofUrl}`}
+                              download={detailEmployee.proofFile || "clock-in-proof"}
+                              className="p-1.5 rounded hover:bg-gray-200 transition"
+                              title="Download file"
+                            >
+                              <Download className="w-4 h-4 text-gray-600" />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ========== CLOCK OUT PROOF ========== */}
+                    {detailEmployee.clockOutProofUrl && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-red-600 flex items-center gap-1">
+                          🔴 Clock Out Proof
+                        </p>
+                        
+                        {/* Preview Image if proof is an image */}
+                        {detailEmployee.clockOutProofUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+                          <div className="rounded-lg overflow-hidden border border-gray-200">
+                            <img 
+                              src={detailEmployee.clockOutProofUrl.startsWith("http") 
+                                ? detailEmployee.clockOutProofUrl 
+                                : `${import.meta.env.VITE_API_URL}${detailEmployee.clockOutProofUrl}`}
+                              alt="Clock Out Proof"
+                              className="w-full h-40 object-cover"
+                            />
+                          </div>
+                        )}
+
+                        {/* File info with actions */}
+                        <div className="flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50">
+                          <span className="truncate text-xs text-gray-800">
+                            {detailEmployee.clockOutProofFile || "Clock Out Proof"}
+                          </span>
+
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                              onClick={() => {
+                                const url = detailEmployee.clockOutProofUrl.startsWith("http")
+                                  ? detailEmployee.clockOutProofUrl
+                                  : `${import.meta.env.VITE_API_URL}${detailEmployee.clockOutProofUrl}`;
+                                window.open(url, "_blank");
+                              }}
+                              className="p-1.5 rounded hover:bg-gray-200 transition"
+                              title="View file"
+                            >
+                              <Eye className="w-4 h-4 text-gray-600" />
+                            </button>
+                            
+                            <a
+                              href={detailEmployee.clockOutProofUrl.startsWith("http")
+                                ? detailEmployee.clockOutProofUrl
+                                : `${import.meta.env.VITE_API_URL}${detailEmployee.clockOutProofUrl}`}
+                              download={detailEmployee.clockOutProofFile || "clock-out-proof"}
+                              className="p-1.5 rounded hover:bg-gray-200 transition"
+                              title="Download file"
+                            >
+                              <Download className="w-4 h-4 text-gray-600" />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 text-center py-4">
+                    No proof uploaded
+                  </p>
+                )}
               </div>
             </div>
           </aside>

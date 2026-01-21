@@ -1,11 +1,15 @@
 import { Search, Bell, ChevronDown, LogOut, Settings } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/store/authStore";
+import { NotificationPanel } from "./NotificationPanel";
+import { notificationService } from "@/app/services/notification.api";
 
 export function Header({ title = "Dashboard" }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const navigate = useNavigate();
   const user = useAuth((s) => s.user);
@@ -30,6 +34,33 @@ export function Header({ title = "Dashboard" }) {
 
   // NEW: ambil avatarUrl dari user
   const avatarUrl = user?.avatarUrl || null;
+
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await notificationService.getUnreadCount();
+        setUnreadCount(response?.unreadCount || 0);
+      } catch (err) {
+        console.error("Failed to fetch unread count:", err);
+      }
+    };
+
+    fetchUnreadCount();
+    
+    // Poll every 30 seconds for new notifications
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Refresh unread count when notification panel closes
+  const handleNotificationClose = () => {
+    setIsNotificationOpen(false);
+    // Refresh count after marking as read
+    notificationService.getUnreadCount()
+      .then((res) => setUnreadCount(res?.unreadCount || 0))
+      .catch(() => {});
+  };
 
   const handleLogoutClick = () => {
     setIsDropdownOpen(false);
@@ -68,11 +99,27 @@ export function Header({ title = "Dashboard" }) {
             {/* Right Section */}
             <div className="flex items-center gap-2 sm:gap-4">
               {/* Notification */}
-              <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-[#1D395E] rounded-full flex items-center justify-center">
-                  <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setIsNotificationOpen((v) => !v)}
+                  className="relative p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                >
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 bg-[#1D395E] rounded-full flex items-center justify-center">
+                    <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  </div>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0.5 right-0.5 min-w-[20px] h-[20px] flex items-center justify-center bg-rose-500 text-white text-xs font-bold rounded-full px-1 border-2 border-white">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+                
+                {/* Notification Panel */}
+                <NotificationPanel 
+                  isOpen={isNotificationOpen} 
+                  onClose={handleNotificationClose} 
+                />
+              </div>
 
               {/* User Profile with Dropdown */}
               <div className="relative">

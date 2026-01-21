@@ -1,7 +1,8 @@
 // src/components/UserProfileMini.jsx
 import { ChevronDown } from "lucide-react";
 import { useAuth } from "@/app/store/authStore";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { ENV } from "@/app/config/env";
 
 function getInitials(str) {
   if (!str) return "?";
@@ -14,15 +15,14 @@ function getInitials(str) {
 
 export default function UserProfileMini() {
   const user = useAuth((s) => s.user);
+  const [imgError, setImgError] = useState(false);
 
-  // 1. username
-  // 2. firstName + lastName
-  // 3. bagian depan email
+  // Display name: firstName + lastName > username > email prefix
   const displayUsername =
-    user?.username ||
     (user?.firstName || user?.lastName
       ? [user.firstName, user.lastName].filter(Boolean).join(" ")
       : null) ||
+    user?.username ||
     (user?.email ? user.email.split("@")[0] : "User");
 
   const initials = useMemo(
@@ -30,14 +30,38 @@ export default function UserProfileMini() {
     [displayUsername]
   );
 
-  const roleLabel = user?.isAdmin ? "Admin" : "User";
+  // Role/Position label - prioritas: position > role
+  const roleLabel = user?.position || 
+    (user?.role === "admin" ? "Admin" : 
+     user?.role === "employee" ? "Employee" : "User");
+
+  // Avatar URL
+  const avatarUrl = user?.avatar 
+    ? (user.avatar.startsWith("http") ? user.avatar : `${ENV.API_URL}${user.avatar}`)
+    : null;
+
+  // Reset error state when avatar changes
+  useMemo(() => {
+    setImgError(false);
+  }, [user?.avatar]);
+
+  const showAvatar = avatarUrl && !imgError;
 
   return (
     <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-gray-200">
-      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0">
-        <span className="text-white font-medium text-sm sm:text-base">
-          {initials}
-        </span>
+      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-400 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {showAvatar ? (
+          <img 
+            src={avatarUrl} 
+            alt={displayUsername}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <span className="text-white font-medium text-sm sm:text-base">
+            {initials}
+          </span>
+        )}
       </div>
       <div className="hidden sm:block">
         <p className="text-sm font-medium text-gray-800">

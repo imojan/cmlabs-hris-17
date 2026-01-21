@@ -12,6 +12,8 @@ import { EmployeeStatusChart } from "../../../components/charts/EmployeeStatusCh
 import { AttendanceChart } from "../../../components/charts/AttendanceChart";
 import { AttendanceTable } from "../../../components/ui/AttendanceTable";
 
+import dashboardService from "../../../app/services/dashboard.api";
+
 // Pages (employees & attendance)
 import { EmployeeDatabase } from "../../employees/pages/EmployeeDatabase";
 import { AddEmployeeAdmin } from "../../employees/pages/AddEmployeeAdmin";
@@ -24,6 +26,10 @@ import FaqHelpAdmin from "../../faq-help/pages/FaqHelpAdmin";
 // Settings pages (universal - works for both admin and user)
 import Settings from "../../settings/pages/Settings";
 import ProfileSettings from "../../settings/pages/ProfileSettings";
+import LocationSettings from "../../settings/pages/LocationSettings";
+
+// Notifications page
+import NotificationsPage from "../../notifications/pages/NotificationsPage";
 
 // Lazy load AddCheckclockAdmin to fix HMR blocking issue
 const AddCheckclockAdmin = lazy(() =>
@@ -45,6 +51,8 @@ const PAGE_TITLES = {
   "faq-help": "FAQ & Help",
   settings: "Setting",
   "settings-profile": "Pengaturan Profil",
+  "settings-locations": "Pengaturan Lokasi Kantor",
+  notifications: "Notifications",
 };
 
 // mapping nama page → URL path (hanya yang diakses lewat sidebar)
@@ -58,6 +66,7 @@ const PAGE_TO_PATH = {
   "faq-help": "/admin/faq-help",
   settings: "/admin/settings",
   "settings-profile": "/admin/settings/profile",
+  "settings-locations": "/admin/settings/locations",
 };
 
 // helper untuk menentukan nama page dari pathname
@@ -84,7 +93,9 @@ function getCurrentPage(pathname) {
   if (pathname === "/admin/work-schedule") return "work-schedule";
   if (pathname === "/admin/faq-help") return "faq-help";
   if (pathname === "/admin/settings/profile") return "settings-profile";
+  if (pathname === "/admin/settings/locations") return "settings-locations";
   if (pathname === "/admin/settings") return "settings";
+  if (pathname === "/admin/notifications") return "notifications";
 
   // default fallback
   return "dashboard";
@@ -97,9 +108,68 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  
+  // Dashboard data states
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [employeeChartData, setEmployeeChartData] = useState(null);
+  const [statusChartData, setStatusChartData] = useState(null);
+  const [attendanceChartData, setAttendanceChartData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // currentPage diambil dari URL
   const currentPage = getCurrentPage(location.pathname);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    async function fetchDashboardData() {
+      if (currentPage !== "dashboard") return;
+      
+      setLoading(true);
+      try {
+        // Fetch all dashboard data in parallel
+        const [statsRes, empChartRes, statusChartRes, attChartRes] = await Promise.all([
+          dashboardService.getAdminStats(),
+          dashboardService.getEmployeeChart(),
+          dashboardService.getStatusChart(),
+          dashboardService.getAttendanceChart(),
+        ]);
+
+        if (statsRes.success) {
+          setDashboardStats(statsRes.data);
+        }
+
+        if (empChartRes.success) {
+          // Transform to monthly data format expected by chart
+          const monthlyData = {};
+          empChartRes.data.forEach((item) => {
+            monthlyData[item.month] = [
+              { name: "New", value: item.new },
+              { name: "Active", value: item.active },
+              { name: "Resign", value: item.resign },
+            ];
+          });
+          setEmployeeChartData(monthlyData);
+        }
+
+        if (statusChartRes.success) {
+          setStatusChartData(statusChartRes.data);
+        }
+
+        if (attChartRes.success) {
+          setAttendanceChartData({
+            data: attChartRes.data,
+            date: attChartRes.date,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, [currentPage]);
 
   // === UPDATE <title> BERDASARKAN currentPage ===
   useEffect(() => {
@@ -156,44 +226,52 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 <StatCard
                   title="Total Employees"
-                  value={145}
+                  value={dashboardStats?.employees?.total ?? 0}
                   icon={Users}
                   iconColor="bg-[#1D395E]"
-                  updateDate="March 16, 2025"
+                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                 />
                 <StatCard
                   title="New Employees"
-                  value={145}
+                  value={dashboardStats?.employees?.new ?? 0}
                   icon={UserPlus}
                   iconColor="bg-[#D4AF37]"
-                  updateDate="March 16, 2025"
+                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                 />
                 <StatCard
                   title="Active Employees"
-                  value={145}
+                  value={dashboardStats?.employees?.active ?? 0}
                   icon={UserCheck}
                   iconColor="bg-[#2D5F3F]"
-                  updateDate="March 16, 2025"
+                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                 />
                 <StatCard
                   title="Past Employees"
-                  value={145}
+                  value={dashboardStats?.employees?.past ?? 0}
                   icon={UserX}
                   iconColor="bg-[#8B3A3A]"
-                  updateDate="March 16, 2025"
+                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                 />
               </div>
 
               {/* EMPLOYEE CHARTS */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
-                <EmployeeChart />
-                <EmployeeStatusChart />
+                <EmployeeChart monthlyData={employeeChartData} loading={loading} />
+                <EmployeeStatusChart statusData={statusChartData} loading={loading} />
               </div>
 
               {/* ATTENDANCE (PIE + TABLE) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
-                <AttendanceChart />
-                <AttendanceTable />
+                <AttendanceChart 
+                  attendanceData={attendanceChartData?.data} 
+                  date={attendanceChartData?.date}
+                  loading={loading} 
+                />
+                <AttendanceTable 
+                  attendanceData={dashboardStats?.todayAttendance}
+                  summary={dashboardStats?.attendance}
+                  loading={loading}
+                />
               </div>
             </>
           )}
@@ -218,6 +296,10 @@ export default function AdminDashboard() {
           {/* ================= SETTINGS ================= */}
           {currentPage === "settings" && <Settings />}
           {currentPage === "settings-profile" && <ProfileSettings />}
+          {currentPage === "settings-locations" && <LocationSettings />}
+
+          {/* ================= NOTIFICATIONS ================= */}
+          {currentPage === "notifications" && <NotificationsPage />}
         </div>
       </div>
     </div>

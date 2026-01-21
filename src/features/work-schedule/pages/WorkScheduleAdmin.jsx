@@ -1,8 +1,7 @@
 // src/features/work-schedule/pages/WorkScheduleAdmin.jsx
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Search,
-  Filter,
   Plus,
   ChevronLeft,
   ChevronRight,
@@ -15,140 +14,25 @@ import {
   Trash2,
   X,
   Save,
+  Upload,
+  RefreshCw,
 } from "lucide-react";
 import { CustomDropdown } from "../../../components/ui/CustomDropdown";
+import { Notification } from "../../../components/ui/Notification";
+import { FilterDropdown } from "@/components/ui/FilterDropdown";
+import { exportToExcel } from "@/lib/exportExcel";
+import scheduleService from "../../../app/services/schedule.api";
 
-// Dummy data untuk jadwal kerja
-const initialSchedules = [
-  {
-    id: 1,
-    employeeName: "Issa",
-    position: "CEO",
-    branch: "Jakarta",
-    shiftType: "Regular",
-    schedules: {
-      monday: { start: "08:00", end: "17:00", isOff: false },
-      tuesday: { start: "08:00", end: "17:00", isOff: false },
-      wednesday: { start: "08:00", end: "17:00", isOff: false },
-      thursday: { start: "08:00", end: "17:00", isOff: false },
-      friday: { start: "08:00", end: "17:00", isOff: false },
-      saturday: { start: null, end: null, isOff: true },
-      sunday: { start: null, end: null, isOff: true },
-    },
-  },
-  {
-    id: 2,
-    employeeName: "Salma",
-    position: "Head Of HR",
-    branch: "Malang",
-    shiftType: "Regular",
-    schedules: {
-      monday: { start: "08:00", end: "17:00", isOff: false },
-      tuesday: { start: "08:00", end: "17:00", isOff: false },
-      wednesday: { start: "08:00", end: "17:00", isOff: false },
-      thursday: { start: "08:00", end: "17:00", isOff: false },
-      friday: { start: "08:00", end: "17:00", isOff: false },
-      saturday: { start: null, end: null, isOff: true },
-      sunday: { start: null, end: null, isOff: true },
-    },
-  },
-  {
-    id: 3,
-    employeeName: "Fauzan",
-    position: "Supervisor",
-    branch: "Solo",
-    shiftType: "Shift Pagi",
-    schedules: {
-      monday: { start: "06:00", end: "14:00", isOff: false },
-      tuesday: { start: "06:00", end: "14:00", isOff: false },
-      wednesday: { start: "06:00", end: "14:00", isOff: false },
-      thursday: { start: "06:00", end: "14:00", isOff: false },
-      friday: { start: "06:00", end: "14:00", isOff: false },
-      saturday: { start: "06:00", end: "12:00", isOff: false },
-      sunday: { start: null, end: null, isOff: true },
-    },
-  },
-  {
-    id: 4,
-    employeeName: "Haykal",
-    position: "HRD",
-    branch: "Jogja",
-    shiftType: "Shift Siang",
-    schedules: {
-      monday: { start: "14:00", end: "22:00", isOff: false },
-      tuesday: { start: "14:00", end: "22:00", isOff: false },
-      wednesday: { start: "14:00", end: "22:00", isOff: false },
-      thursday: { start: "14:00", end: "22:00", isOff: false },
-      friday: { start: "14:00", end: "22:00", isOff: false },
-      saturday: { start: null, end: null, isOff: true },
-      sunday: { start: null, end: null, isOff: true },
-    },
-  },
-  {
-    id: 5,
-    employeeName: "Diva",
-    position: "CPO",
-    branch: "Bekasi",
-    shiftType: "Flexible",
-    schedules: {
-      monday: { start: "09:00", end: "18:00", isOff: false },
-      tuesday: { start: "09:00", end: "18:00", isOff: false },
-      wednesday: { start: "09:00", end: "18:00", isOff: false },
-      thursday: { start: "09:00", end: "18:00", isOff: false },
-      friday: { start: "09:00", end: "15:00", isOff: false },
-      saturday: { start: null, end: null, isOff: true },
-      sunday: { start: null, end: null, isOff: true },
-    },
-  },
-  {
-    id: 6,
-    employeeName: "Bintang",
-    position: "Staff",
-    branch: "Semarang",
-    shiftType: "Shift Malam",
-    schedules: {
-      monday: { start: "22:00", end: "06:00", isOff: false },
-      tuesday: { start: "22:00", end: "06:00", isOff: false },
-      wednesday: { start: "22:00", end: "06:00", isOff: false },
-      thursday: { start: "22:00", end: "06:00", isOff: false },
-      friday: { start: null, end: null, isOff: true },
-      saturday: { start: null, end: null, isOff: true },
-      sunday: { start: "22:00", end: "06:00", isOff: false },
-    },
-  },
-  {
-    id: 7,
-    employeeName: "Khayru",
-    position: "HRD",
-    branch: "Bandung",
-    shiftType: "Regular",
-    schedules: {
-      monday: { start: "08:00", end: "17:00", isOff: false },
-      tuesday: { start: "08:00", end: "17:00", isOff: false },
-      wednesday: { start: "08:00", end: "17:00", isOff: false },
-      thursday: { start: "08:00", end: "17:00", isOff: false },
-      friday: { start: "08:00", end: "17:00", isOff: false },
-      saturday: { start: null, end: null, isOff: true },
-      sunday: { start: null, end: null, isOff: true },
-    },
-  },
-  {
-    id: 8,
-    employeeName: "Riska",
-    position: "OB",
-    branch: "Jakarta",
-    shiftType: "Shift Pagi",
-    schedules: {
-      monday: { start: "05:00", end: "13:00", isOff: false },
-      tuesday: { start: "05:00", end: "13:00", isOff: false },
-      wednesday: { start: "05:00", end: "13:00", isOff: false },
-      thursday: { start: "05:00", end: "13:00", isOff: false },
-      friday: { start: "05:00", end: "13:00", isOff: false },
-      saturday: { start: "05:00", end: "10:00", isOff: false },
-      sunday: { start: null, end: null, isOff: true },
-    },
-  },
-];
+// Default empty schedule structure
+const defaultSchedules = {
+  monday: { start: "08:00", end: "17:00", isOff: false },
+  tuesday: { start: "08:00", end: "17:00", isOff: false },
+  wednesday: { start: "08:00", end: "17:00", isOff: false },
+  thursday: { start: "08:00", end: "17:00", isOff: false },
+  friday: { start: "08:00", end: "17:00", isOff: false },
+  saturday: { start: null, end: null, isOff: true },
+  sunday: { start: null, end: null, isOff: true },
+};
 
 // Shift type dengan warna
 function shiftTypeClass(type) {
@@ -198,10 +82,32 @@ const dayLabelsFull = {
 };
 
 export function WorkScheduleAdmin() {
-  const [schedules, setSchedules] = useState(initialSchedules);
+  // API data state
+  const [schedules, setSchedules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    period: 'Loading...',
+    totalEmployees: 0,
+    regularShift: 0,
+    shiftWorkers: 0
+  });
+
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(5);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Sort & Filter state
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  const [exporting, setExporting] = useState(false);
+
+  // Filter columns
+  const filterColumns = [
+    { key: "employeeName", label: "Nama Karyawan" },
+    { key: "employeeId", label: "Employee ID" },
+    { key: "shiftType", label: "Tipe Shift" },
+  ];
 
   // Modal states
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -210,19 +116,169 @@ export function WorkScheduleAdmin() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
 
-  // Filter
-  const filteredSchedules = schedules.filter(
-    (s) =>
-      s.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.branch.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Add modal state
+  const [newSchedule, setNewSchedule] = useState({
+    employeeId: '',
+    shiftType: 'Regular',
+    schedules: { ...defaultSchedules }
+  });
+  const [employeeOptions, setEmployeeOptions] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredSchedules.length / recordsPerPage);
+  // Notification state
+  const [notification, setNotification] = useState({ show: false, type: '', message: '' });
+
+  // Saving state
+  const [saving, setSaving] = useState(false);
+
+  // Fetch schedules
+  const fetchSchedules = async () => {
+    try {
+      setLoading(true);
+      const response = await scheduleService.getSchedules({
+        search: searchQuery,
+        page: currentPage,
+        limit: recordsPerPage
+      });
+      
+      if (response.success) {
+        setSchedules(response.data || []);
+        setTotalRecords(response.pagination?.total || 0);
+      }
+    } catch (err) {
+      console.error('Failed to fetch schedules:', err);
+      setNotification({
+        show: true,
+        type: 'error',
+        message: 'Gagal memuat data jadwal kerja'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch stats
+  const fetchStats = async () => {
+    try {
+      const response = await scheduleService.getStats();
+      if (response.success) {
+        setStats(response.stats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    fetchSchedules();
+    fetchStats();
+  }, [currentPage, recordsPerPage]);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (currentPage === 1) {
+        fetchSchedules();
+      } else {
+        setCurrentPage(1);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Search, Sort & Filter (client-side for sorted display)
+  const processedSchedules = useMemo(() => {
+    let result = [...schedules];
+    
+    // Apply sorting
+    if (sortConfig.key && sortConfig.direction) {
+      result.sort((a, b) => {
+        let aVal = a[sortConfig.key] ? String(a[sortConfig.key]).toLowerCase() : "";
+        let bVal = b[sortConfig.key] ? String(b[sortConfig.key]).toLowerCase() : "";
+        
+        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    
+    return result;
+  }, [schedules, sortConfig]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(totalRecords / recordsPerPage);
   const startIndex = (currentPage - 1) * recordsPerPage;
-  const endIndex = startIndex + recordsPerPage;
-  const currentSchedules = filteredSchedules.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
+
+  // ====== EXPORT HANDLER ======
+  const handleExport = () => {
+    setExporting(true);
+    
+    try {
+      const exportData = processedSchedules.map((schedule) => {
+        // Format schedule times for each day
+        const formatDayTime = (day) => {
+          const sched = schedule.schedules?.[day];
+          if (!sched || sched.isOff) return "OFF";
+          return `${sched.start || "-"} - ${sched.end || "-"}`;
+        };
+
+        return {
+          nama: schedule.employeeName,
+          employeeId: schedule.employeeId,
+          shiftType: schedule.shiftType,
+          senin: formatDayTime("monday"),
+          selasa: formatDayTime("tuesday"),
+          rabu: formatDayTime("wednesday"),
+          kamis: formatDayTime("thursday"),
+          jumat: formatDayTime("friday"),
+          sabtu: formatDayTime("saturday"),
+          minggu: formatDayTime("sunday"),
+        };
+      });
+
+      exportToExcel({
+        title: "DATA JADWAL KERJA KARYAWAN",
+        companyName: "CMLABS INDONESIA",
+        reportDate: new Date().toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        columns: [
+          { header: "No.", key: "no", width: 5 },
+          { header: "Nama Karyawan", key: "nama", width: 22 },
+          { header: "Employee ID", key: "employeeId", width: 14 },
+          { header: "Tipe Shift", key: "shiftType", width: 12 },
+          { header: "Senin", key: "senin", width: 14 },
+          { header: "Selasa", key: "selasa", width: 14 },
+          { header: "Rabu", key: "rabu", width: 14 },
+          { header: "Kamis", key: "kamis", width: 14 },
+          { header: "Jumat", key: "jumat", width: 14 },
+          { header: "Sabtu", key: "sabtu", width: 14 },
+          { header: "Minggu", key: "minggu", width: 14 },
+        ],
+        data: exportData,
+        filename: "data_jadwal_kerja",
+      });
+
+      setNotification({
+        show: true,
+        type: "success",
+        message: `Berhasil mengekspor ${exportData.length} data jadwal kerja`,
+      });
+    } catch (err) {
+      console.error("Export error:", err);
+      setNotification({
+        show: true,
+        type: "error",
+        message: "Gagal mengekspor data",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Action handlers
   const handleViewDetail = (schedule) => {
@@ -231,7 +287,14 @@ export function WorkScheduleAdmin() {
   };
 
   const handleEditClick = (schedule) => {
-    setSelectedSchedule({ ...schedule });
+    // Ensure schedules object has all days
+    const fullSchedules = { ...defaultSchedules };
+    if (schedule.schedules) {
+      Object.keys(schedule.schedules).forEach(day => {
+        fullSchedules[day] = schedule.schedules[day];
+      });
+    }
+    setSelectedSchedule({ ...schedule, schedules: fullSchedules });
     setShowEditModal(true);
   };
 
@@ -240,30 +303,162 @@ export function WorkScheduleAdmin() {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!selectedSchedule) return;
-    setSchedules((prev) => prev.filter((s) => s.id !== selectedSchedule.id));
-    setShowDeleteModal(false);
-    setSelectedSchedule(null);
+    
+    try {
+      setSaving(true);
+      const response = await scheduleService.deleteSchedule(selectedSchedule.id);
+      
+      if (response.success) {
+        setNotification({
+          show: true,
+          type: 'success',
+          message: 'Jadwal kerja berhasil dihapus'
+        });
+        fetchSchedules();
+        fetchStats();
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      setNotification({
+        show: true,
+        type: 'error',
+        message: err.message || 'Gagal menghapus jadwal kerja'
+      });
+    } finally {
+      setSaving(false);
+      setShowDeleteModal(false);
+      setSelectedSchedule(null);
+    }
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!selectedSchedule) return;
-    setSchedules((prev) =>
-      prev.map((s) => (s.id === selectedSchedule.id ? selectedSchedule : s))
-    );
-    setShowEditModal(false);
-    setSelectedSchedule(null);
+    
+    try {
+      setSaving(true);
+      const response = await scheduleService.updateSchedule(selectedSchedule.id, {
+        shiftType: selectedSchedule.shiftType,
+        schedules: selectedSchedule.schedules
+      });
+      
+      if (response.success) {
+        setNotification({
+          show: true,
+          type: 'success',
+          message: 'Jadwal kerja berhasil diperbarui'
+        });
+        fetchSchedules();
+        fetchStats();
+      }
+    } catch (err) {
+      console.error('Update error:', err);
+      setNotification({
+        show: true,
+        type: 'error',
+        message: err.message || 'Gagal memperbarui jadwal kerja'
+      });
+    } finally {
+      setSaving(false);
+      setShowEditModal(false);
+      setSelectedSchedule(null);
+    }
   };
 
-  // Stats
-  const totalEmployees = schedules.length;
-  const regularShift = schedules.filter((s) => s.shiftType === "Regular").length;
-  const shiftWorkers = schedules.filter((s) => s.shiftType !== "Regular" && s.shiftType !== "Flexible").length;
-  const _flexibleWorkers = schedules.filter((s) => s.shiftType === "Flexible").length; // underscore prefix for unused
+  // Open Add Modal and fetch employees
+  const handleOpenAddModal = async () => {
+    setShowAddModal(true);
+    setNewSchedule({
+      employeeId: '',
+      shiftType: 'Regular',
+      schedules: { ...defaultSchedules }
+    });
+    
+    // Fetch employees without schedules for dropdown
+    try {
+      setLoadingEmployees(true);
+      const response = await scheduleService.getUnassignedEmployees();
+      if (response.success) {
+        // Map the response to match expected format
+        setEmployeeOptions(response.data?.map(emp => ({
+          id: emp.id,
+          employeeId: emp.employeeId,
+          employeeName: emp.name
+        })) || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch employees:', err);
+      // Fallback: show all employees from current data
+      setEmployeeOptions(schedules.map(s => ({
+        id: s.id,
+        employeeId: s.employeeId,
+        employeeName: s.employeeName
+      })));
+    } finally {
+      setLoadingEmployees(false);
+    }
+  };
+
+  // Handle Add Schedule
+  const handleAddSchedule = async () => {
+    if (!newSchedule.employeeId) {
+      setNotification({
+        show: true,
+        type: 'error',
+        message: 'Pilih karyawan terlebih dahulu'
+      });
+      return;
+    }
+    
+    try {
+      setSaving(true);
+      const response = await scheduleService.updateSchedule(newSchedule.employeeId, {
+        shiftType: newSchedule.shiftType,
+        schedules: newSchedule.schedules
+      });
+      
+      if (response.success) {
+        setNotification({
+          show: true,
+          type: 'success',
+          message: 'Jadwal kerja berhasil ditambahkan'
+        });
+        fetchSchedules();
+        fetchStats();
+        setShowAddModal(false);
+      }
+    } catch (err) {
+      console.error('Add schedule error:', err);
+      setNotification({
+        show: true,
+        type: 'error',
+        message: err.message || 'Gagal menambahkan jadwal kerja'
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Stats from state
+  const totalEmployees = stats.totalEmployees;
+  const regularShift = stats.regularShift;
+  const shiftWorkers = stats.shiftWorkers;
+
+  // API base URL for avatar
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
   return (
     <div className="space-y-6">
+      {/* Notification */}
+      {notification.show && (
+        <Notification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification({ ...notification, show: false })}
+        />
+      )}
+
       {/* ===== STAT CARDS ===== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {/* Card 1: Periode */}
@@ -277,7 +472,7 @@ export function WorkScheduleAdmin() {
             </p>
           </div>
           <div className="p-5">
-            <p className="text-2xl font-semibold text-[#1D395E]">Desember 2025</p>
+            <p className="text-2xl font-semibold text-[#1D395E]">{stats.period}</p>
           </div>
         </div>
 
@@ -356,15 +551,35 @@ export function WorkScheduleAdmin() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1D395E]" />
               </div>
 
-              {/* Buttons: Filter, Tambah Data */}
+              {/* Buttons: Refresh, Filter, Export, Tambah Data */}
               <div className="flex flex-wrap gap-2 justify-end">
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm">
-                  <Filter className="w-4 h-4" />
-                  <span>Filter</span>
+                <button 
+                  onClick={() => { fetchSchedules(); fetchStats(); }}
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+                  <span>Refresh</span>
+                </button>
+
+                {/* Filter Dropdown */}
+                <FilterDropdown
+                  columns={filterColumns}
+                  sortConfig={sortConfig}
+                  onSortChange={setSortConfig}
+                />
+
+                <button 
+                  onClick={handleExport}
+                  disabled={exporting || schedules.length === 0}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Export</span>
                 </button>
 
                 <button
-                  onClick={() => setShowAddModal(true)}
+                  onClick={handleOpenAddModal}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
@@ -395,7 +610,23 @@ export function WorkScheduleAdmin() {
             </thead>
 
             <tbody>
-              {currentSchedules.map((schedule, index) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={11} className="px-4 py-8 text-center">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1D395E]"></div>
+                      <span className="ml-3 text-gray-500">Memuat data...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : schedules.length === 0 ? (
+                <tr>
+                  <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
+                    Tidak ada data jadwal kerja
+                  </td>
+                </tr>
+              ) : (
+                processedSchedules.map((schedule, index) => (
                 <tr
                   key={schedule.id}
                   className={`border-t border-gray-100 ${
@@ -405,9 +636,22 @@ export function WorkScheduleAdmin() {
                   {/* Employee Name with Avatar */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                      {schedule.avatar ? (
+                        <img
+                          src={`${API_URL}${schedule.avatar}`}
+                          alt={schedule.employeeName}
+                          className="w-10 h-10 rounded-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div 
+                        className={`w-10 h-10 rounded-full bg-gray-200 items-center justify-center ${schedule.avatar ? 'hidden' : 'flex'}`}
+                      >
                         <span className="text-gray-600 font-medium">
-                          {schedule.employeeName.charAt(0)}
+                          {schedule.employeeName?.charAt(0) || '?'}
                         </span>
                       </div>
                       <div>
@@ -437,14 +681,14 @@ export function WorkScheduleAdmin() {
                     <td key={day} className="px-2 py-3 text-center">
                       <span
                         className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                          schedule.schedules[day].isOff
+                          schedule.schedules?.[day]?.isOff
                             ? "bg-gray-100 text-gray-500"
                             : "bg-emerald-50 text-emerald-700"
                         }`}
                       >
-                        {schedule.schedules[day].isOff
+                        {schedule.schedules?.[day]?.isOff
                           ? "OFF"
-                          : schedule.schedules[day].start}
+                          : schedule.schedules?.[day]?.start || "-"}
                       </span>
                     </td>
                   ))}
@@ -484,7 +728,8 @@ export function WorkScheduleAdmin() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>
@@ -511,9 +756,9 @@ export function WorkScheduleAdmin() {
 
           {/* Center: Info text */}
           <div className="text-gray-500">
-            Showing {startIndex + 1} to{" "}
-            {Math.min(endIndex, filteredSchedules.length)} of{" "}
-            {filteredSchedules.length} records
+            Showing {totalRecords > 0 ? startIndex + 1 : 0} to{" "}
+            {endIndex} of{" "}
+            {totalRecords} records
           </div>
 
           {/* Right: Pagination buttons */}
@@ -576,7 +821,20 @@ export function WorkScheduleAdmin() {
             <div className="p-6 space-y-4">
               {/* Employee Info */}
               <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                {selectedSchedule.avatar ? (
+                  <img
+                    src={`${API_URL}${selectedSchedule.avatar}`}
+                    alt={selectedSchedule.employeeName}
+                    className="w-16 h-16 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`w-16 h-16 rounded-full bg-gray-200 items-center justify-center ${selectedSchedule.avatar ? 'hidden' : 'flex'}`}
+                >
                   <span className="text-xl font-semibold text-gray-600">
                     {selectedSchedule.employeeName.charAt(0)}
                   </span>
@@ -608,7 +866,7 @@ export function WorkScheduleAdmin() {
                     <div
                       key={key}
                       className={`flex items-center justify-between px-4 py-3 rounded-lg ${
-                        selectedSchedule.schedules[key].isOff
+                        selectedSchedule.schedules?.[key]?.isOff
                           ? "bg-gray-50"
                           : "bg-emerald-50"
                       }`}
@@ -616,12 +874,12 @@ export function WorkScheduleAdmin() {
                       <span className="font-medium text-gray-700">{label}</span>
                       <span
                         className={`text-sm font-semibold ${
-                          selectedSchedule.schedules[key].isOff
+                          selectedSchedule.schedules?.[key]?.isOff
                             ? "text-gray-500"
                             : "text-emerald-700"
                         }`}
                       >
-                        {formatTime(selectedSchedule.schedules[key])}
+                        {formatTime(selectedSchedule.schedules?.[key] || { isOff: true })}
                       </span>
                     </div>
                   ))}
@@ -678,20 +936,22 @@ export function WorkScheduleAdmin() {
             <div className="flex gap-3">
               <button
                 type="button"
+                disabled={saving}
                 onClick={() => {
                   setShowDeleteModal(false);
                   setSelectedSchedule(null);
                 }}
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
                 Tidak, Batalkan
               </button>
               <button
                 type="button"
+                disabled={saving}
                 onClick={handleConfirmDelete}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-rose-600 text-sm font-medium text-white hover:bg-rose-700"
+                className="flex-1 px-4 py-2.5 rounded-lg bg-rose-600 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
               >
-                Ya, Hapus
+                {saving ? 'Menghapus...' : 'Ya, Hapus'}
               </button>
             </div>
           </div>
@@ -838,31 +1098,34 @@ export function WorkScheduleAdmin() {
             {/* Modal Footer */}
             <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
               <button
+                disabled={saving}
                 onClick={() => {
                   setShowEditModal(false);
                   setSelectedSchedule(null);
                 }}
-                className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
                 Batal
               </button>
               <button
+                disabled={saving}
                 onClick={handleSaveEdit}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#1D395E] text-sm font-medium text-white hover:bg-[#152a47]"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#1D395E] text-sm font-medium text-white hover:bg-[#152a47] disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                Simpan Perubahan
+                {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ===== ADD MODAL (Placeholder) ===== */}
+      {/* ===== ADD MODAL ===== */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-[#1D395E]">
                 Tambah Jadwal Baru
               </h3>
@@ -873,16 +1136,166 @@ export function WorkScheduleAdmin() {
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <p className="text-sm text-gray-600 mb-6">
-              Fitur tambah jadwal baru akan segera tersedia. Saat ini kamu dapat
-              mengedit jadwal yang sudah ada.
-            </p>
-            <div className="flex justify-end">
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Employee Selection */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Pilih Karyawan <span className="text-red-500">*</span>
+                  </label>
+                  {loadingEmployees ? (
+                    <div className="flex items-center gap-2 py-2.5">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#1D395E]"></div>
+                      <span className="text-sm text-gray-700">Memuat karyawan...</span>
+                    </div>
+                  ) : (
+                    <select
+                      value={newSchedule.employeeId}
+                      onChange={(e) => setNewSchedule({ ...newSchedule, employeeId: e.target.value })}
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                    >
+                      <option value="">-- Pilih Karyawan --</option>
+                      {employeeOptions.map((emp) => (
+                        <option key={emp.id} value={emp.employeeId}>
+                          {emp.employeeName} ({emp.employeeId})
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Tipe Shift
+                  </label>
+                  <CustomDropdown
+                    name="shiftType"
+                    value={newSchedule.shiftType}
+                    onChange={(e) =>
+                      setNewSchedule({
+                        ...newSchedule,
+                        shiftType: e.target.value,
+                      })
+                    }
+                    placeholder="Pilih Shift"
+                    options={[
+                      { value: "Regular", label: "Regular", icon: "⏰" },
+                      { value: "Shift Pagi", label: "Shift Pagi", icon: "🌅" },
+                      { value: "Shift Siang", label: "Shift Siang", icon: "☀️" },
+                      { value: "Shift Malam", label: "Shift Malam", icon: "🌙" },
+                      { value: "Flexible", label: "Flexible", icon: "📅" },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* Schedule Editor */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-gray-700">
+                  Atur Jadwal Mingguan
+                </h4>
+                <div className="space-y-3">
+                  {Object.entries(dayLabelsFull).map(([key, label]) => (
+                    <div
+                      key={key}
+                      className="grid grid-cols-12 gap-3 items-center p-3 rounded-lg bg-gray-50"
+                    >
+                      <div className="col-span-2">
+                        <span className="font-medium text-gray-700">{label}</span>
+                      </div>
+                      <div className="col-span-3">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={newSchedule.schedules?.[key]?.isOff || false}
+                            onChange={(e) =>
+                              setNewSchedule({
+                                ...newSchedule,
+                                schedules: {
+                                  ...newSchedule.schedules,
+                                  [key]: {
+                                    ...newSchedule.schedules?.[key],
+                                    isOff: e.target.checked,
+                                  },
+                                },
+                              })
+                            }
+                            className="rounded border-gray-300 text-[#1D395E] focus:ring-[#1D395E]"
+                          />
+                          <span className="text-sm text-gray-600">Libur</span>
+                        </label>
+                      </div>
+                      <div className="col-span-3">
+                        <input
+                          type="time"
+                          value={newSchedule.schedules?.[key]?.start || "08:00"}
+                          disabled={newSchedule.schedules?.[key]?.isOff}
+                          onChange={(e) =>
+                            setNewSchedule({
+                              ...newSchedule,
+                              schedules: {
+                                ...newSchedule.schedules,
+                                [key]: {
+                                  ...newSchedule.schedules?.[key],
+                                  start: e.target.value,
+                                },
+                              },
+                            })
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
+                        />
+                      </div>
+                      <div className="col-span-1 text-center text-gray-400">—</div>
+                      <div className="col-span-3">
+                        <input
+                          type="time"
+                          value={newSchedule.schedules?.[key]?.end || "17:00"}
+                          disabled={newSchedule.schedules?.[key]?.isOff}
+                          onChange={(e) =>
+                            setNewSchedule({
+                              ...newSchedule,
+                              schedules: {
+                                ...newSchedule.schedules,
+                                [key]: {
+                                  ...newSchedule.schedules?.[key],
+                                  end: e.target.value,
+                                },
+                              },
+                            })
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
               <button
-                onClick={() => setShowAddModal(false)}
-                className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                disabled={saving}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setNewSchedule({
+                    employeeId: '',
+                    shiftType: 'Regular',
+                    schedules: { ...defaultSchedules }
+                  });
+                }}
+                className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
-                Tutup
+                Batal
+              </button>
+              <button
+                disabled={saving || !newSchedule.employeeId}
+                onClick={handleAddSchedule}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#1D395E] text-sm font-medium text-white hover:bg-[#152a47] disabled:opacity-50"
+              >
+                <Plus className="w-4 h-4" />
+                {saving ? 'Menyimpan...' : 'Tambah Jadwal'}
               </button>
             </div>
           </div>

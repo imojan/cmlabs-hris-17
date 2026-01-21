@@ -1,5 +1,5 @@
 // src/features/attendance/pages/AttendanceUser.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -14,78 +14,126 @@ import {
   X,
   Plus,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// Sample data for current user's attendance
-const initialData = [
-  {
-    id: 1,
-    date: "March 01, 2025",
-    clockIn: "08.00",
-    clockOut: "16.30",
-    workHours: "10h. 5m",
-    status: "Waiting Approval",
-  },
-  {
-    id: 2,
-    date: "March 02, 2025",
-    clockIn: "08.00",
-    clockOut: "17.15",
-    workHours: "9h. 50m",
-    status: "On Time",
-  },
-  {
-    id: 3,
-    date: "March 03, 2025",
-    clockIn: "09.00",
-    clockOut: "16.45",
-    workHours: "10h. 30m",
-    status: "On Time",
-  },
-  {
-    id: 4,
-    date: "March 04, 2025",
-    clockIn: "09.15",
-    clockOut: "15.30",
-    workHours: "6h. 15m",
-    status: "Late",
-  },
-  {
-    id: 5,
-    date: "March 05, 2025",
-    clockIn: "0",
-    clockOut: "0",
-    workHours: "0",
-    status: "Annual Leave",
-  },
-  {
-    id: 6,
-    date: "March 06, 2025",
-    clockIn: "0",
-    clockOut: "0",
-    workHours: "0",
-    status: "Sick",
-  },
-  {
-    id: 7,
-    date: "March 07, 2025",
-    clockIn: "08.00",
-    clockOut: "16.00",
-    workHours: "8h. 30m",
-    status: "Waiting Approval",
-  },
-];
+import { attendanceService } from "@/app/services/attendance.api";
 
 export function AttendanceUser() {
   const navigate = useNavigate();
-  const [data] = useState(initialData);
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showRecordsDropdown, setShowRecordsDropdown] = useState(false);
+
+  // Stats for cards
+  const [stats, setStats] = useState({
+    workHours: 0,
+    onTime: 0,
+    late: 0,
+    absent: 0,
+  });
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await attendanceService.getUserAttendance();
+        
+        // Transform API data to match UI format
+        const transformedData = (response || []).map((item) => {
+          // Format date
+          const dateObj = item.date ? new Date(item.date) : new Date();
+          const formattedDate = dateObj.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "2-digit",
+          });
+
+          // Format clock times
+          const formatTime = (timeStr) => {
+            if (!timeStr) return "-";
+            const date = new Date(timeStr);
+            const hours = String(date.getHours()).padStart(2, "0");
+            const mins = String(date.getMinutes()).padStart(2, "0");
+            return `${hours}.${mins}`;
+          };
+
+          // Determine status display
+          let status = "On Time";
+          if (item.approval === "PENDING") {
+            status = "Waiting Approval";
+          } else if (item.approval === "REJECTED") {
+            status = "Rejected";
+          } else if (item.type === "ANNUAL_LEAVE") {
+            status = "Annual Leave";
+          } else if (item.type === "SICK_LEAVE") {
+            status = "Sick";
+          } else if (item.type === "ABSENT") {
+            status = "Absent";
+          } else if (item.type === "CLOCK_IN") {
+            // Check status from backend (ON_TIME or LATE)
+            status = item.approval === "APPROVED" 
+              ? (item.status === "LATE" ? "Late" : "On Time")
+              : "Waiting Approval";
+          }
+
+          return {
+            id: item.id,
+            date: formattedDate,
+            clockIn: item.clockIn ? formatTime(item.clockIn) : "-",
+            clockOut: item.clockOut ? formatTime(item.clockOut) : "-",
+            workHours: item.workHours || "-",
+            status,
+            type: item.type,
+          };
+        });
+
+        setData(transformedData);
+
+        // Calculate stats
+        const onTimeCount = transformedData.filter(
+          (d) => d.status === "On Time"
+        ).length;
+        const lateCount = transformedData.filter(
+          (d) => d.status === "Late"
+        ).length;
+        const absentCount = transformedData.filter(
+          (d) => d.status === "Absent" || d.status === "Sick" || d.status === "Annual Leave"
+        ).length;
+
+        // Calculate total work hours (simplified - just count entries with work hours)
+        let totalWorkHours = 0;
+        transformedData.forEach((d) => {
+          if (d.workHours && d.workHours !== "-") {
+            const match = d.workHours.match(/(\d+)/);
+            if (match) totalWorkHours += parseInt(match[1], 10);
+          }
+        });
+
+        setStats({
+          workHours: totalWorkHours,
+          onTime: onTimeCount,
+          late: lateCount,
+          absent: absentCount,
+        });
+      } catch (err) {
+        console.error("Failed to fetch attendance:", err);
+        setError(err.message || "Failed to load attendance data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Filter data
   const filteredData = data.filter((item) => {
@@ -95,8 +143,8 @@ export function AttendanceUser() {
   });
 
   // Pagination
-  const totalRecords = 25; // Simulated total
-  const totalPages = Math.ceil(totalRecords / recordsPerPage);
+  const totalRecords = filteredData.length;
+  const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
   const startIndex = (currentPage - 1) * recordsPerPage;
   const paginatedData = filteredData.slice(startIndex, startIndex + recordsPerPage);
 
@@ -155,60 +203,78 @@ export function AttendanceUser() {
 
   return (
     <div className="space-y-6">
-      {/* ===== STAT CARDS - Style like Employee Database ===== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        {/* Card 1: Work Hours */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#1D395E] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <Clock className="w-5 h-5 text-[#1D395E]" />
-            </div>
-            <p className="text-white font-medium">Work Hours</p>
-          </div>
-          <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">145</p>
-          </div>
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-[#1D395E]" />
+          <span className="ml-2 text-gray-600">Memuat data absensi...</span>
         </div>
+      )}
 
-        {/* Card 2: On Time */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#2D5F3F] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-[#2D5F3F]" />
-            </div>
-            <p className="text-white font-medium">On Time</p>
-          </div>
-          <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">145</p>
-          </div>
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+          <p className="font-medium">Gagal memuat data</p>
+          <p className="text-sm">{error}</p>
         </div>
+      )}
 
-        {/* Card 3: Late */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#D4AF37] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <AlertCircle className="w-5 h-5 text-[#D4AF37]" />
+      {!isLoading && !error && (
+        <>
+          {/* ===== STAT CARDS - Style like Employee Database ===== */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            {/* Card 1: Work Hours */}
+            <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
+              <div className="bg-[#1D395E] px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-[#1D395E]" />
+                </div>
+                <p className="text-white font-medium">Work Hours</p>
+              </div>
+              <div className="p-5">
+                <p className="text-3xl font-semibold text-[#1D395E]">{stats.workHours}</p>
+              </div>
             </div>
-            <p className="text-white font-medium">Late</p>
-          </div>
-          <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">145</p>
-          </div>
-        </div>
 
-        {/* Card 4: Absent */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#8B3A3A] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <XCircle className="w-5 h-5 text-[#8B3A3A]" />
+            {/* Card 2: On Time */}
+            <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
+              <div className="bg-[#2D5F3F] px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-[#2D5F3F]" />
+                </div>
+                <p className="text-white font-medium">On Time</p>
+              </div>
+              <div className="p-5">
+                <p className="text-3xl font-semibold text-[#1D395E]">{stats.onTime}</p>
+              </div>
             </div>
-            <p className="text-white font-medium">Absent</p>
+
+            {/* Card 3: Late */}
+            <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
+              <div className="bg-[#D4AF37] px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+                <p className="text-white font-medium">Late</p>
+              </div>
+              <div className="p-5">
+                <p className="text-3xl font-semibold text-[#1D395E]">{stats.late}</p>
+              </div>
+            </div>
+
+            {/* Card 4: Absent */}
+            <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
+              <div className="bg-[#8B3A3A] px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                  <XCircle className="w-5 h-5 text-[#8B3A3A]" />
+                </div>
+                <p className="text-white font-medium">Absent</p>
+              </div>
+              <div className="p-5">
+                <p className="text-3xl font-semibold text-[#1D395E]">{stats.absent}</p>
+              </div>
+            </div>
           </div>
-          <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">145</p>
-          </div>
-        </div>
-      </div>
 
       {/* Main Table Card */}
       <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm">
@@ -285,15 +351,27 @@ export function AttendanceUser() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {paginatedData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.clockIn}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.clockOut}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.workHours}</td>
-                  <td className="px-6 py-4 text-center">{getStatusBadge(item.status)}</td>
+              {paginatedData.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                    <div className="flex flex-col items-center gap-2">
+                      <Calendar className="w-12 h-12 text-gray-300" />
+                      <p className="font-medium">Belum ada data absensi</p>
+                      <p className="text-sm">Klik "Tambah Data" untuk menambahkan absensi baru</p>
+                    </div>
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedData.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.date}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.clockIn}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.clockOut}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 text-center">{item.workHours}</td>
+                    <td className="px-6 py-4 text-center">{getStatusBadge(item.status)}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -337,7 +415,7 @@ export function AttendanceUser() {
 
           {/* Info */}
           <p className="text-sm text-gray-500">
-            Showing 1 to {Math.min(recordsPerPage, filteredData.length)} out of {totalRecords} records
+            Showing {totalRecords === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + recordsPerPage, totalRecords)} out of {totalRecords} records
           </p>
 
           {/* Page Numbers */}
@@ -374,6 +452,8 @@ export function AttendanceUser() {
           </div>
         </div>
       </section>
+        </>
+      )}
     </div>
   );
 }

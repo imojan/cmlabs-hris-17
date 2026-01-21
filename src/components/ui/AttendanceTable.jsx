@@ -1,16 +1,56 @@
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { CustomDropdown } from './CustomDropdown';
+import { useNavigate } from 'react-router-dom';
 
-const attendanceData = [
-  { no: 1, nama: 'Johan', status: 'Ontime', checkIn: '08.00', statusColor: 'bg-indigo-500' },
-  { no: 2, nama: 'Timothy', status: 'Izin', checkIn: '09.00', statusColor: 'bg-blue-500' },
-  { no: 3, nama: 'Bob Doe', status: 'Late', checkIn: '08.15', statusColor: 'bg-red-400' },
-  { no: 4, nama: 'Timothy', status: 'Late', checkIn: '08.15', statusColor: 'bg-red-400' },
-];
+const defaultAttendanceData = [];
 
-export function AttendanceTable() {
+const getStatusColor = (status) => {
+  switch (status?.toUpperCase()) {
+    case 'ON_TIME':
+    case 'ONTIME':
+      return 'bg-indigo-500';
+    case 'LATE':
+      return 'bg-red-400';
+    case 'IZIN':
+    case 'LEAVE':
+      return 'bg-blue-500';
+    case 'ABSENT':
+      return 'bg-cyan-500';
+    default:
+      return 'bg-gray-400';
+  }
+};
+
+const formatStatus = (status) => {
+  switch (status?.toUpperCase()) {
+    case 'ON_TIME':
+      return 'Ontime';
+    case 'LATE':
+      return 'Late';
+    case 'ABSENT':
+      return 'Absent';
+    default:
+      return status || '-';
+  }
+};
+
+export function AttendanceTable({ 
+  attendanceData = null, 
+  summary = null,
+  loading = false 
+}) {
   const [selectedMonth, setSelectedMonth] = useState('Select Month');
+  const navigate = useNavigate();
+
+  const data = attendanceData || defaultAttendanceData;
+  
+  // Calculate summary from data if not provided
+  const onTimeCount = summary?.onTime ?? data.filter(d => 
+    d.status?.toUpperCase() === 'ON_TIME' || d.status?.toUpperCase() === 'ONTIME'
+  ).length;
+  const lateCount = summary?.late ?? data.filter(d => d.status?.toUpperCase() === 'LATE').length;
+  const absentCount = summary?.absent ?? data.filter(d => d.status?.toUpperCase() === 'ABSENT').length;
 
   return (
     <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100">
@@ -40,7 +80,11 @@ export function AttendanceTable() {
               { value: "December", label: "December" },
             ]}
           />
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button 
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            onClick={() => navigate('/admin/checkclock')}
+            title="View All Attendance"
+          >
             <ExternalLink className="w-5 h-5 text-gray-600" />
           </button>
         </div>
@@ -50,15 +94,15 @@ export function AttendanceTable() {
       <div className="flex items-center gap-4 mb-4 text-xs sm:text-sm">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-          <span className="text-gray-700 font-medium">142 Ontime</span>
+          <span className="text-gray-700 font-medium">{onTimeCount} Ontime</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-          <span className="text-gray-700 font-medium">4 Late</span>
+          <span className="text-gray-700 font-medium">{lateCount} Late</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-[#3cc3df]" />
-          <span className="text-gray-700 font-medium">9 Absent</span>
+          <span className="text-gray-700 font-medium">{absentCount} Absent</span>
         </div>
       </div>
 
@@ -74,21 +118,37 @@ export function AttendanceTable() {
             </tr>
           </thead>
           <tbody>
-            {attendanceData.map((row, index) => (
-              <tr 
-                key={index} 
-                className="border-b last:border-b-0 border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-700 font-medium">{row.no}</td>
-                <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-700 font-medium">{row.nama}</td>
-                <td className="px-3 sm:px-4 py-3">
-                  <span className={`${row.statusColor} text-white text-xs px-3 py-1.5 rounded-full font-medium inline-block`}>
-                    {row.status}
-                  </span>
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center">
+                  <div className="flex justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  </div>
                 </td>
-                <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-700 font-medium">{row.checkIn}</td>
               </tr>
-            ))}
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                  Tidak ada data kehadiran hari ini
+                </td>
+              </tr>
+            ) : (
+              data.map((row, index) => (
+                <tr 
+                  key={index} 
+                  className="border-b last:border-b-0 border-gray-100 hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-700 font-medium">{row.no || index + 1}</td>
+                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-700 font-medium">{row.name || row.nama}</td>
+                  <td className="px-3 sm:px-4 py-3">
+                    <span className={`${getStatusColor(row.status)} text-white text-xs px-3 py-1.5 rounded-full font-medium inline-block`}>
+                      {formatStatus(row.status)}
+                    </span>
+                  </td>
+                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-700 font-medium">{row.checkIn || '-'}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

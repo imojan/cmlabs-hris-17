@@ -20,7 +20,7 @@ import CompanyName from "@/features/auth/pages/CompanyName.jsx";
 import LandingPage from "@/features/landing/pages/LandingPage.jsx";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard.jsx";
 import UserDashboard from "@/features/dashboard/pages/UserDashboard.jsx";
-import ProtectedRoute from "@/app/routes/ProtectedRoute.jsx";
+import ProtectedRoute, { GuestRoute } from "@/app/routes/ProtectedRoute.jsx";
 import TestHMR from "@/components/debug/TestHMR.jsx";
 import PaymentInformation from "@/features/payment/pages/PaymentInformation.jsx";
 import PaymentConfirmation from "@/features/payment/pages/PaymentConfirmation.jsx";
@@ -90,19 +90,23 @@ export default function AppRouter() {
         <Route path="/payment/confirmation" element={<PaymentConfirmation />} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
 
-        {/* Public routes */}
-        <Route path="/auth/sign-in" element={<SignIn />} />
-        <Route path="/auth/sign-up" element={<SignUp />} />
-        <Route path="/auth/sign-in-id" element={<SignInIdEmployee />} />
-        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-        <Route path="/auth/check-email" element={<CheckYourEmail />} />
-        <Route path="/auth/set-new-password" element={<SetNewPassword />} />
-        <Route path="/auth/success-change-password" element={<SuccessChangePassword />} />
-        <Route path="/auth/link-expired" element={<LinkExpired />} />
-        <Route path="/auth/company-name" element={<CompanyName />} />
+        {/* Guest routes - ONLY accessible when NOT logged in */}
+        {/* If already logged in, will redirect to dashboard */}
+        <Route element={<GuestRoute />}>
+          <Route path="/auth/sign-in" element={<SignIn />} />
+          <Route path="/auth/sign-up" element={<SignUp />} />
+          <Route path="/auth/sign-in-id" element={<SignInIdEmployee />} />
+          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/check-email" element={<CheckYourEmail />} />
+          <Route path="/auth/set-new-password" element={<SetNewPassword />} />
+          <Route path="/auth/success-change-password" element={<SuccessChangePassword />} />
+          <Route path="/auth/link-expired" element={<LinkExpired />} />
+          <Route path="/auth/company-name" element={<CompanyName />} />
+        </Route>
 
-        {/* Protected routes - Admin pages */}
-        <Route element={<ProtectedRoute />}>
+        {/* Protected routes - Admin pages (only admin role) */}
+        {/* AdminDashboard handles its own internal routing with Sidebar + Header */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/employees-database" element={<AdminDashboard />} />
           <Route path="/admin/employees/add" element={<AdminDashboard />} />
@@ -114,16 +118,20 @@ export default function AppRouter() {
           <Route path="/admin/faq-help" element={<AdminDashboard />} />
           <Route path="/admin/settings" element={<AdminDashboard />} />
           <Route path="/admin/settings/profile" element={<AdminDashboard />} />
+          <Route path="/admin/settings/locations" element={<AdminDashboard />} />
+          <Route path="/admin/notifications" element={<AdminDashboard />} />
         </Route>
 
-        {/* Protected routes - User/Employee pages */}
-        <Route element={<ProtectedRoute />}>
+        {/* Protected routes - User/Employee pages (employee or user role) */}
+        {/* UserDashboard handles its own internal routing with Sidebar + Header */}
+        <Route element={<ProtectedRoute allowedRoles={["employee", "user"]} />}>
           <Route path="/user/dashboard" element={<UserDashboard />} />
           <Route path="/user/checkclock" element={<UserDashboard />} />
           <Route path="/user/checkclock/add" element={<UserDashboard />} />
           <Route path="/user/faq-help" element={<UserDashboard />} />
           <Route path="/user/settings" element={<UserDashboard />} />
           <Route path="/user/settings/profile" element={<UserDashboard />} />
+          <Route path="/user/notifications" element={<UserDashboard />} />
         </Route>
 
         {/* Optional fallback */}

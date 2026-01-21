@@ -1,5 +1,5 @@
 // src/features/attendance/pages/AddCheckclockAdmin.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ChevronDown,
@@ -11,16 +11,21 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
 import { MapComponent } from "../components/MapComponent";
 import { CustomDropdown } from "../../../components/ui/CustomDropdown";
+import { employeeService } from "@/app/services/employee.api";
+import { attendanceService } from "@/app/services/attendance.api";
+import { locationService } from "@/app/services/location.api";
 
 
 export default function AddCheckclockAdmin() {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
+    employeeId: "",
     employeeName: "",
     attendanceType: "",
     capturedTime: "",
@@ -41,30 +46,72 @@ export default function AddCheckclockAdmin() {
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notification, setNotification] = useState(null);
+  
+  // API integration states
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  
+  // Dynamic locations from API
+  const [companyLocations, setCompanyLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(true);
 
-  // Preset koordinat untuk setiap lokasi
-  // Koordinat dari Google Maps links:
-  // Kantor Pusat: https://maps.app.goo.gl/PcHCR5tcULvLqVARA → CMLABS Office
-  // Cabang A: https://maps.app.goo.gl/h9hb4vohTXPxcTa38 → Branch A
+  // Build locationPresets dynamically from API + fixed options
   const locationPresets = {
-    "Kantor Pusat": {
-      lat: -7.933548190754428,
-      lng:  112.65195908118368,
-      address: "Kantor Pusat CMLABS - Jl. Raya Blimbing Indah No.10 Blok A4, Polowijen, Kec. Blimbing, Kota Malang, Jawa Timur",
-    },
-    "Kantor Jakarta": {
-      lat: -6.12119346695709,
-      lng: 106.78825499466268,
-      address: "Kantor CMLABS JAKARTA - Jl. Pluit Kencana Raya No.63, RT.4/RW.6, Pluit, Kecamatan Penjaringan, Jkt Utara, Daerah Khusus Ibukota Jakarta",
-    },
-    "Kantor Solo": {
-      lat: -7.9567890,
-      lng: 112.6145678,
-      address: "Kantor CMLABS SOLO - Jl. Kutai Utara No.1, Sumber, Kec. Banjarsari, Kota Surakarta, Jawa Tengah",
-    },
+    // Dynamic locations from company settings will be added here
+    ...companyLocations.reduce((acc, loc) => {
+      acc[loc.name] = {
+        lat: loc.latitude,
+        lng: loc.longitude,
+        address: loc.address || "",
+      };
+      return acc;
+    }, {}),
+    // Fixed options that are always available
     "Remote": null,
     "Lainnya": null,
   };
+
+  // ====== FETCH EMPLOYEES ======
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setLoadingEmployees(true);
+        const response = await employeeService.getAll();
+        const data = response?.data || response || [];
+        setEmployees(data);
+      } catch (err) {
+        console.error("Failed to fetch employees:", err);
+        setNotification({
+          type: "error",
+          message: "Gagal memuat data karyawan",
+        });
+      } finally {
+        setLoadingEmployees(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  // ====== FETCH COMPANY LOCATIONS ======
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        setLoadingLocations(true);
+        const response = await locationService.getLocations();
+        const data = response?.data || [];
+        setCompanyLocations(data);
+      } catch (err) {
+        console.error("Failed to fetch locations:", err);
+        // Silent fail - will use default options only
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+
+    fetchLocations();
+  }, []);
 
   // ====== REALTIME CLOCK ======
   useEffect(() => {
@@ -129,13 +176,38 @@ export default function AddCheckclockAdmin() {
       ...prev,
       attendanceType: value,
       capturedTime: currentTime,
-      ...(value !== "Annual Leave" ? { startDate: "", endDate: "" } : {}),
+      // Reset date fields if not leave type
+      ...(!["Annual Leave", "Sick Leave"].includes(value) ? { startDate: "", endDate: "" } : {}),
     }));
   };
 
+  // State for file preview
+  const [proofPreview, setProofPreview] = useState(null);
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) setProofFile(file);
+    if (file) {
+      setProofFile(file);
+      
+      // Generate preview for images
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProofPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setProofPreview(null);
+      }
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setProofFile(null);
+    setProofPreview(null);
+    // Reset file input
+    const fileInput = document.getElementById("proof-file");
+    if (fileInput) fileInput.value = "";
   };
 
   const handleSubmit = (e) => {
@@ -144,7 +216,7 @@ export default function AddCheckclockAdmin() {
     // Validasi field wajib dengan pesan lengkap
     const requiredFields = [];
     
-    if (!formData.employeeName) {
+    if (!formData.employeeId) {
       requiredFields.push("Nama Karyawan");
     }
     
@@ -152,13 +224,13 @@ export default function AddCheckclockAdmin() {
       requiredFields.push("Tipe Absensi");
     }
     
-    // Validasi khusus untuk Annual Leave
-    if (formData.attendanceType === "Annual Leave") {
+    // Validasi khusus untuk Annual Leave / Sick Leave
+    if (["Annual Leave", "Sick Leave"].includes(formData.attendanceType)) {
       if (!formData.startDate) {
-        requiredFields.push("Start Date (untuk Annual Leave)");
+        requiredFields.push("Start Date");
       }
       if (!formData.endDate) {
-        requiredFields.push("End Date (untuk Annual Leave)");
+        requiredFields.push("End Date");
       }
     }
     
@@ -188,24 +260,68 @@ export default function AddCheckclockAdmin() {
     setShowConfirmModal(true);
   };
 
-  const handleConfirmSave = () => {
-    // Proses penyimpanan data
-    console.log("Form Data:", formData);
-    console.log("Proof File:", proofFile);
-    
-    // Tampilkan success notification
-    setNotification({
-      type: "success",
-      message: "Data absensi berhasil disimpan!",
-    });
-    
-    // Tutup modal
-    setShowConfirmModal(false);
-    
-    // Redirect ke halaman AttendanceAdmin setelah 1.5 detik
-    setTimeout(() => {
-      navigate("/admin/checkclock");
-    }, 1500);
+  const handleConfirmSave = async () => {
+    try {
+      setSubmitting(true);
+
+      // Mapping attendance type: Frontend → Backend
+      const typeMapping = {
+        "Clock In": "CLOCK_IN",
+        "Clock Out": "CLOCK_OUT",
+        "Absent": "ABSENT",
+        "Annual Leave": "ANNUAL_LEAVE",
+        "Sick Leave": "SICK_LEAVE",
+      };
+
+      // Build FormData for multipart/form-data (file upload support)
+      const payload = new FormData();
+      payload.append("employeeId", formData.employeeId);
+      payload.append("type", typeMapping[formData.attendanceType] || formData.attendanceType);
+      payload.append("locationName", formData.location);
+      payload.append("address", formData.address);
+      payload.append("latitude", formData.latitude);
+      payload.append("longitude", formData.longitude);
+      
+      if (formData.notes) {
+        payload.append("notes", formData.notes);
+      }
+
+      // For Annual Leave / Sick Leave, send date range
+      if (["Annual Leave", "Sick Leave"].includes(formData.attendanceType)) {
+        if (formData.startDate) payload.append("startDate", formData.startDate);
+        if (formData.endDate) payload.append("endDate", formData.endDate);
+      }
+
+      // Attach proof file if exists
+      if (proofFile) {
+        payload.append("proof", proofFile);
+      }
+
+      // Call API
+      await attendanceService.create(payload);
+
+      // Success
+      setNotification({
+        type: "success",
+        message: "Data absensi berhasil disimpan!",
+      });
+
+      setShowConfirmModal(false);
+
+      // Redirect after delay
+      setTimeout(() => {
+        navigate("/admin/checkclock");
+      }, 1500);
+    } catch (err) {
+      console.error("Failed to save attendance:", err);
+      setNotification({
+        type: "error",
+        message: err?.data?.message || err?.message || "Gagal menyimpan data absensi",
+      });
+      setShowConfirmModal(false);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancelSave = () => {
@@ -293,18 +409,35 @@ export default function AddCheckclockAdmin() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Karyawan
                   </label>
-                  <CustomDropdown
-                    name="employeeName"
-                    value={formData.employeeName}
-                    onChange={handleInputChange}
-                    placeholder="Pilih Karyawan"
-                    options={[
-                      { value: "Juanita", label: "Juanita - CEO" },
-                      { value: "Shane", label: "Shane - OB" },
-                      { value: "Miles", label: "Miles - Head of HR" },
-                      { value: "Flores", label: "Flores - Manager" },
-                    ]}
-                  />
+                  {loadingEmployees ? (
+                    <div className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-500">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Memuat data karyawan...
+                    </div>
+                  ) : (
+                    <CustomDropdown
+                      name="employeeId"
+                      value={formData.employeeId}
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        const selectedEmployee = employees.find(
+                          (emp) => String(emp.id) === String(selectedId)
+                        );
+                        setFormData((prev) => ({
+                          ...prev,
+                          employeeId: selectedId,
+                          employeeName: selectedEmployee
+                            ? `${selectedEmployee.firstName || ""} ${selectedEmployee.lastName || ""}`.trim()
+                            : "",
+                        }));
+                      }}
+                      placeholder="Pilih Karyawan"
+                      options={employees.map((emp) => ({
+                        value: emp.id,
+                        label: `${emp.firstName || ""} ${emp.lastName || ""} - ${emp.jobdesk || "Staff"}`.trim(),
+                      }))}
+                    />
+                  )}
                 </div>
 
                 {/* Tipe Absensi + Waktu Realtime */}
@@ -348,8 +481,8 @@ export default function AddCheckclockAdmin() {
                   </div>
                 </div>
 
-                {/* Start/End Date (Annual Leave only) */}
-                {formData.attendanceType === "Annual Leave" && (
+                {/* Start/End Date (Annual Leave & Sick Leave) */}
+                {["Annual Leave", "Sick Leave"].includes(formData.attendanceType) && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -390,47 +523,94 @@ export default function AddCheckclockAdmin() {
                     Upload Bukti Pendukung
                   </label>
 
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <div className="flex flex-col items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
-                        <Upload className="w-6 h-6 text-gray-400" />
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">
-                        Drag n Drop here
-                      </p>
-                      <p className="text-sm text-gray-500 mb-3">Or</p>
-
-                      <input
-                        type="file"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="proof-file"
-                        accept="image/*,.pdf"
-                      />
-                      <label
-                        htmlFor="proof-file"
-                        className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
-                      >
-                        Browse
-                      </label>
-
-                      {proofFile && (
-                        <p className="text-xs text-green-600 mt-3">
-                          ✓ {proofFile.name}
-                        </p>
+                  {/* Show preview if file is uploaded */}
+                  {proofFile ? (
+                    <div className="border-2 border-gray-200 rounded-lg p-4">
+                      {/* Image Preview */}
+                      {proofPreview && (
+                        <div className="mb-4 rounded-lg overflow-hidden border border-gray-200">
+                          <img 
+                            src={proofPreview} 
+                            alt="Preview" 
+                            className="w-full h-48 object-cover"
+                          />
+                        </div>
                       )}
-                    </div>
-                  </div>
 
-                  {/* Upload Now Button */}
-                  <button
-                    type="button"
-                    onClick={() => proofFile && alert("File uploaded!")}
-                    className="w-full mt-3 px-4 py-2.5 bg-gray-200 text-gray-500 text-sm font-medium rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
-                    disabled={!proofFile}
-                  >
-                    Upload Now
-                  </button>
+                      {/* File Info */}
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            {proofFile.type.startsWith("image/") ? (
+                              <Upload className="w-5 h-5 text-blue-600" />
+                            ) : (
+                              <AlertCircle className="w-5 h-5 text-blue-600" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                              {proofFile.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {(proofFile.size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleRemoveFile}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                          title="Remove file"
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      {/* Change file button */}
+                      <div className="mt-3 text-center">
+                        <input
+                          type="file"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="proof-file-change"
+                          accept="image/*,.pdf"
+                        />
+                        <label
+                          htmlFor="proof-file-change"
+                          className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                        >
+                          Change File
+                        </label>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                      <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                          <Upload className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          Drag n Drop here
+                        </p>
+                        <p className="text-sm text-gray-500 mb-3">Or</p>
+
+                        <input
+                          type="file"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="proof-file"
+                          accept="image/*,.pdf"
+                        />
+                        <label
+                          htmlFor="proof-file"
+                          className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                        >
+                          Browse
+                        </label>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -445,15 +625,24 @@ export default function AddCheckclockAdmin() {
                     name="location"
                     value={formData.location}
                     onChange={handleLocationChange}
-                    placeholder="Pilih Lokasi"
+                    placeholder={loadingLocations ? "Memuat lokasi..." : "Pilih Lokasi"}
                     options={[
-                      { value: "Kantor Pusat", label: "Kantor Pusat", icon: "📍" },
-                      { value: "Kantor Jakarta", label: "Kantor Jakarta", icon: "📍" },
-                      { value: "Kantor Solo", label: "Kantor Solo", icon: "📍" },
+                      // Dynamic locations from company settings
+                      ...companyLocations.map(loc => ({
+                        value: loc.name,
+                        label: loc.name,
+                        icon: "📍"
+                      })),
+                      // Fixed options
                       { value: "Remote", label: "Remote", icon: "🏠" },
                       { value: "Lainnya", label: "Lainnya", icon: "📌" },
                     ]}
                   />
+                  {companyLocations.length === 0 && !loadingLocations && (
+                    <p className="text-xs text-amber-600 mt-1">
+                      Belum ada lokasi kantor terdaftar. Tambahkan di Settings → Lokasi Kantor
+                    </p>
+                  )}
                 </div>
 
                 {/* Map Section dengan Tombol My Location yang Terpisah */}
@@ -630,18 +819,29 @@ export default function AddCheckclockAdmin() {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => navigate("/admin/checkclock")}
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={submitting}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleConfirmSave}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                disabled={submitting}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <CheckCircle className="w-4 h-4" />
-                Ya, Kirim
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Ya, Kirim
+                  </>
+                )}
               </button>
             </div>
           </div>

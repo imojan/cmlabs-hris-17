@@ -1,6 +1,6 @@
 // src/features/employees/pages/EditEmployeeAdmin.jsx
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Upload,
   Calendar,
@@ -8,43 +8,148 @@ import {
   AlertCircle,
   CheckCircle,
   ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
 import { CustomDropdown } from "../../../components/ui/CustomDropdown";
+import { employeeService } from "@/app/services/employee.api";
 
 export function EditEmployeeAdmin() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams();
-  const baseEmp = state?.employee;
 
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [originalData, setOriginalData] = useState(null);
+
+  // Mapping backend -> frontend
+  const CONTRACT_TYPE_MAP_REVERSE = {
+    "permanent": "Tetap",
+    "contract": "Kontrak",
+    "intern": "Lepas",
+  };
+
+  const EDUCATION_MAP_REVERSE = {
+    "sma": "SMA/SMK",
+    "smk": "SMA/SMK",
+    "d3": "D3",
+    "s1": "S1",
+    "s2": "S2",
+    "s3": "S3",
+  };
+
+  // Mapping frontend -> backend
+  const CONTRACT_TYPE_MAP = {
+    "Tetap": "permanent",
+    "Kontrak": "contract",
+    "Lepas": "intern",
+  };
+
+  const EDUCATION_MAP = {
+    "SMA/SMK": "sma",
+    "D3": "d3",
+    "S1": "s1",
+    "S2": "s2",
+    "S3": "s3",
+  };
 
   const [formData, setFormData] = useState({
-    firstName: baseEmp?.name?.split(" ")[0] || "",
-    lastName: baseEmp?.name?.split(" ").slice(1).join(" ") || "",
-    mobileNumber: baseEmp?.phone || "",
-    nik: "1234567890123456",
-    gender:
-      baseEmp?.gender === "Perempuan"
-        ? "Female"
-        : baseEmp?.gender === "Laki-Laki"
-        ? "Male"
-        : "",
-    birthPlace: "Malang",
-    birthDate: "2000-01-01",
-    education: "S1",
-    branch: baseEmp?.branch || "",
-    position: baseEmp?.position || "",
-    contractType: baseEmp?.status ? "Tetap" : "Kontrak",
-    grade: baseEmp?.grade || "",
-    bank: "BCA",
-    accountNumber: "1234567890",
-    accountName: baseEmp?.name || "",
+    firstName: "",
+    lastName: "",
+    mobileNumber: "",
+    nik: "",
+    gender: "",
+    birthPlace: "",
+    birthDate: "",
+    education: "",
+    branch: "",
+    position: "",
+    contractType: "Tetap",
+    grade: "",
+    bank: "",
+    accountNumber: "",
+    accountName: "",
     spType: "",
+    email: "",
   });
+
+  // Fetch employee data on mount
+  useEffect(() => {
+    async function fetchEmployee() {
+      // If we have employee data from navigation state, use it first
+      if (state?.employee) {
+        populateFormFromData(state.employee);
+        setIsFetching(false);
+        return;
+      }
+
+      // Otherwise fetch from API
+      try {
+        setIsFetching(true);
+        const response = await employeeService.getById(id);
+        
+        if (response.success && response.data) {
+          populateFormFromData(response.data);
+          setOriginalData(response.data);
+        } else {
+          setNotification({
+            type: "error",
+            message: "Data karyawan tidak ditemukan",
+          });
+          setTimeout(() => navigate("/admin/employees-database"), 2000);
+        }
+      } catch (error) {
+        console.error("Error fetching employee:", error);
+        setNotification({
+          type: "error",
+          message: error.message || "Gagal memuat data karyawan",
+        });
+        setTimeout(() => navigate("/admin/employees-database"), 2000);
+      } finally {
+        setIsFetching(false);
+      }
+    }
+
+    fetchEmployee();
+  }, [id, state, navigate]);
+
+  // Helper to populate form from employee data
+  function populateFormFromData(emp) {
+    setOriginalData(emp);
+    
+    // Set avatar preview if exists
+    if (emp.avatar) {
+      const avatarUrl = emp.avatar.startsWith("http") 
+        ? emp.avatar 
+        : `${import.meta.env.VITE_API_URL}${emp.avatar}`;
+      setAvatarPreview(avatarUrl);
+    }
+
+    setFormData({
+      firstName: emp.firstName || "",
+      lastName: emp.lastName || "",
+      mobileNumber: emp.phone || "",
+      nik: emp.nik || "",
+      gender: emp.gender || "",
+      birthPlace: emp.birthPlace || "",
+      birthDate: emp.birthDate ? emp.birthDate.split("T")[0] : "",
+      education: EDUCATION_MAP_REVERSE[emp.education] || emp.education || "",
+      branch: emp.branch || "",
+      position: emp.jobdesk || "",
+      contractType: CONTRACT_TYPE_MAP_REVERSE[emp.contractType] || "Tetap",
+      grade: emp.grade || "",
+      bank: emp.bank || "",
+      accountNumber: emp.accountNumber || "",
+      accountName: emp.accountName || "",
+      spType: emp.spType || "",
+      email: emp.User?.email || "",
+    });
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,7 +158,11 @@ export function EditEmployeeAdmin() {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) setAvatarFile(file);
+    if (file) {
+      setAvatarFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -68,20 +177,94 @@ export function EditEmployeeAdmin() {
     setShowConfirmModal(true);
   };
 
-  const handleConfirmSave = () => {
-    console.log("Edit employee ID:", id);
-    console.log("Form edit:", formData);
-    console.log("Avatar:", avatarFile);
+  const handleConfirmSave = async () => {
+    setIsLoading(true);
 
-    setNotification({
-      type: "success",
-      message: "Data karyawan berhasil diperbarui!",
-    });
-    setShowConfirmModal(false);
+    try {
+      // Buat FormData untuk handle file upload
+      const submitData = new FormData();
 
-    setTimeout(() => {
-      navigate("/admin/employees-database");
-    }, 1500);
+      // Personal Information
+      submitData.append("firstName", formData.firstName);
+      if (formData.lastName) submitData.append("lastName", formData.lastName);
+      if (formData.mobileNumber) submitData.append("mobileNumber", formData.mobileNumber);
+      if (formData.nik) submitData.append("nik", formData.nik);
+      if (formData.gender) submitData.append("gender", formData.gender);
+      if (formData.birthPlace) submitData.append("birthPlace", formData.birthPlace);
+      if (formData.birthDate) submitData.append("birthDate", formData.birthDate);
+
+      // Education - map to backend format
+      if (formData.education) {
+        submitData.append("education", EDUCATION_MAP[formData.education] || formData.education.toLowerCase());
+      }
+
+      // Employment fields - map position to jobdesk
+      if (formData.position) submitData.append("jobdesk", formData.position);
+      if (formData.branch) submitData.append("branch", formData.branch);
+
+      // ContractType - map to backend format
+      if (formData.contractType) {
+        submitData.append("contractType", CONTRACT_TYPE_MAP[formData.contractType] || formData.contractType.toLowerCase());
+      }
+
+      if (formData.grade) submitData.append("grade", formData.grade);
+
+      // Bank Information
+      if (formData.bank) submitData.append("bank", formData.bank);
+      if (formData.accountNumber) submitData.append("accountNumber", formData.accountNumber);
+      if (formData.accountName) submitData.append("accountName", formData.accountName);
+      if (formData.spType) submitData.append("spType", formData.spType);
+
+      // Email (if changed)
+      if (formData.email) submitData.append("email", formData.email);
+
+      // Avatar file (if new one selected)
+      if (avatarFile) {
+        submitData.append("avatar", avatarFile);
+      }
+
+      // Call API
+      const response = await employeeService.update(id, submitData);
+
+      console.log("Employee updated:", response);
+
+      setNotification({
+        type: "success",
+        message: response.message || "Data karyawan berhasil diperbarui!",
+      });
+      setShowConfirmModal(false);
+
+      setTimeout(() => {
+        navigate("/admin/employees-database");
+      }, 1500);
+
+    } catch (error) {
+      console.error("Error updating employee:", error);
+
+      let errorMessage = "Gagal memperbarui data karyawan";
+
+      if (error.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      if (error.status === 404) {
+        errorMessage = "Data karyawan tidak ditemukan";
+      } else if (error.status === 400) {
+        errorMessage = error.data?.message || "Data yang dikirim tidak valid";
+      } else if (error.status === 403) {
+        errorMessage = "Anda tidak memiliki akses untuk mengubah data karyawan";
+      }
+
+      setNotification({
+        type: "error",
+        message: errorMessage,
+      });
+      setShowConfirmModal(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancelModal = () => setShowConfirmModal(false);
@@ -116,6 +299,15 @@ export function EditEmployeeAdmin() {
         </h1>
       </div>
 
+      {/* Loading state saat fetch data */}
+      {isFetching ? (
+        <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm p-6 lg:p-8">
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="w-10 h-10 text-[#1D395E] animate-spin mb-4" />
+            <p className="text-gray-600">Memuat data karyawan...</p>
+          </div>
+        </section>
+      ) : (
       <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm p-6 lg:p-8">
         <h2 className="text-lg md:text-xl font-semibold text-[#1D395E] mb-5">
           Update Employee Data
@@ -126,9 +318,17 @@ export function EditEmployeeAdmin() {
           <div className="flex justify-center mb-6">
             <div className="flex flex-col items-center gap-3">
               <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                <span className="text-lg text-gray-500">
-                  {baseEmp?.name?.charAt(0) ?? "E"}
-                </span>
+                {avatarPreview ? (
+                  <img 
+                    src={avatarPreview} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-lg text-gray-500">
+                    {formData.firstName?.charAt(0) || "E"}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col items-center">
@@ -160,7 +360,7 @@ export function EditEmployeeAdmin() {
           {/* FORM EDIT */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Baris 1 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-black">
               <Field
                 label="First Name"
                 name="firstName"
@@ -178,7 +378,7 @@ export function EditEmployeeAdmin() {
             </div>
 
             {/* Baris 2 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-black">
               <Field
                 label="Mobile Number"
                 name="mobileNumber"
@@ -232,7 +432,7 @@ export function EditEmployeeAdmin() {
             </div>
 
             {/* Baris 4 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-black">
               <Field
                 label="Tempat Lahir"
                 name="birthPlace"
@@ -250,7 +450,7 @@ export function EditEmployeeAdmin() {
                     name="birthDate"
                     value={formData.birthDate}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#1D395E] bg-white"
                   />
                   <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -258,7 +458,7 @@ export function EditEmployeeAdmin() {
             </div>
 
             {/* Baris 5 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-black">
               <Field
                 label="Jabatan"
                 name="position"
@@ -276,7 +476,7 @@ export function EditEmployeeAdmin() {
             </div>
 
             {/* Baris 6 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center text-black">
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1.5">
                   Tipe Kontrak
@@ -311,7 +511,7 @@ export function EditEmployeeAdmin() {
             </div>
 
             {/* Baris 7 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-black">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Bank
@@ -339,7 +539,7 @@ export function EditEmployeeAdmin() {
             </div>
 
             {/* Baris 8 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-black">
               <Field
                 label="Atas Nama Rekening"
                 name="accountName"
@@ -384,6 +584,7 @@ export function EditEmployeeAdmin() {
           </form>
         </div>
       </section>
+      )}
 
       {/* Modal Konfirmasi */}
       {showConfirmModal && (
@@ -432,17 +633,28 @@ export function EditEmployeeAdmin() {
               <button
                 type="button"
                 onClick={handleCancelModal}
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                disabled={isLoading}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleConfirmSave}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <CheckCircle className="w-4 h-4" />
-                Simpan
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Simpan
+                  </>
+                )}
               </button>
             </div>
           </div>

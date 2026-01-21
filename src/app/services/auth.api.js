@@ -1,21 +1,35 @@
 import { http, setToken, clearToken } from "@/lib/http";
 
-// ↓↓↓ UBAH DI SINI SAJA JIKA PATH BERBEDA ↓↓↓
-// src/app/config/services/auth.api.js
+// ↓↓↓ PATH SESUAI BACKEND hris-api ↓↓↓
 const PATH = {
-  login:          "/api/auth/signin",
-  register:       "/api/auth/signup",
-  me:             "/api/auth/me",
-  logout:         "/api/auth/logout",
-  google:         "/api/auth/google",   // ← backend-mu ada r.post('/google', ...)
-  forgotPassword: "/api/auth/forgot-password",
-  resetPassword:  "/api/auth/reset-password",
+  login:          "/api/auth/login",           // POST - user/admin login
+  employeeLogin:  "/api/auth/employee/signin", // POST - employee login dengan ID
+  register:       "/api/auth/signup",          // POST - register
+  me:             "/api/auth/me",              // GET  - get current user
+  logout:         "/api/auth/logout",          // POST - logout (optional)
+  google:         "/api/auth/google",          // POST - Google OAuth
+  forgotPassword: "/api/password/forgot-password",  // POST - request reset password
+  resetPassword:  "/api/password/reset-password",   // POST - reset password dengan token
+  // Profile endpoints
+  profile:        "/api/profile",              // GET/PUT - profile
+  avatar:         "/api/profile/avatar",       // PUT/DELETE - avatar
+  changePassword: "/api/profile/change-password", // PUT - change password
 };
 
 export const authService = {
+  // Login untuk User/Admin dengan email
   async signIn({ identifier, password }) {
-    const body = { identifier, password };     // backend-mu menerima "identifier"
+    const body = { identifier, password };
     const res  = await http(PATH.login, { method: "POST", body });
+    const token = res?.token || res?.accessToken || res?.data?.token;
+    if (token) setToken(token);
+    return res;
+  },
+
+  // Login untuk Employee dengan Employee ID
+  async employeeSignIn({ companyUser, employeeId, password }) {
+    const body = { companyUser, employeeId, password };
+    const res  = await http(PATH.employeeLogin, { method: "POST", body });
     const token = res?.token || res?.accessToken || res?.data?.token;
     if (token) setToken(token);
     return res;
@@ -48,5 +62,34 @@ export const authService = {
 
   async resetPassword({ token, password }) {
     return http(PATH.resetPassword, { method: "POST", body: { token, password } });
+  },
+
+  // ============================================
+  // PROFILE API
+  // ============================================
+  
+  async getProfile() {
+    return http(PATH.profile, { method: "GET" });
+  },
+
+  async updateProfile(data) {
+    return http(PATH.profile, { method: "PUT", body: data });
+  },
+
+  async updateAvatar(file) {
+    const formData = new FormData();
+    formData.append("avatar", file);
+    return http(PATH.avatar, { method: "PUT", body: formData, isFormData: true });
+  },
+
+  async deleteAvatar() {
+    return http(PATH.avatar, { method: "DELETE" });
+  },
+
+  async changePassword({ currentPassword, newPassword }) {
+    return http(PATH.changePassword, { 
+      method: "PUT", 
+      body: { currentPassword, newPassword } 
+    });
   },
 };

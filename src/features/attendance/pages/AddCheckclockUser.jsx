@@ -9,10 +9,15 @@ import {
   Upload,
   LocateFixed,
   AlertCircle,
+  Loader2,
+  XCircle,
+  CheckCircle,
 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
 import { MapComponent } from "../components/MapComponent";
 import { CustomDropdown } from "../../../components/ui/CustomDropdown";
+import { attendanceService } from "@/app/services/attendance.api";
+import { locationService } from "@/app/services/location.api";
 
 export default function AddCheckclockUser() {
   const navigate = useNavigate();
@@ -38,6 +43,42 @@ export default function AddCheckclockUser() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Dynamic locations from API
+  const [companyLocations, setCompanyLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(true);
+
+  // Build locationPresets dynamically from API + fixed options
+  const locationPresets = {
+    ...companyLocations.reduce((acc, loc) => {
+      acc[loc.name] = {
+        lat: loc.latitude,
+        lng: loc.longitude,
+        address: loc.address || "",
+      };
+      return acc;
+    }, {}),
+    "Remote": null,
+    "Lainnya": null,
+  };
+
+  // ====== FETCH COMPANY LOCATIONS ======
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        setLoadingLocations(true);
+        const response = await locationService.getLocations();
+        const data = response?.data || [];
+        setCompanyLocations(data);
+      } catch (err) {
+        console.error("Failed to fetch locations:", err);
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+
+    fetchLocations();
+  }, []);
 
   // ====== REALTIME CLOCK ======
   useEffect(() => {
@@ -62,19 +103,76 @@ export default function AddCheckclockUser() {
     }));
   };
 
+  // Handler khusus untuk perubahan lokasi dropdown
+  const handleLocationChange = (e) => {
+    const { value } = e.target;
+    const preset = locationPresets[value];
+
+    if (preset) {
+      // Jika lokasi punya preset koordinat, update map dan form
+      setMapPosition({ lat: preset.lat, lng: preset.lng });
+      setFormData((prev) => ({
+        ...prev,
+        location: value,
+        latitude: preset.lat.toFixed(6),
+        longitude: preset.lng.toFixed(6),
+        address: preset.address || prev.address,
+      }));
+      setNotification({
+        type: "info",
+        message: `Peta diarahkan ke ${value}`,
+      });
+    } else {
+      // Untuk Remote/Lainnya, hanya update location tanpa mengubah peta
+      setFormData((prev) => ({
+        ...prev,
+        location: value,
+      }));
+      if (value === "Remote" || value === "Lainnya") {
+        setNotification({
+          type: "info",
+          message: "Silakan pilih lokasi di peta atau gunakan tombol My Location",
+        });
+      }
+    }
+  };
+
   // Saat tipe absensi dipilih → capture jam realtime ke capturedTime
   const handleAttendanceTypeChange = (value) => {
     setFormData((prev) => ({
       ...prev,
       attendanceType: value,
       capturedTime: currentTime,
-      ...(value !== "Annual Leave" ? { startDate: "", endDate: "" } : {}),
+      ...(!["Annual Leave", "Sick Leave"].includes(value) ? { startDate: "", endDate: "" } : {}),
     }));
   };
 
+  // State for file preview
+  const [proofPreview, setProofPreview] = useState(null);
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) setProofFile(file);
+    if (file) {
+      setProofFile(file);
+      
+      // Generate preview for images
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProofPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setProofPreview(null);
+      }
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setProofFile(null);
+    setProofPreview(null);
+    const fileInput = document.getElementById("proof-file-user");
+    if (fileInput) fileInput.value = "";
   };
 
   const handleSubmit = (e) => {
@@ -87,13 +185,13 @@ export default function AddCheckclockUser() {
       requiredFields.push("Tipe Absensi");
     }
     
-    // Validasi khusus untuk Annual Leave
-    if (formData.attendanceType === "Annual Leave") {
+    // Validasi khusus untuk Annual Leave / Sick Leave
+    if (["Annual Leave", "Sick Leave"].includes(formData.attendanceType)) {
       if (!formData.startDate) {
-        requiredFields.push("Start Date (untuk Annual Leave)");
+        requiredFields.push("Start Date");
       }
       if (!formData.endDate) {
-        requiredFields.push("End Date (untuk Annual Leave)");
+        requiredFields.push("End Date");
       }
     }
     
@@ -126,24 +224,64 @@ export default function AddCheckclockUser() {
   const handleConfirmSave = async () => {
     setIsLoading(true);
     
-    // Simulasi API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log("Form Data:", formData);
-    console.log("Proof File:", proofFile);
-    
-    setNotification({
-      type: "success",
-      message: "Data absensi berhasil disimpan!",
-    });
-    
-    setShowConfirmModal(false);
-    setIsLoading(false);
-    
-    // Redirect ke halaman checkclock
-    setTimeout(() => {
-      navigate("/user/checkclock");
-    }, 1500);
+    try {
+      // Mapping attendance type: Frontend → Backend
+      const typeMapping = {
+        "Clock In": "CLOCK_IN",
+        "Clock Out": "CLOCK_OUT",
+        "Absent": "ABSENT",
+        "Annual Leave": "ANNUAL_LEAVE",
+        "Sick Leave": "SICK_LEAVE",
+      };
+
+      // Build FormData for multipart/form-data (file upload support)
+      const payload = new FormData();
+      payload.append("type", typeMapping[formData.attendanceType] || formData.attendanceType);
+      payload.append("locationName", formData.location);
+      payload.append("address", formData.address);
+      payload.append("latitude", formData.latitude);
+      payload.append("longitude", formData.longitude);
+      
+      if (formData.notes) {
+        payload.append("notes", formData.notes);
+      }
+
+      // For Annual Leave / Sick Leave, send date range
+      if (["Annual Leave", "Sick Leave"].includes(formData.attendanceType)) {
+        if (formData.startDate) payload.append("startDate", formData.startDate);
+        if (formData.endDate) payload.append("endDate", formData.endDate);
+      }
+
+      // Attach proof file if exists
+      if (proofFile) {
+        payload.append("proof", proofFile);
+      }
+
+      // Call API
+      await attendanceService.createUserCheckclock(payload);
+
+      // Success
+      setNotification({
+        type: "success",
+        message: "Data absensi berhasil disimpan!",
+      });
+
+      setShowConfirmModal(false);
+
+      // Redirect after delay
+      setTimeout(() => {
+        navigate("/user/checkclock");
+      }, 1500);
+    } catch (err) {
+      console.error("Failed to save attendance:", err);
+      setNotification({
+        type: "error",
+        message: err?.message || err?.data?.message || "Gagal menyimpan data absensi",
+      });
+      setShowConfirmModal(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancelSave = () => {
@@ -272,8 +410,8 @@ export default function AddCheckclockUser() {
                     </div>
                   </div>
 
-                  {/* Start/End Date (Annual Leave only) */}
-                  {formData.attendanceType === "Annual Leave" && (
+                  {/* Start/End Date (Annual Leave & Sick Leave) */}
+                  {["Annual Leave", "Sick Leave"].includes(formData.attendanceType) && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -314,47 +452,94 @@ export default function AddCheckclockUser() {
                       Upload Bukti Pendukung
                     </label>
 
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                      <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
-                          <Upload className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <p className="text-sm text-gray-600 mb-1">
-                          Drag n Drop here
-                        </p>
-                        <p className="text-sm text-gray-500 mb-3">Or</p>
-
-                        <input
-                          type="file"
-                          onChange={handleFileUpload}
-                          className="hidden"
-                          id="proof-file"
-                          accept="image/*,.pdf"
-                        />
-                        <label
-                          htmlFor="proof-file"
-                          className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
-                        >
-                          Browse
-                        </label>
-
-                        {proofFile && (
-                          <p className="text-xs text-green-600 mt-3">
-                            ✓ {proofFile.name}
-                          </p>
+                    {/* Show preview if file is uploaded */}
+                    {proofFile ? (
+                      <div className="border-2 border-gray-200 rounded-lg p-4">
+                        {/* Image Preview */}
+                        {proofPreview && (
+                          <div className="mb-4 rounded-lg overflow-hidden border border-gray-200">
+                            <img 
+                              src={proofPreview} 
+                              alt="Preview" 
+                              className="w-full h-48 object-cover"
+                            />
+                          </div>
                         )}
-                      </div>
-                    </div>
 
-                    {/* Upload Now Button */}
-                    <button
-                      type="button"
-                      onClick={() => proofFile && alert("File uploaded!")}
-                      className="w-full mt-3 px-4 py-2.5 bg-gray-200 text-gray-500 text-sm font-medium rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
-                      disabled={!proofFile}
-                    >
-                      Upload Now
-                    </button>
+                        {/* File Info */}
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                              {proofFile.type.startsWith("image/") ? (
+                                <Upload className="w-5 h-5 text-blue-600" />
+                              ) : (
+                                <AlertCircle className="w-5 h-5 text-blue-600" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                                {proofFile.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {(proofFile.size / 1024).toFixed(1)} KB
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleRemoveFile}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                            title="Remove file"
+                          >
+                            <XCircle className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        {/* Change file button */}
+                        <div className="mt-3 text-center">
+                          <input
+                            type="file"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                            id="proof-file-user-change"
+                            accept="image/*,.pdf"
+                          />
+                          <label
+                            htmlFor="proof-file-user-change"
+                            className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                          >
+                            Change File
+                          </label>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <div className="flex flex-col items-center">
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                            <Upload className="w-6 h-6 text-gray-400" />
+                          </div>
+                          <p className="text-sm text-gray-600 mb-1">
+                            Drag n Drop here
+                          </p>
+                          <p className="text-sm text-gray-500 mb-3">Or</p>
+
+                          <input
+                            type="file"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                            id="proof-file-user"
+                            accept="image/*,.pdf"
+                          />
+                          <label
+                            htmlFor="proof-file-user"
+                            className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                          >
+                            Browse
+                          </label>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -368,14 +553,25 @@ export default function AddCheckclockUser() {
                     <CustomDropdown
                       name="location"
                       value={formData.location}
-                      onChange={handleInputChange}
-                      placeholder="Select Location"
+                      onChange={handleLocationChange}
+                      placeholder={loadingLocations ? "Memuat lokasi..." : "Pilih Lokasi"}
                       options={[
-                        { value: "Kantor Pusat", label: "Kantor Pusat", icon: "📍" },
-                        { value: "Kantor Cabang", label: "Kantor Cabang", icon: "📍" },
-                        { value: "Remote / WFH", label: "Remote / WFH", icon: "🏠" },
+                        // Dynamic locations from company settings
+                        ...companyLocations.map(loc => ({
+                          value: loc.name,
+                          label: loc.name,
+                          icon: "📍"
+                        })),
+                        // Fixed options
+                        { value: "Remote", label: "Remote / WFH", icon: "🏠" },
+                        { value: "Lainnya", label: "Lainnya", icon: "📌" },
                       ]}
                     />
+                    {companyLocations.length === 0 && !loadingLocations && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        Belum ada lokasi kantor terdaftar. Hubungi admin untuk menambahkan.
+                      </p>
+                    )}
                   </div>
 
                   {/* Detail Alamat */}

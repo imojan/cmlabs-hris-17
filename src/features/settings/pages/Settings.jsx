@@ -9,7 +9,8 @@ import {
   ChevronDown, 
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  MapPin
 } from "lucide-react";
 
 export default function Settings() {
@@ -55,14 +56,18 @@ export default function Settings() {
     navigate(`${basePath}/settings/profile`);
   };
 
+  const handleLocationSettings = () => {
+    navigate(`${basePath}/settings/locations`);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-1">
       {/* Main Settings Card */}
-      <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm">
+      <section className="bg-white rounded-xl sm:rounded-2xl border border-gray-200/70 shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-[#1D395E]">Pengaturan Umum</h2>
-          <p className="text-sm text-gray-500 mt-1">Kelola preferensi akun dan aplikasi Anda</p>
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
+          <h2 className="text-lg sm:text-xl font-semibold text-[#1D395E]">Pengaturan Umum</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">Kelola preferensi akun dan aplikasi Anda</p>
         </div>
 
         {/* Settings List */}
@@ -71,53 +76,72 @@ export default function Settings() {
           {/* 1. Profile Settings - Navigates to new page */}
           <button
             onClick={handleProfileSettings}
-            className="w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50/80 transition-colors group"
+            className="w-full flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 hover:bg-gray-50/80 transition-colors group"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#1D395E]/10 flex items-center justify-center">
-                <User className="w-6 h-6 text-[#1D395E]" />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-[#1D395E]/10 flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#1D395E]" />
               </div>
               <div className="text-left">
-                <h3 className="text-[15px] font-semibold text-gray-800">Pengaturan Profil</h3>
-                <p className="text-sm text-gray-500">Ubah informasi profil, foto, dan data pribadi</p>
+                <h3 className="text-sm sm:text-[15px] font-semibold text-gray-800">Pengaturan Profil</h3>
+                <p className="text-xs sm:text-sm text-gray-500 line-clamp-1">Ubah informasi profil, foto, dan data pribadi</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1D395E] transition-colors" />
+            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#1D395E] transition-colors flex-shrink-0" />
           </button>
 
+          {/* 1.5. Location Settings - Admin Only */}
+          {isAdmin && (
+            <button
+              onClick={handleLocationSettings}
+              className="w-full flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 hover:bg-gray-50/80 transition-colors group"
+            >
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-sm sm:text-[15px] font-semibold text-gray-800">Lokasi Kantor</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 line-clamp-1">Kelola lokasi kantor untuk checkclock</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors flex-shrink-0" />
+            </button>
+          )}
+
           {/* 2. Language Settings - Dropdown */}
-          <div className="px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#2D5F3F]/10 flex items-center justify-center">
-                  <Globe className="w-6 h-6 text-[#2D5F3F]" />
+          <div className="px-4 sm:px-6 py-4 sm:py-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-[#2D5F3F]/10 flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-[#2D5F3F]" />
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-semibold text-gray-800">Bahasa</h3>
-                  <p className="text-sm text-gray-500">Pilih bahasa tampilan aplikasi</p>
+                  <h3 className="text-sm sm:text-[15px] font-semibold text-gray-800">Bahasa</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Pilih bahasa tampilan aplikasi</p>
                 </div>
               </div>
               
               {/* Language Dropdown */}
-              <div className="relative">
+              <div className="relative ml-13 sm:ml-0">
                 <button
                   onClick={() => {
                     setShowLangDropdown(!showLangDropdown);
                     setShowThemeDropdown(false);
                   }}
-                  className="flex items-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors min-w-[180px]"
+                  className="flex items-center justify-between w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg sm:rounded-xl transition-colors sm:min-w-[160px]"
                 >
-                  <span className="flex-1 text-center text-sm font-medium text-gray-700">{currentLang?.label}</span>
+                  <span className="text-sm font-medium text-gray-700">{currentLang?.label}</span>
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ml-2 ${showLangDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {showLangDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
+                  <div className="absolute right-0 left-0 sm:left-auto top-full mt-2 sm:w-full bg-white rounded-lg sm:rounded-xl shadow-lg border border-gray-200 py-1 z-20">
                     {languages.map((lang) => (
                       <button
                         key={lang.code}
                         onClick={() => handleLanguageChange(lang.code)}
-                        className={`w-full text-center px-4 py-2.5 hover:bg-gray-50 transition-colors ${
+                        className={`w-full text-left sm:text-center px-4 py-2 sm:py-2.5 hover:bg-gray-50 transition-colors ${
                           language === lang.code ? 'bg-[#1D395E]/5 text-[#1D395E]' : 'text-gray-700'
                         }`}
                       >
@@ -131,39 +155,41 @@ export default function Settings() {
           </div>
 
           {/* 3. Theme Settings - Dropdown */}
-          <div className="px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center">
-                  <Palette className="w-6 h-6 text-[#D4AF37]" />
+          <div className="px-4 sm:px-6 py-4 sm:py-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-[#D4AF37]/10 flex items-center justify-center flex-shrink-0">
+                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-[#D4AF37]" />
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-semibold text-gray-800">Tema Tampilan</h3>
-                  <p className="text-sm text-gray-500">Pilih tema terang atau gelap</p>
+                  <h3 className="text-sm sm:text-[15px] font-semibold text-gray-800">Tema Tampilan</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Pilih tema terang atau gelap</p>
                 </div>
               </div>
               
               {/* Theme Dropdown */}
-              <div className="relative">
+              <div className="relative ml-13 sm:ml-0">
                 <button
                   onClick={() => {
                     setShowThemeDropdown(!showThemeDropdown);
                     setShowLangDropdown(false);
                   }}
-                  className="flex items-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors min-w-[180px]"
+                  className="flex items-center justify-between w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg sm:rounded-xl transition-colors sm:min-w-[160px]"
                 >
-                  {currentTheme && <currentTheme.icon className="w-4 h-4 text-gray-600 mr-2" />}
-                  <span className="flex-1 text-center text-sm font-medium text-gray-700">{currentTheme?.label}</span>
+                  <div className="flex items-center gap-2">
+                    {currentTheme && <currentTheme.icon className="w-4 h-4 text-gray-600" />}
+                    <span className="text-sm font-medium text-gray-700">{currentTheme?.label}</span>
+                  </div>
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ml-2 ${showThemeDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {showThemeDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
+                  <div className="absolute right-0 left-0 sm:left-auto top-full mt-2 sm:w-full bg-white rounded-lg sm:rounded-xl shadow-lg border border-gray-200 py-1 z-20">
                     {themes.map((t) => (
                       <button
                         key={t.code}
                         onClick={() => handleThemeChange(t.code)}
-                        className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 hover:bg-gray-50 transition-colors ${
+                        className={`w-full flex items-center gap-2 px-4 py-2 sm:py-2.5 hover:bg-gray-50 transition-colors ${
                           theme === t.code ? 'bg-[#1D395E]/5 text-[#1D395E]' : 'text-gray-700'
                         }`}
                       >
@@ -180,14 +206,14 @@ export default function Settings() {
       </section>
 
       {/* Info Card */}
-      <section className="bg-gradient-to-r from-[#1D395E] to-[#2a4a6e] rounded-2xl p-6 text-white">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-            <Globe className="w-6 h-6" />
+      <section className="bg-gradient-to-r from-[#1D395E] to-[#2a4a6e] rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+            <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
-            <h3 className="font-semibold mb-1">Tentang Pengaturan</h3>
-            <p className="text-sm text-white/80 leading-relaxed">
+            <h3 className="font-semibold text-sm sm:text-base mb-1">Tentang Pengaturan</h3>
+            <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
               Perubahan bahasa dan tema akan diterapkan secara langsung. 
               Untuk mengubah informasi profil seperti nama, foto, dan data pribadi lainnya, 
               klik pada menu "Pengaturan Profil" di atas.

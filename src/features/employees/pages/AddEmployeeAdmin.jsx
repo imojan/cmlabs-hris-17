@@ -1,14 +1,16 @@
 // src/features/employees/pages/AddEmployeeAdmin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Calendar, ChevronDown, AlertCircle, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
+import { Upload, Calendar, ChevronDown, AlertCircle, CheckCircle, XCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Notification } from "../../../components/ui/Notification";
 import { CustomDropdown } from "../../../components/ui/CustomDropdown";
+import { employeeService } from "@/app/services/employee.api";
 
 export function AddEmployeeAdmin() {
   const navigate = useNavigate();
 
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
@@ -34,6 +36,23 @@ export function AddEmployeeAdmin() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Mapping contractType frontend -> backend
+  const CONTRACT_TYPE_MAP = {
+    "Tetap": "permanent",
+    "Kontrak": "contract",
+    "Lepas": "intern",
+  };
+
+  // Mapping education frontend -> backend
+  const EDUCATION_MAP = {
+    "SMA/SMK": "sma",
+    "D3": "d3",
+    "S1": "s1",
+    "S2": "s2",
+    "S3": "s3",
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,7 +61,12 @@ export function AddEmployeeAdmin() {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) setAvatarFile(file);
+    if (file) {
+      setAvatarFile(file);
+      // Generate preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -83,24 +107,106 @@ export function AddEmployeeAdmin() {
     setShowConfirmModal(true);
   };
 
-  const handleConfirmSave = () => {
-    // Proses penyimpanan data
-    console.log("Form add employee:", formData);
-    console.log("Avatar:", avatarFile);
+  const handleConfirmSave = async () => {
+    setIsLoading(true);
     
-    // Tampilkan success notification
-    setNotification({
-      type: "success",
-      message: "Data karyawan berhasil ditambahkan!",
-    });
-    
-    // Tutup modal
-    setShowConfirmModal(false);
-    
-    // Redirect ke halaman EmployeeDatabase setelah 1.5 detik
-    setTimeout(() => {
-      navigate("/admin/employees-database");
-    }, 1500);
+    try {
+      // Buat FormData untuk handle file upload
+      const submitData = new FormData();
+      
+      // Account Login fields
+      submitData.append("employeeId", formData.employeeId);
+      submitData.append("email", formData.email);
+      submitData.append("password", formData.password);
+      
+      // Personal Information fields
+      submitData.append("firstName", formData.firstName);
+      if (formData.lastName) submitData.append("lastName", formData.lastName);
+      if (formData.mobileNumber) submitData.append("mobileNumber", formData.mobileNumber);
+      if (formData.nik) submitData.append("nik", formData.nik);
+      if (formData.gender) submitData.append("gender", formData.gender);
+      if (formData.birthPlace) submitData.append("birthPlace", formData.birthPlace);
+      if (formData.birthDate) submitData.append("birthDate", formData.birthDate);
+      
+      // Education - map to backend format
+      if (formData.education) {
+        submitData.append("education", EDUCATION_MAP[formData.education] || formData.education.toLowerCase());
+      }
+      
+      // Employment fields - map position to jobdesk
+      if (formData.position) submitData.append("jobdesk", formData.position);
+      if (formData.branch) submitData.append("branch", formData.branch);
+      
+      // ContractType - map to backend format
+      if (formData.contractType) {
+        submitData.append("contractType", CONTRACT_TYPE_MAP[formData.contractType] || formData.contractType.toLowerCase());
+      }
+      
+      if (formData.grade) submitData.append("grade", formData.grade);
+      
+      // Bank Information
+      if (formData.bank) submitData.append("bank", formData.bank);
+      if (formData.accountNumber) submitData.append("accountNumber", formData.accountNumber);
+      if (formData.accountName) submitData.append("accountName", formData.accountName);
+      if (formData.spType) submitData.append("spType", formData.spType);
+      
+      // Avatar file
+      if (avatarFile) {
+        submitData.append("avatar", avatarFile);
+      }
+      
+      // Call API
+      const response = await employeeService.create(submitData);
+      
+      console.log("Employee created:", response);
+      
+      // Tampilkan success notification
+      setNotification({
+        type: "success",
+        message: response.message || "Data karyawan berhasil ditambahkan!",
+      });
+      
+      // Tutup modal
+      setShowConfirmModal(false);
+      
+      // Redirect ke halaman EmployeeDatabase setelah 1.5 detik
+      setTimeout(() => {
+        navigate("/admin/employees-database");
+      }, 1500);
+      
+    } catch (error) {
+      console.error("Error creating employee:", error);
+      
+      // Handle specific error messages from backend
+      let errorMessage = "Gagal menambahkan data karyawan";
+      
+      if (error.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Handle specific error codes
+      if (error.status === 409) {
+        // Conflict - duplicate employeeId or email
+        errorMessage = error.data?.message || "Employee ID atau Email sudah terdaftar";
+      } else if (error.status === 400) {
+        // Validation error
+        errorMessage = error.data?.message || "Data yang dikirim tidak valid";
+      } else if (error.status === 403) {
+        errorMessage = "Anda tidak memiliki akses untuk menambahkan karyawan";
+      }
+      
+      setNotification({
+        type: "error",
+        message: errorMessage,
+      });
+      
+      // Tutup modal agar user bisa edit data
+      setShowConfirmModal(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancelModal = () => {
@@ -137,10 +243,15 @@ export function AddEmployeeAdmin() {
             {/* box avatar */}
             <div className="flex items-center gap-4">
               <div className="w-28 h-28 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
-                {/* bisa nanti diisi preview img */}
-                <span className="text-xs text-gray-500">
-                  {avatarFile ? "Preview" : "Avatar"}
-                </span>
+                {avatarPreview ? (
+                  <img 
+                    src={avatarPreview} 
+                    alt="Avatar Preview" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs text-gray-500">Avatar</span>
+                )}
               </div>
               <div>
                 <label
@@ -605,17 +716,28 @@ export function AddEmployeeAdmin() {
               <button
                 type="button"
                 onClick={handleCancelModal}
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                disabled={isLoading}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleConfirmSave}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <CheckCircle className="w-4 h-4" />
-                Ya, Tambahkan
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Ya, Tambahkan
+                  </>
+                )}
               </button>
             </div>
           </div>
