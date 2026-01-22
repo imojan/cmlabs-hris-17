@@ -17,6 +17,7 @@ import SetNewPassword from "@/features/auth/pages/SetNewPassword.jsx";
 import SuccessChangePassword from "@/features/auth/pages/SuccessChangePassword.jsx";
 import LinkExpired from "@/features/auth/pages/LinkExpired.jsx";
 import CompanyName from "@/features/auth/pages/CompanyName.jsx";
+import AuthCallback from "@/features/auth/pages/AuthCallback.jsx";
 import LandingPage from "@/features/landing/pages/LandingPage.jsx";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard.jsx";
 import UserDashboard from "@/features/dashboard/pages/UserDashboard.jsx";
@@ -90,6 +91,12 @@ export default function AppRouter() {
         <Route path="/payment/confirmation" element={<PaymentConfirmation />} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
 
+        {/* OAuth callback - public */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
+        {/* Company name setup - accessible after Google OAuth (user is logged in but no company) */}
+        <Route path="/auth/company-name" element={<CompanyName />} />
+
         {/* Guest routes - ONLY accessible when NOT logged in */}
         {/* If already logged in, will redirect to dashboard */}
         <Route element={<GuestRoute />}>
@@ -101,7 +108,6 @@ export default function AppRouter() {
           <Route path="/auth/set-new-password" element={<SetNewPassword />} />
           <Route path="/auth/success-change-password" element={<SuccessChangePassword />} />
           <Route path="/auth/link-expired" element={<LinkExpired />} />
-          <Route path="/auth/company-name" element={<CompanyName />} />
         </Route>
 
         {/* Protected routes - Admin pages (only admin role) */}

@@ -146,6 +146,12 @@ export default function SignUp() {
     }
   };
 
+  const handleGoogleClick = () => {
+    // Redirect to backend Google OAuth endpoint
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
+    window.location.href = `${apiUrl}/api/auth/google`;
+  };
+
   return (
     <div className={`min-h-screen flex auth-page-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Notification Toast */}
@@ -401,6 +407,7 @@ export default function SignUp() {
             <div className="pt-2">
               <button
                 type="button"
+                onClick={handleGoogleClick}
                 className={`w-full h-[59.516px] rounded-[17.601px] flex items-center justify-center gap-3 text-[18px] font-bold transition-all duration-200 ${
                   isDark 
                     ? 'bg-gray-800 border border-gray-600 text-gray-100 hover:bg-[#1d395e] hover:text-white hover:border-transparent' 

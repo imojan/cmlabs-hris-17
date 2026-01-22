@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { useTheme } from "@/app/hooks/useTheme";
+import { useAuth } from "@/app/store/authStore";
 import { Notification } from "@/components/ui/Notification";
+import { http } from "@/lib/http";
 import companyNameIllustration from "@/assets/images/auth/company-name.png";
 
 /* ---------- page component ---------- */
@@ -13,13 +15,33 @@ export default function CompanyName() {
   const isDark = theme === "dark";
   const [isLoaded, setIsLoaded] = useState(false);
   
-  // Get user data from Google sign up (if any) - prefixed with _ to indicate intentionally unused
-  const _userData = location.state?.userData || {};
+  // Auth store
+  const setAuth = useAuth((s) => s.setAuth);
+  const currentUser = useAuth((s) => s.user);
+  const token = useAuth((s) => s.token);
+  
+  // Check if coming from Google OAuth
+  const fromGoogleAuth = location.state?.fromGoogleAuth || false;
+  const userData = location.state?.userData || currentUser || {};
 
   // Animation on mount
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+
+  // Redirect if not from Google OAuth or already has company
+  useEffect(() => {
+    if (!fromGoogleAuth && !userData.needsCompanySetup) {
+      // If user already has company, redirect to dashboard
+      if (currentUser?.companyId) {
+        if (currentUser.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/user/dashboard");
+        }
+      }
+    }
+  }, [fromGoogleAuth, userData, currentUser, navigate]);
 
   // form state
   const [companyName, setCompanyName] = useState("");
@@ -52,18 +74,27 @@ export default function CompanyName() {
     try {
       setLoading(true);
       
-      // In a real app, you would save the company name to the user's profile
-      // For now, we'll just simulate a save and redirect
-      // await authService.updateCompanyName({ companyName, ...userData });
-
-      setNotification({
-        type: "success",
-        message: "Company name saved! Redirecting to sign in...",
+      // Call API to setup company
+      const response = await http("/api/auth/setup-company", {
+        method: "POST",
+        body: { companyName: companyName.trim() },
       });
 
-      setTimeout(() => {
-        navigate("/auth/sign-in");
-      }, 1500);
+      if (response.success) {
+        // Update auth store with new token and user data
+        setAuth(response.data.token, response.data.user);
+
+        setNotification({
+          type: "success",
+          message: "Company created successfully! Redirecting to dashboard...",
+        });
+
+        setTimeout(() => {
+          navigate("/admin/dashboard");
+        }, 1500);
+      } else {
+        throw new Error(response.message || "Failed to create company");
+      }
     } catch (err) {
       setNotification({
         type: "error",
@@ -165,20 +196,9 @@ export default function CompanyName() {
                 ${loading ? "animate-pulse" : ""}
               `}
             >
-              {loading ? "Saving..." : "FINISH"}
+              {loading ? "Creating..." : "FINISH"}
             </button>
           </form>
-
-          {/* Skip option (optional) */}
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => navigate("/auth/sign-in")}
-              className={`text-sm transition-colors underline ${isDark ? 'text-gray-400 hover:text-blue-400' : 'text-gray-500 hover:text-[#1d395e]'}`}
-            >
-              Skip for now
-            </button>
-          </div>
         </div>
       </div>
     </div>

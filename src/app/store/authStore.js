@@ -152,4 +152,11 @@ export const useAuth = create((set, get) => ({
     persistUser(updatedUser);
     set({ user: updatedUser });
   },
+
+  // Set auth directly (for OAuth callback)
+  setAuth(token, user) {
+    if (token) setToken(token);
+    persistUser(user);
+    set({ token, user, loading: false, error: null });
+  },
 }));

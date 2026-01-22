@@ -24,7 +24,6 @@ export default function SignIn() {
 
   // store
   const login            = useAuth((s) => s.login);
-  const loginWithGoogle  = useAuth((s) => s.loginWithGoogle);
   const loading          = useAuth((s) => s.loading);
 
   // form state
@@ -87,35 +86,6 @@ export default function SignIn() {
   }, [values]);
   const isValid = Object.keys(errors).length === 0;
 
-  // === GOOGLE IDENTITY SERVICES init ===
-  useEffect(() => {
-    const cid = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!window.google || !cid) return;
-
-    window.google.accounts.id.initialize({
-      client_id: cid,
-      callback: async (response) => {
-        // response.credential = JWT Google
-        const { ok, user } = await loginWithGoogle(response.credential);
-        if (ok) {
-          // Redirect based on priority and role
-          if (fromPayment) {
-            navigate("/payment");
-          } else {
-            const userRole = user?.role || "admin";
-            if (userRole === "employee" || userRole === "user") {
-              navigate("/user/dashboard");
-            } else {
-              navigate("/admin/dashboard");
-            }
-          }
-        }
-      },
-    });
-    // (opsional) bisa render button default GIS ke elemen tertentu jika mau
-    // window.google.accounts.id.renderButton(document.getElementById('google-btn'), { theme: 'outline' });
-  }, [loginWithGoogle, navigate, fromPayment]);
-
   // handlers
   const handleSubmit = async (ev) => {
     ev.preventDefault();
@@ -171,9 +141,9 @@ export default function SignIn() {
   };
 
   const handleGoogleClick = () => {
-    if (!window.google) return;
-    // munculkan One Tap / chooser popup; suksesnya diproses di callback initialize()
-    window.google.accounts.id.prompt();
+    // Redirect to backend Google OAuth endpoint
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
+    window.location.href = `${apiUrl}/api/auth/google`;
   };
 
   return (
