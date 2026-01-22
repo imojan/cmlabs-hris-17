@@ -174,12 +174,16 @@ function UserDashboardContent() {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const navigate = useNavigate();
   const [attendanceFilter, setAttendanceFilter] = useState("month");
   const [_leaveFilter, setLeaveFilter] = useState("year");
   const [workHoursFilter, setWorkHoursFilter] = useState("week");
   const [showAttendanceDropdown, setShowAttendanceDropdown] = useState(false);
   const [showLeaveDropdown, setShowLeaveDropdown] = useState(false);
   const [showWorkHoursDropdown, setShowWorkHoursDropdown] = useState(false);
+  
+  // Modal for leave history detail
+  const [showLeaveDetailModal, setShowLeaveDetailModal] = useState(false);
 
   // API data state
   const [loading, setLoading] = useState(true);
@@ -210,6 +214,16 @@ function UserDashboardContent() {
     fetchDashboard();
   }, []);
 
+  // Handle request leave - navigate to add checkclock with annual leave pre-selected
+  const handleRequestLeave = () => {
+    navigate("/user/checkclock/add", { state: { preselectedType: "ANNUAL_LEAVE" } });
+  };
+
+  // Handle see details - show leave history modal
+  const handleSeeDetails = () => {
+    setShowLeaveDetailModal(true);
+  };
+
   // Default data structure if API fails
   const attendanceData = dashboardData?.attendance ? {
     ontime: dashboardData.attendance.ON_TIME,
@@ -226,11 +240,13 @@ function UserDashboardContent() {
   const LEAVE_DATA = dashboardData?.leave ? {
     totalQuota: dashboardData.leave.quotaDays,
     taken: dashboardData.leave.takenDays,
-    remaining: dashboardData.leave.remainingDays
+    remaining: dashboardData.leave.remainingDays,
+    history: dashboardData.leave.leaveHistory || []
   } : {
     totalQuota: 12,
     taken: 0,
-    remaining: 12
+    remaining: 12,
+    history: []
   };
 
   const workHoursData = dashboardData?.workHoursChart || [
@@ -465,7 +481,10 @@ function UserDashboardContent() {
               <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.totalQuotaAnnualLeave")}</span>
             </div>
             <p className={`text-2xl font-bold mb-3 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{LEAVE_DATA.totalQuota} <span className={`text-sm font-normal ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("time.days")}</span></p>
-            <button className={`text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
+            <button 
+              onClick={handleRequestLeave}
+              className={`text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}
+            >
               {t("dashboard.requestLeave")}
             </button>
           </div>
@@ -479,7 +498,10 @@ function UserDashboardContent() {
                 <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.taken")}</span>
               </div>
               <p className={`text-2xl font-bold mb-4 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{LEAVE_DATA.taken} <span className={`text-sm font-normal ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("time.days")}</span></p>
-              <button className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
+              <button 
+                onClick={handleSeeDetails}
+                className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}
+              >
                 <Eye className="w-4 h-4" />
                 {t("common.seeDetails")}
               </button>
@@ -492,7 +514,10 @@ function UserDashboardContent() {
                 <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.remaining")}</span>
               </div>
               <p className={`text-2xl font-bold mb-4 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{LEAVE_DATA.remaining} <span className={`text-sm font-normal ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("time.days")}</span></p>
-              <button className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
+              <button 
+                onClick={handleRequestLeave}
+                className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}
+              >
                 <Send className="w-4 h-4" />
                 {t("dashboard.requestLeave")}
               </button>
@@ -564,6 +589,90 @@ function UserDashboardContent() {
           </div>
         </div>
       </div>
+
+      {/* ===== LEAVE DETAIL MODAL ===== */}
+      {showLeaveDetailModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className={`rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+            {/* Modal Header */}
+            <div className={`flex items-center justify-between px-6 py-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                {t("dashboard.leaveHistory")}
+              </h3>
+              <button
+                onClick={() => setShowLeaveDetailModal(false)}
+                className={`p-1 rounded-lg transition ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+              >
+                <XCircle className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-6 py-4 max-h-96 overflow-y-auto">
+              {LEAVE_DATA.history.length === 0 ? (
+                <div className="text-center py-8">
+                  <Calendar className={`w-12 h-12 mx-auto mb-3 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
+                  <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>{t("dashboard.noLeaveHistory")}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {LEAVE_DATA.history.map((leave) => (
+                    <div 
+                      key={leave.id} 
+                      className={`border rounded-xl p-4 ${isDark ? 'border-gray-700 bg-gray-750' : 'border-gray-200 bg-gray-50'}`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                          leave.type === 'ANNUAL_LEAVE' 
+                            ? isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-700'
+                            : isDark ? 'bg-purple-900/50 text-purple-400' : 'bg-purple-100 text-purple-700'
+                        }`}>
+                          {leave.type === 'ANNUAL_LEAVE' ? t("attendance.annualLeave") : t("attendance.sickLeave")}
+                        </span>
+                        <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                          leave.status === 'APPROVED' 
+                            ? isDark ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'
+                            : leave.status === 'REJECTED'
+                            ? isDark ? 'bg-rose-900/50 text-rose-400' : 'bg-rose-100 text-rose-700'
+                            : isDark ? 'bg-amber-900/50 text-amber-400' : 'bg-amber-100 text-amber-700'
+                        }`}>
+                          {leave.status === 'APPROVED' ? t("common.approved") : leave.status === 'REJECTED' ? t("common.rejected") : t("common.pending")}
+                        </span>
+                      </div>
+                      <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>
+                            {leave.startDate && new Date(leave.startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            {leave.endDate && leave.endDate !== leave.startDate && (
+                              <> - {new Date(leave.endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</>
+                            )}
+                          </span>
+                        </div>
+                        {leave.notes && (
+                          <p className={`mt-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {t("common.notes")}: {leave.notes}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className={`flex justify-end px-6 py-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+              <button
+                onClick={() => setShowLeaveDetailModal(false)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${isDark ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              >
+                {t("common.close")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

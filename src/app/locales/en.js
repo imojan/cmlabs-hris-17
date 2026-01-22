@@ -52,6 +52,10 @@ export default {
     showLess: "Show Less",
     total: "Total",
     seeDetails: "See Details",
+    approved: "Approved",
+    rejected: "Rejected",
+    pending: "Pending",
+    notes: "Notes",
   },
 
   // ============================================
@@ -188,6 +192,8 @@ export default {
     remaining: "Remaining",
     viewBy: "view by",
     errorLoading: "Error loading dashboard",
+    leaveHistory: "Leave History",
+    noLeaveHistory: "No leave history found",
     
     // Chart data
     new: "New",

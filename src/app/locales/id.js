@@ -52,6 +52,10 @@ export default {
     showLess: "Lihat Lebih Sedikit",
     total: "Total",
     seeDetails: "Lihat Detail",
+    approved: "Disetujui",
+    rejected: "Ditolak",
+    pending: "Menunggu",
+    notes: "Catatan",
   },
 
   // ============================================
@@ -188,6 +192,8 @@ export default {
     remaining: "Tersisa",
     viewBy: "lihat per",
     errorLoading: "Gagal memuat dashboard",
+    leaveHistory: "Riwayat Cuti",
+    noLeaveHistory: "Belum ada riwayat cuti",
     
     // Chart data
     new: "Baru",

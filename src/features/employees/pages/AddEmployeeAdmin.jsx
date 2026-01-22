@@ -30,7 +30,7 @@ export function AddEmployeeAdmin() {
     education: "",
     branch: "",
     position: "",
-    contractType: "Tetap",
+    contractType: "Permanen",
     grade: "",
     bank: "",
     accountNumber: "",
@@ -43,9 +43,11 @@ export function AddEmployeeAdmin() {
 
   // Mapping contractType frontend -> backend
   const CONTRACT_TYPE_MAP = {
-    "Tetap": "permanent",
-    "Kontrak": "contract",
-    "Lepas": "intern",
+    "Permanen": "permanent",
+    "Trial": "trial",
+    "PKWT": "contract",
+    "Magang": "intern",
+    "Freelance": "freelance",
   };
 
   // Mapping education frontend -> backend
@@ -562,13 +564,13 @@ export function AddEmployeeAdmin() {
             </div>
 
             {/* Baris 6: Tipe Kontrak (radio) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start">
               <div>
                 <p className={`text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Tipe Kontrak
                 </p>
-                <div className="flex items-center gap-6">
-                  {["Tetap", "Kontrak", "Lepas"].map((type) => (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {["Permanen", "Trial", "PKWT", "Magang", "Freelance"].map((type) => (
                     <label
                       key={type}
                       className={`inline-flex items-center gap-2 text-sm cursor-pointer ${isDark ? 'text-gray-300' : 'text-gray-700'}`}

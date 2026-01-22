@@ -146,4 +146,24 @@ export const employeeService = {
     }
     return json;
   },
+
+  /**
+   * Toggle employee active status (nonaktifkan sementara)
+   * @param {number|string} id - Employee ID
+   */
+  async toggleStatus(id) {
+    return http(`${PATH.employees}/${id}/toggle-status`, { method: "PATCH" });
+  },
+
+  /**
+   * Terminate employee (resign / PHK)
+   * @param {number|string} id - Employee ID
+   * @param {string} type - 'resign' | 'terminated'
+   */
+  async terminate(id, type) {
+    return http(`${PATH.employees}/${id}/terminate`, { 
+      method: "PATCH", 
+      body: { type } 
+    });
+  },
 };

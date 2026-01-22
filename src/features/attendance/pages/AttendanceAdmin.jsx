@@ -333,7 +333,7 @@ export function AttendanceAdmin() {
         (item.name && item.name.toLowerCase().includes(searchLower)) ||
         (item.role && item.role.toLowerCase().includes(searchLower)) ||
         (item.status && item.status.toLowerCase().includes(searchLower)) ||
-        (item.employeeId && item.employeeId.toLowerCase().includes(searchLower))
+        (item.employeeId && String(item.employeeId).toLowerCase().includes(searchLower))
       );
     }
     
@@ -559,13 +559,6 @@ export function AttendanceAdmin() {
               Coba Lagi
             </button>
           </div>
-        ) : processedData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <AlertCircle className={`w-10 h-10 ${isDark ? 'text-gray-500' : 'text-gray-400'} mb-4`} />
-            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
-              {debouncedSearch ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data attendance"}
-            </p>
-          </div>
         ) : (
         <>
         {/* ===== TABLE ===== */}
@@ -589,7 +582,19 @@ export function AttendanceAdmin() {
             </thead>
 
             <tbody>
-              {currentData.map((employee, index) => (
+              {processedData.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-16 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <AlertCircle className={`w-10 h-10 ${isDark ? 'text-gray-500' : 'text-gray-400'} mb-4`} />
+                      <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                        {debouncedSearch ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data attendance"}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+              currentData.map((employee, index) => (
                 <tr
                   key={employee.id}
                   className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-100'} ${
@@ -605,22 +610,22 @@ export function AttendanceAdmin() {
                         {employee.avatar ? (
                           <img 
                             src={employee.avatar.startsWith("http") ? employee.avatar : `${import.meta.env.VITE_API_URL}${employee.avatar}`}
-                            alt={employee.name}
+                            alt={employee.name || "Employee"}
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} font-medium`}>
-                            {employee.name.charAt(0)}
+                            {employee.name ? employee.name.charAt(0) : "?"}
                           </span>
                         )}
                       </div>
                       <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                        {employee.name}
+                        {employee.name || "Unknown"}
                       </span>
                     </div>
                   </td>
 
-                  <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{employee.role}</td>
+                  <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{employee.role || "-"}</td>
                   <td className={`px-4 py-3 text-center ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                     {employee.clockIn}
                   </td>
@@ -678,10 +683,10 @@ export function AttendanceAdmin() {
                   <td className="px-4 py-3 text-center">
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusClass(
-                        employee.status
+                        employee.status || "Pending"
                       )}`}
                     >
-                      {employee.status}
+                      {employee.status || "-"}
                     </span>
                   </td>
 
@@ -695,13 +700,14 @@ export function AttendanceAdmin() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* ===== PAGINATION ===== */}
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+        <div className={`mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
           {/* Left: Show entries dropdown */}
           <div className="flex items-center gap-2">
             <span>Showing</span>
@@ -711,7 +717,7 @@ export function AttendanceAdmin() {
                 setRecordsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
+              className={`px-3 py-1.5 border ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200' : 'border-gray-300 bg-white'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1D395E]`}
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -721,7 +727,7 @@ export function AttendanceAdmin() {
           </div>
 
           {/* Center: Info text */}
-          <div className="text-gray-500">
+          <div className={isDark ? 'text-gray-400' : 'text-gray-500'}>
             Showing {processedData.length > 0 ? startIndex + 1 : 0} to{" "}
             {Math.min(endIndex, processedData.length)} of{" "}
             {processedData.length} records
@@ -732,7 +738,7 @@ export function AttendanceAdmin() {
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className={`p-2 rounded-lg border ${isDark ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-50'} disabled:opacity-50 disabled:cursor-not-allowed transition`}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -745,8 +751,8 @@ export function AttendanceAdmin() {
                   onClick={() => setCurrentPage(pageNumber)}
                   className={`px-3 py-1.5 rounded-lg transition ${
                     currentPage === pageNumber
-                      ? "bg-[#1D395E] text-white"
-                      : "border border-gray-300 hover:bg-gray-50"
+                      ? isDark ? "bg-blue-600 text-white" : "bg-[#1D395E] text-white"
+                      : isDark ? "border border-gray-600 hover:bg-gray-700" : "border border-gray-300 hover:bg-gray-50"
                   }`}
                 >
                   {pageNumber}
@@ -757,7 +763,7 @@ export function AttendanceAdmin() {
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className={`p-2 rounded-lg border ${isDark ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-50'} disabled:opacity-50 disabled:cursor-not-allowed transition`}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
