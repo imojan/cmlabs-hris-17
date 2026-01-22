@@ -1,27 +1,34 @@
 import { LayoutDashboard, Users, Clock, Calendar, Settings, Headphones } from 'lucide-react';
 import logoExpanded from "@/assets/images/logo-hris-2.png";
+import logoExpandedWhite from "@/assets/images/hris-putih.png";
 import logoCollapsed from "@/assets/images/logo-hris-4.png";
+import { useTranslation } from "@/app/hooks/useTranslation";
+import { useTheme } from "@/app/hooks/useTheme";
 
 export function Sidebar({ isOpen, onToggle, currentPage, onNavigate, role = "admin" }) {
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  
   // Menu items based on role
   const adminMenuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard' },
-    { icon: Users, label: 'Employee Database', page: 'employee-database' },
-    { icon: Clock, label: 'Checkclock', page: 'checkclock' },
-    { icon: Calendar, label: 'Work Schedule', page: 'work-schedule' },
+    { icon: LayoutDashboard, label: t("nav.dashboard"), page: 'dashboard' },
+    { icon: Users, label: t("nav.employeeDatabase"), page: 'employee-database' },
+    { icon: Clock, label: t("nav.checkclock"), page: 'checkclock' },
+    { icon: Calendar, label: t("nav.workSchedule"), page: 'work-schedule' },
   ];
 
   const userMenuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard' },
-    { icon: Clock, label: 'Checkclock', page: 'checkclock' },
+    { icon: LayoutDashboard, label: t("nav.dashboard"), page: 'dashboard' },
+    { icon: Clock, label: t("nav.checkclock"), page: 'checkclock' },
   ];
 
   // Use menu items based on role
   const menuItems = role === "admin" ? adminMenuItems : userMenuItems;
 
   const bottomMenuItems = [
-    { icon: Headphones, label: 'FAQ & Help', page: 'faq-help' },
-    { icon: Settings, label: 'Pengaturan', page: 'settings' },
+    { icon: Headphones, label: t("nav.faqHelp"), page: 'faq-help' },
+    { icon: Settings, label: t("nav.settings"), page: 'settings' },
   ];
 
   const handleMenuClick = (e, page) => {
@@ -29,13 +36,18 @@ export function Sidebar({ isOpen, onToggle, currentPage, onNavigate, role = "adm
     onNavigate(page);
   };
 
+  // Dynamic styles based on theme
+  const sidebarBg = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/80';
+  const menuActive = isDark ? 'text-blue-400 bg-blue-900/20' : 'text-[#1D395E] bg-[#1D395E]/5';
+  const menuInactive = isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50';
+
   return (
     <>
       {/* Sidebar - Floating with smooth animations */}
       <aside 
         onClick={onToggle}
         className={`
-          fixed top-4 left-4 bottom-4 bg-white rounded-2xl shadow-lg border border-gray-200/80
+          fixed top-4 left-4 bottom-4 ${sidebarBg} rounded-2xl shadow-lg border
           transition-all duration-500 ease-out z-40 cursor-pointer hover:shadow-xl
           ${isOpen ? 'w-64' : 'w-20'}
         `}
@@ -48,7 +60,7 @@ export function Sidebar({ isOpen, onToggle, currentPage, onNavigate, role = "adm
           <div className={`mb-8 flex justify-center transition-all duration-500 ease-out`}>
             <div className="flex flex-col items-center gap-3 overflow-hidden">
               <img 
-                src={isOpen ? logoExpanded : logoCollapsed}
+                src={isOpen ? (isDark ? logoExpandedWhite : logoExpanded) : logoCollapsed}
                 alt="HRIS Logo" 
                 className={`
                   object-contain transition-all duration-500 ease-out
@@ -70,10 +82,7 @@ export function Sidebar({ isOpen, onToggle, currentPage, onNavigate, role = "adm
                 className={`
                   w-full flex items-center transition-all duration-300 ease-out cursor-pointer pointer-events-auto
                   rounded-xl px-3 py-2.5
-                  ${currentPage === item.page
-                    ? 'text-[#1D395E] bg-[#1D395E]/5' 
-                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                  }
+                  ${currentPage === item.page ? menuActive : menuInactive}
                   ${isOpen ? 'gap-4 justify-start' : 'justify-center'}
                 `}
                 title={!isOpen ? item.label : undefined}
@@ -113,10 +122,7 @@ export function Sidebar({ isOpen, onToggle, currentPage, onNavigate, role = "adm
                 className={`
                   w-full flex items-center transition-all duration-300 ease-out cursor-pointer pointer-events-auto
                   rounded-xl px-3 py-2.5
-                  ${currentPage === item.page
-                    ? 'text-[#1D395E] bg-[#1D395E]/5' 
-                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                  }
+                  ${currentPage === item.page ? menuActive : menuInactive}
                   ${isOpen ? 'gap-4 justify-start' : 'justify-center'}
                 `}
                 title={!isOpen ? item.label : undefined}

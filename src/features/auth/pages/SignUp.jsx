@@ -4,7 +4,10 @@ import { Eye, EyeOff } from "lucide-react";
 
 import { authService } from "@/app/services/auth.api";
 import { Notification } from "@/components/ui/Notification";
+import { useTranslation } from "@/app/hooks/useTranslation";
+import { useTheme } from "@/app/hooks/useTheme";
 import logo from "@/assets/branding/logo-hris-1.png";
+import logoWhite from "@/assets/images/hris-putih.png";
 import signUpIllustration from "@/assets/images/auth/sign-up.png";
 import googleLogo from "@/assets/branding/google.webp";
 
@@ -12,7 +15,10 @@ import googleLogo from "@/assets/branding/google.webp";
 export default function SignUp() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLoaded, setIsLoaded] = useState(false);
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const [_isLoaded, setIsLoaded] = useState(false);
   
   // Check if redirected from payment page
   const fromPayment = location.state?.from === "/payment";
@@ -31,7 +37,7 @@ export default function SignUp() {
     confirmPassword: "",
     companyName: "",
   });
-  const [touched, setTouched] = useState({});
+  const [_touched, setTouched] = useState({});
   const [agree, setAgree] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -46,16 +52,16 @@ export default function SignUp() {
     const { name, value } = e.target;
     if (!value.trim()) {
       const fieldNames = {
-        firstName: "First Name",
-        lastName: "Last Name",
-        email: "Email",
-        password: "Password",
-        confirmPassword: "Confirm Password",
-        companyName: "Company Name",
+        firstName: t("auth.firstName"),
+        lastName: t("auth.lastName"),
+        email: t("auth.email"),
+        password: t("auth.password"),
+        confirmPassword: t("auth.confirmPassword"),
+        companyName: t("auth.companyName"),
       };
       setNotification({
         type: "warning",
-        message: `Please fill in ${fieldNames[name] || name} field.`,
+        message: t("auth.pleaseField", { field: fieldNames[name] || name }),
       });
     }
   };
@@ -65,25 +71,25 @@ export default function SignUp() {
     const errs = {};
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!values.firstName.trim()) errs.firstName = "First name is required.";
-    if (!values.lastName.trim()) errs.lastName = "Last name is required.";
+    if (!values.firstName.trim()) errs.firstName = t("auth.firstNameRequired");
+    if (!values.lastName.trim()) errs.lastName = t("auth.lastNameRequired");
 
-    if (!values.email.trim()) errs.email = "Email is required.";
+    if (!values.email.trim()) errs.email = t("auth.emailRequired");
     else if (!emailRe.test(values.email))
-      errs.email = "Please enter a valid email.";
+      errs.email = t("auth.invalidEmail");
 
-    if (!values.password) errs.password = "Password is required.";
+    if (!values.password) errs.password = t("auth.passwordRequired");
     else if (values.password.length < 8)
-      errs.password = "Minimum 8 characters.";
+      errs.password = t("auth.minCharacters", { min: "8" });
 
     if (!values.confirmPassword)
-      errs.confirmPassword = "Please confirm your password.";
+      errs.confirmPassword = t("auth.confirmPasswordRequired");
     else if (values.confirmPassword !== values.password)
-      errs.confirmPassword = "Passwords do not match.";
+      errs.confirmPassword = t("auth.passwordMismatch");
 
-    if (!agree) errs.agree = "You must agree to the terms.";
+    if (!agree) errs.agree = t("auth.agreeRequired");
     return errs;
-  }, [values, agree]);
+  }, [values, agree, t]);
 
   const isValid = Object.keys(errors).length === 0;
 
@@ -102,7 +108,7 @@ export default function SignUp() {
     if (!isValid) {
       setNotification({
         type: "warning",
-        message: "Please fill in all required fields correctly.",
+        message: t("auth.fillAllFields"),
       });
       return;
     }
@@ -122,8 +128,8 @@ export default function SignUp() {
       setNotification({
         type: "success",
         message: fromPayment 
-          ? "Account created! Redirecting to sign in to continue payment..."
-          : "Account created successfully! Redirecting to sign in...",
+          ? t("auth.accountCreatedPayment")
+          : t("auth.accountCreated"),
       });
 
       setTimeout(() => {
@@ -133,7 +139,7 @@ export default function SignUp() {
     } catch (err) {
       setNotification({
         type: "error",
-        message: err.message || "Failed to sign up. Please try again.",
+        message: err.message || t("auth.signUpFailed"),
       });
     } finally {
       setLoading(false);
@@ -141,7 +147,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex auth-page-enter">
+    <div className={`min-h-screen flex auth-page-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -153,7 +159,7 @@ export default function SignUp() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-12 auth-illustration-enter">
+      <div className={`hidden lg:flex lg:w-1/2 items-center justify-center px-16 py-12 auth-illustration-enter ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="w-full max-w-[827px]">
           <img
             src={signUpIllustration}
@@ -164,29 +170,35 @@ export default function SignUp() {
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-8 auth-content-enter">
+      <div className={`w-full lg:w-1/2 flex items-center justify-center px-8 sm:px-12 lg:px-16 py-8 auth-content-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="w-full max-w-[842px]">
           {/* Header with Logo and Try for free */}
           <div className="flex items-center justify-between mb-6">
             <div className="w-[148px]">
-              <img src={logo} alt="HRIS" className="w-auto h-auto max-h-16 object-contain" />
+              <img 
+                src={isDark ? logoWhite : logo} 
+                alt="HRIS" 
+                className="w-auto h-auto max-h-16 object-contain cursor-pointer hover:opacity-80 transition-opacity" 
+                onClick={() => navigate("/")}
+                title="Kembali ke Beranda"
+              />
             </div>
             <a
               href="#try"
               style={{ textDecoration: "underline" }}
               className="text-[#b93c54] text-[20px] font-bold tracking-[0.6px] hover:opacity-80 transition-opacity"
             >
-              Try for free!
+              {t("auth.tryForFree")}
             </a>
           </div>
 
           {/* Title Section */}
           <div className="mb-4">
-            <h1 className="text-[48px] font-bold text-[#2a2a2a] tracking-[1.8px] leading-tight mb-1">
-              Sign Up
+            <h1 className={`text-[48px] font-bold tracking-[1.8px] leading-tight mb-1 ${isDark ? 'text-gray-100' : 'text-[#2a2a2a]'}`}>
+              {t("auth.signUp")}
             </h1>
-            <p className="text-[18px] text-black tracking-[0.72px] leading-[28px]">
-              Create your account and streamline your employee management.
+            <p className={`text-[18px] tracking-[0.72px] leading-[28px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+              {t("auth.signUpSubtitle")}
             </p>
           </div>
 
@@ -196,8 +208,8 @@ export default function SignUp() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* First Name */}
               <div className="space-y-1">
-                <label htmlFor="firstName" className="block text-[16px] text-black tracking-[0.48px]">
-                  First Name
+                <label htmlFor="firstName" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                  {t("auth.firstName")}
                 </label>
                 <input
                   id="firstName"
@@ -206,15 +218,19 @@ export default function SignUp() {
                   value={values.firstName}
                   onChange={onChange}
                   onBlur={onBlur}
-                  placeholder="Enter Your First Name"
-                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  placeholder={t("auth.enterFirstName")}
+                  className={`w-full h-[60px] px-5 py-4 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                    isDark 
+                      ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                      : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                  }`}
                 />
               </div>
 
               {/* Last Name */}
               <div className="space-y-1">
-                <label htmlFor="lastName" className="block text-[16px] text-black tracking-[0.48px]">
-                  Last Name
+                <label htmlFor="lastName" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                  {t("auth.lastName")}
                 </label>
                 <input
                   id="lastName"
@@ -223,16 +239,20 @@ export default function SignUp() {
                   value={values.lastName}
                   onChange={onChange}
                   onBlur={onBlur}
-                  placeholder="Enter Your Last Name"
-                  className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  placeholder={t("auth.enterLastName")}
+                  className={`w-full h-[60px] px-5 py-4 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                    isDark 
+                      ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                      : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                  }`}
                 />
               </div>
             </div>
 
             {/* Email */}
             <div className="space-y-1">
-              <label htmlFor="email" className="block text-[16px] text-black tracking-[0.48px]">
-                Email
+              <label htmlFor="email" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                {t("auth.email")}
               </label>
               <input
                 id="email"
@@ -241,8 +261,12 @@ export default function SignUp() {
                 value={values.email}
                 onChange={onChange}
                 onBlur={onBlur}
-                placeholder="Enter Your Email"
-                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                placeholder={t("auth.enterEmail")}
+                className={`w-full h-[60px] px-5 py-4 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                  isDark 
+                    ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                    : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                }`}
               />
             </div>
 
@@ -250,8 +274,8 @@ export default function SignUp() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Password */}
               <div className="space-y-1">
-                <label htmlFor="password" className="block text-[16px] text-black tracking-[0.48px]">
-                  Password
+                <label htmlFor="password" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                  {t("auth.password")}
                 </label>
                 <div className="relative h-[60px]">
                   <input
@@ -261,13 +285,17 @@ export default function SignUp() {
                     value={values.password}
                     onChange={onChange}
                     onBlur={onBlur}
-                    placeholder="Enter Your Password"
-                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
+                    placeholder={t("auth.enterPassword")}
+                    className={`w-full h-full px-5 py-4 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all pr-14 ${
+                      isDark 
+                        ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                        : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                    }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-0 bottom-0 flex items-center text-[#C4C4C4] hover:text-[#1d395e] transition-colors"
+                    className={`absolute right-4 top-0 bottom-0 flex items-center transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-[#C4C4C4] hover:text-[#1d395e]'}`}
                     aria-label="toggle password visibility"
                   >
                     {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
@@ -277,8 +305,8 @@ export default function SignUp() {
 
               {/* Confirm Password */}
               <div className="space-y-1">
-                <label htmlFor="confirmPassword" className="block text-[16px] text-black tracking-[0.48px]">
-                  Confirm Password
+                <label htmlFor="confirmPassword" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                  {t("auth.confirmPassword")}
                 </label>
                 <div className="relative h-[60px]">
                   <input
@@ -288,13 +316,17 @@ export default function SignUp() {
                     value={values.confirmPassword}
                     onChange={onChange}
                     onBlur={onBlur}
-                    placeholder="Confirm Your Password"
-                    className="w-full h-full px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-14"
+                    placeholder={t("auth.confirmYourPassword")}
+                    className={`w-full h-full px-5 py-4 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all pr-14 ${
+                      isDark 
+                        ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                        : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                    }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-4 top-0 bottom-0 flex items-center text-[#C4C4C4] hover:text-[#1d395e] transition-colors"
+                    className={`absolute right-4 top-0 bottom-0 flex items-center transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-[#C4C4C4] hover:text-[#1d395e]'}`}
                     aria-label="toggle confirm password visibility"
                   >
                     {showConfirm ? <EyeOff size={22} /> : <Eye size={22} />}
@@ -305,8 +337,8 @@ export default function SignUp() {
 
             {/* Company Name */}
             <div className="space-y-1">
-              <label htmlFor="companyName" className="block text-[16px] text-black tracking-[0.48px]">
-                Company Name
+              <label htmlFor="companyName" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                {t("auth.companyName")}
               </label>
               <input
                 id="companyName"
@@ -315,8 +347,12 @@ export default function SignUp() {
                 value={values.companyName}
                 onChange={onChange}
                 onBlur={onBlur}
-                placeholder="Enter Your Company"
-                className="w-full h-[60px] px-5 py-4 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                placeholder={t("auth.enterCompanyName")}
+                className={`w-full h-[60px] px-5 py-4 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                  isDark 
+                    ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                    : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                }`}
               />
             </div>
 
@@ -328,7 +364,11 @@ export default function SignUp() {
                     type="checkbox"
                     checked={agree}
                     onChange={(e) => setAgree(e.target.checked)}
-                    className="peer w-6 h-6 appearance-none rounded-full border border-[#1D395E] bg-white cursor-pointer transition-all checked:bg-[#1D395E] checked:border-[#1D395E]"
+                    className={`peer w-6 h-6 appearance-none rounded-full border cursor-pointer transition-all ${
+                      isDark 
+                        ? 'border-gray-500 bg-gray-700 checked:bg-blue-500 checked:border-blue-500' 
+                        : 'border-[#1D395E] bg-white checked:bg-[#1D395E] checked:border-[#1D395E]'
+                    }`}
                   />
                   <svg
                     className="absolute inset-0 m-auto w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"
@@ -340,8 +380,8 @@ export default function SignUp() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-[16px] text-black">
-                  I agree with the terms of use of <span className="font-semibold text-[#1d395e]">HRIS</span>
+                <span className={`text-[16px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                  {t("auth.agreeTerms")} <span className={`font-semibold ${isDark ? 'text-blue-400' : 'text-[#1d395e]'}`}>HRIS</span>
                 </span>
               </label>
             </div>
@@ -353,7 +393,7 @@ export default function SignUp() {
                 disabled={!isValid || loading}
                 className="w-full h-[59.516px] bg-[#1d395e] text-white text-[18px] font-bold uppercase leading-[16.427px] rounded-[17.601px] hover:bg-[#2a4a6e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Signing up..." : "SIGN UP"}
+                {loading ? t("auth.signingUp") : t("auth.signUp").toUpperCase()}
               </button>
             </div>
 
@@ -361,29 +401,32 @@ export default function SignUp() {
             <div className="pt-2">
               <button
                 type="button"
-                style={{ border: "1px solid rgba(0,0,0,0.5)" }}
-                className="w-full h-[59.516px] bg-white rounded-[17.601px] flex items-center justify-center gap-3 text-[18px] font-bold text-black hover:bg-[#1d395e] hover:text-white hover:border-transparent active:bg-[#152a47] transition-all duration-200"
+                className={`w-full h-[59.516px] rounded-[17.601px] flex items-center justify-center gap-3 text-[18px] font-bold transition-all duration-200 ${
+                  isDark 
+                    ? 'bg-gray-800 border border-gray-600 text-gray-100 hover:bg-[#1d395e] hover:text-white hover:border-transparent' 
+                    : 'bg-white border border-black/50 text-black hover:bg-[#1d395e] hover:text-white hover:border-transparent'
+                } active:bg-[#152a47]`}
               >
                 <img src={googleLogo} alt="Google" className="w-[37.44px] h-[37.44px]" />
-                <span>Continue With Google</span>
+                <span>{t("auth.continueWithGoogle")}</span>
               </button>
             </div>
 
             {/* Divider */}
             <div className="py-2">
-              <div className="border-t border-black"></div>
+              <div className={`border-t ${isDark ? 'border-gray-700' : 'border-black'}`}></div>
             </div>
 
             {/* Sign In Link */}
             <div className="text-center">
               <p className="text-[16px] font-bold leading-[16.427px]">
-                <span className="text-[rgba(0,0,0,0.5)]">Already have an account? </span>
+                <span className={isDark ? 'text-gray-400' : 'text-[rgba(0,0,0,0.5)]'}>{t("auth.alreadyHaveAccount")} </span>
                 <a
                   href="/auth/sign-in"
                   style={{ textDecoration: "underline" }}
                   className="text-[#b93c54] hover:opacity-80 transition-opacity"
                 >
-                  Sign in here
+                  {t("auth.signInHere")}
                 </a>
               </p>
             </div>

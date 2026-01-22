@@ -9,9 +9,17 @@ html, body {
   height: 100%;
   width: 100%;
   font-family: var(--font-sans);
-  background-color: rgb(var(--bg-light));
-  color: rgb(var(--neutral-900));
+  background-color: rgb(var(--bg-primary));
+  color: rgb(var(--text-primary));
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode body */
+html.dark body,
+[data-theme="dark"] body {
+  background-color: rgb(var(--bg-primary));
+  color: rgb(var(--text-primary));
 }
 
 /* Scrollbar HRIS aesthetic */
@@ -19,12 +27,29 @@ html, body {
   width: 8px;
   height: 8px;
 }
+::-webkit-scrollbar-track {
+  background: rgb(var(--bg-secondary));
+}
 ::-webkit-scrollbar-thumb {
   background: rgba(30, 58, 95, 0.4); /* brand blue */
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(30, 58, 95, 0.6);
+}
+
+/* Dark mode scrollbar */
+html.dark ::-webkit-scrollbar-track,
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: rgb(var(--bg-tertiary));
+}
+html.dark ::-webkit-scrollbar-thumb,
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+}
+html.dark ::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6);
 }
 
 /* Links */
@@ -48,7 +73,7 @@ button {
 
 /* Smooth animation defaults */
 * {
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Responsive text sizing defaults */

@@ -1,6 +1,8 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { CustomDropdown } from '../ui/CustomDropdown';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTheme } from '@/app/hooks/useTheme';
 
 const COLORS = ['#d4a942', '#4a8b6f', '#a94442'];
 
@@ -20,29 +22,51 @@ const MONTH_OPTIONS = [
 ];
 
 export function EmployeeChart({ monthlyData = null, loading = false }) {
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return now.toLocaleString("en-US", { month: "long" });
   });
 
+  // Transform raw API data to chart format with translations
+  const transformedData = useMemo(() => {
+    if (!monthlyData || !Array.isArray(monthlyData)) return null;
+    
+    const result = {};
+    monthlyData.forEach((item) => {
+      result[item.month] = [
+        { name: t("dashboard.new"), value: item.new },
+        { name: t("dashboard.active"), value: item.active },
+        { name: t("dashboard.resign"), value: item.resign },
+      ];
+    });
+    return result;
+  }, [monthlyData, t]);
+
   // Default fallback data
   const defaultData = {
-    'January': [{ name: 'New', value: 0 }, { name: 'Active', value: 0 }, { name: 'Resign', value: 0 }],
+    'January': [
+      { name: t("dashboard.new"), value: 0 }, 
+      { name: t("dashboard.active"), value: 0 }, 
+      { name: t("dashboard.resign"), value: 0 }
+    ],
   };
 
-  const dataSource = monthlyData || defaultData;
+  const dataSource = transformedData || defaultData;
   const data = dataSource[selectedMonth] || [
-    { name: 'New', value: 0 },
-    { name: 'Active', value: 0 },
-    { name: 'Resign', value: 0 },
+    { name: t("dashboard.new"), value: 0 },
+    { name: t("dashboard.active"), value: 0 },
+    { name: t("dashboard.resign"), value: 0 },
   ];
 
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100">
+    <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border transition-colors duration-300`}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
         <div>
-          <p className="text-xs sm:text-sm text-gray-500">Employee Statistics</p>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Current Number of Employees</h3>
+          <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Employee Statistics</p>
+          <h3 className={`text-base sm:text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Current Number of Employees</h3>
         </div>
         <CustomDropdown
           name="month"
@@ -61,10 +85,17 @@ export function EmployeeChart({ monthlyData = null, loading = false }) {
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data} barSize={100}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,26,0.1)" />
-              <XAxis dataKey="name" tick={{ fill: 'rgba(0,0,0,0.7)', fontSize: 12 }} />
-              <YAxis tick={{ fill: 'rgba(0,0,0,0.7)', fontSize: 12 }} />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,26,0.1)'} />
+              <XAxis dataKey="name" tick={{ fill: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', fontSize: 12 }} />
+              <YAxis tick={{ fill: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', fontSize: 12 }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: isDark ? '#1f2937' : '#fff', 
+                  border: isDark ? '1px solid #374151' : '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  color: isDark ? '#f3f4f6' : '#111827'
+                }} 
+              />
               <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

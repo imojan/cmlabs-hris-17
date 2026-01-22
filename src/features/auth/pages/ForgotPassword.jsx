@@ -4,11 +4,14 @@ import { ArrowLeft } from "lucide-react";
 
 import { authService } from "@/app/services/auth.api";
 import { Notification } from "@/components/ui/Notification";
+import { useTheme } from "@/app/hooks/useTheme";
 import forgotPasswordIllustration from "@/assets/images/auth/forgot-password.png";
 
 /* ---------- Page ---------- */
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Animation on mount
@@ -68,7 +71,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex auth-page-enter">
+    <div className={`min-h-screen flex auth-page-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -80,7 +83,7 @@ export default function ForgotPassword() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 auth-illustration-enter">
+      <div className={`hidden lg:flex lg:w-1/2 items-center justify-center px-16 py-20 auth-illustration-enter ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="w-full max-w-[600px]">
           <img
             src={forgotPasswordIllustration}
@@ -91,14 +94,14 @@ export default function ForgotPassword() {
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter">
+      <div className={`w-full lg:w-1/2 flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="w-full max-w-[600px]">
           {/* Title Section */}
           <div className="mb-8">
-            <h1 className="text-[48px] font-bold text-[#2a2a2a] tracking-[1.8px] leading-tight mb-4">
+            <h1 className={`text-[48px] font-bold tracking-[1.8px] leading-tight mb-4 ${isDark ? 'text-gray-100' : 'text-[#2a2a2a]'}`}>
               Forgot Password
             </h1>
-            <p className="text-[18px] text-black tracking-[0.72px] leading-[28px]">
+            <p className={`text-[18px] tracking-[0.72px] leading-[28px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
               No worries! Enter your email address below, and we'll send you a link to reset your password.
             </p>
           </div>
@@ -109,7 +112,7 @@ export default function ForgotPassword() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="block text-[16px] text-black tracking-[0.48px]"
+                className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}
               >
                 Email
               </label>
@@ -121,7 +124,11 @@ export default function ForgotPassword() {
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={onBlur}
                 placeholder="Enter your email address"
-                className="w-full h-[73px] px-5 py-6 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                className={`w-full h-[73px] px-5 py-6 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                  isDark 
+                    ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                    : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                }`}
               />
             </div>
 
@@ -141,7 +148,7 @@ export default function ForgotPassword() {
               <button
                 type="button"
                 onClick={() => navigate("/auth/sign-in")}
-                className="w-full flex items-center justify-center gap-2 text-[16px] text-black hover:text-[#1d395e] transition-colors"
+                className={`w-full flex items-center justify-center gap-2 text-[16px] transition-colors ${isDark ? 'text-gray-300 hover:text-blue-400' : 'text-black hover:text-[#1d395e]'}`}
               >
                 <ArrowLeft size={20} />
                 <span>Back to log in</span>

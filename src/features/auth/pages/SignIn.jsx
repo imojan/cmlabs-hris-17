@@ -4,7 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 import { useAuth } from "@/app/store/authStore";
+import { useTranslation } from "@/app/hooks/useTranslation";
+import { useTheme } from "@/app/hooks/useTheme";
 import logo from "@/assets/branding/logo-hris-1.png";
+import logoWhite from "@/assets/images/hris-putih.png";
 import signInIllustration from "@/assets/images/auth/sign-in.png";
 import googleLogo from "@/assets/branding/google.webp";
 
@@ -12,6 +15,9 @@ import googleLogo from "@/assets/branding/google.webp";
 export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   // Check if redirected from payment page
   const fromPayment = location.state?.from === "/payment";
@@ -171,7 +177,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex auth-page-enter">
+    <div className={`min-h-screen flex auth-page-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -182,7 +188,7 @@ export default function SignIn() {
         />
       )}
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 auth-illustration-enter">
+      <div className={`hidden lg:flex lg:w-1/2 items-center justify-center px-16 py-20 auth-illustration-enter ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="w-full max-w-[827px]">
           <img 
             src={signInIllustration} 
@@ -193,12 +199,18 @@ export default function SignIn() {
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter">
+      <div className={`w-full lg:w-1/2 flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="w-full max-w-[842px]">
           {/* Header with Logo and Try for free */}
           <div className="flex items-center justify-between mb-11">
             <div className="w-[148px]">
-              <img src={logo} alt="HRIS" className="w-auto h-auto max-h-16 object-contain" />
+              <img 
+                src={isDark ? logoWhite : logo} 
+                alt="HRIS" 
+                className="w-auto h-auto max-h-16 object-contain cursor-pointer hover:opacity-80 transition-opacity" 
+                onClick={() => navigate("/")}
+                title="Kembali ke Beranda"
+              />
             </div>
             <a 
               href="#try" 
@@ -211,11 +223,11 @@ export default function SignIn() {
 
           {/* Title Section */}
           <div className="mb-8">
-            <h1 className="text-[60px] font-bold text-[#2a2a2a] tracking-[1.8px] leading-tight mb-2">
-              Sign In
+            <h1 className={`text-[60px] font-bold tracking-[1.8px] leading-tight mb-2 ${isDark ? 'text-gray-100' : 'text-[#2a2a2a]'}`}>
+              {t("auth.signIn")}
             </h1>
-            <p className="text-[20px] text-black tracking-[0.72px] leading-[28px]">
-              Welcome back to HRIS cmlabs! Manage everything with ease.
+            <p className={`text-[20px] tracking-[0.72px] leading-[28px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+              {t("auth.signInSubtitle")}
             </p>
           </div>
 
@@ -223,8 +235,8 @@ export default function SignIn() {
           <form className="space-y-3" noValidate onSubmit={handleSubmit}>
             {/* Email or Phone Number */}
             <div className="space-y-1">
-              <label htmlFor="identifier" className="block text-[16px] text-black tracking-[0.48px]">
-                Email or Username
+              <label htmlFor="identifier" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                {t("auth.emailOrUsername")}
               </label>
               <div className="relative">
                 <input
@@ -234,8 +246,12 @@ export default function SignIn() {
                   value={values.identifier}
                   onChange={onChange}
                   onBlur={onBlur}
-                  placeholder="Enter Your Email or Username"
-                  className="w-full h-[73px] px-5 py-6 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  placeholder={t("auth.emailOrUsername")}
+                  className={`w-full h-[73px] px-5 py-6 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                    isDark 
+                      ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                      : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                  }`}
                 />
                 {/* warning kecil di bawah input dihilangkan, hanya pakai notifikasi pop-up */}
               </div>
@@ -243,8 +259,8 @@ export default function SignIn() {
 
             {/* Password */}
             <div className="space-y-1">
-              <label htmlFor="password" className="block text-[16px] text-black tracking-[0.48px]">
-                Password
+              <label htmlFor="password" className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
+                {t("auth.password")}
               </label>
               <div className="relative h-[73px]">
                 <input
@@ -255,12 +271,16 @@ export default function SignIn() {
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Enter Your Password"
-                  className="w-full h-full px-5 py-6 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all pr-16"
+                  className={`w-full h-full px-5 py-6 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all pr-16 ${
+                    isDark 
+                      ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                      : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-0 bottom-0 flex items-center text-[#C4C4C4] hover:text-[#1d395e] transition-colors"
+                  className={`absolute right-4 top-0 bottom-0 flex items-center transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-[#C4C4C4] hover:text-[#1d395e]'}`}
                   aria-label="toggle password visibility"
                 >
                   {showPassword ? <EyeOff size={26} /> : <Eye size={26} />}
@@ -277,7 +297,11 @@ export default function SignIn() {
                     type="checkbox"
                     checked={remember}
                     onChange={(e) => setRemember(e.target.checked)}
-                    className="peer w-6 h-6 appearance-none rounded-full border border-[#1D395E] bg-white cursor-pointer transition-all checked:bg-[#1D395E] checked:border-[#1D395E]"
+                    className={`peer w-6 h-6 appearance-none rounded-full border cursor-pointer transition-all ${
+                      isDark 
+                        ? 'border-gray-500 bg-gray-700 checked:bg-blue-500 checked:border-blue-500' 
+                        : 'border-[#1D395E] bg-white checked:bg-[#1D395E] checked:border-[#1D395E]'
+                    }`}
                   />
                   <svg 
                     className="absolute inset-0 m-auto w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" 
@@ -289,14 +313,14 @@ export default function SignIn() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-[18px] text-black">Remember Me</span>
+                <span className={`text-[18px] ${isDark ? 'text-gray-300' : 'text-black'}`}>{t("auth.rememberMe")}</span>
               </label>
               
               <a 
                 href="/auth/forgot-password" 
                 className="text-[18px] text-[#b93c54] hover:underline"
               >
-                Forgot Password?
+                {t("auth.forgotPassword")}
               </a>
             </div>
 
@@ -307,7 +331,7 @@ export default function SignIn() {
                 disabled={!isValid || loading}
                 className="w-full h-[59.516px] bg-[#1d395e] text-white text-[18px] font-bold uppercase leading-[16.427px] rounded-[17.601px] hover:bg-[#2a4a6e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Signing in..." : "SIGN IN"}
+                {loading ? t("common.loading") : t("auth.signIn").toUpperCase()}
               </button>
             </div>
 
@@ -319,11 +343,14 @@ export default function SignIn() {
                 type="button"
                 onClick={handleGoogleClick}
                 disabled={loading}
-                style={{ border: '1px solid rgba(0,0,0,0.5)' }}
-                className="w-full h-[59.516px] bg-white rounded-[17.601px] flex items-center justify-center gap-3 text-[18px] font-bold text-black hover:bg-[#1d395e] hover:text-white hover:border-transparent active:bg-[#152a47] transition-all duration-200"
+                className={`w-full h-[59.516px] rounded-[17.601px] flex items-center justify-center gap-3 text-[18px] font-bold transition-all duration-200 ${
+                  isDark 
+                    ? 'bg-gray-800 border border-gray-600 text-gray-100 hover:bg-[#1d395e] hover:text-white hover:border-transparent' 
+                    : 'bg-white border border-black/50 text-black hover:bg-[#1d395e] hover:text-white hover:border-transparent'
+                } active:bg-[#152a47]`}
               >
                 <img src={googleLogo} alt="Google" className="w-[37.44px] h-[37.44px]" />
-                <span>Sign In With Google</span>
+                <span>{t("auth.signInWithGoogle")}</span>
               </button>
             </div>
 
@@ -332,24 +359,27 @@ export default function SignIn() {
               <button
                 type="button"
                 onClick={() => navigate("/auth/sign-in-id")}
-                style={{ border: '1px solid rgba(0,0,0,0.5)' }}
-                className="w-full h-[59.516px] bg-white rounded-[17.601px] text-[18px] font-bold text-black hover:bg-[#1d395e] hover:text-white hover:border-transparent active:bg-[#152a47] transition-all duration-200"
+                className={`w-full h-[59.516px] rounded-[17.601px] text-[18px] font-bold transition-all duration-200 ${
+                  isDark 
+                    ? 'bg-gray-800 border border-gray-600 text-gray-100 hover:bg-[#1d395e] hover:text-white hover:border-transparent' 
+                    : 'bg-white border border-black/50 text-black hover:bg-[#1d395e] hover:text-white hover:border-transparent'
+                } active:bg-[#152a47]`}
               >
-                Sign In With ID Employee
+                {t("auth.employeeSignIn")}
               </button>
             </div>
 
             {/* Divider */}
             <div className="py-2">
-              <div className="border-t border-black"></div>
+              <div className={`border-t ${isDark ? 'border-gray-700' : 'border-black'}`}></div>
             </div>
 
             {/* Sign Up Link */}
             <div className="text-center p">
               <p className="text-[16px] font-bold leading-[16.427px]">
-                <span className="text-[rgba(0,0,0,0.5)]">Don't have an account yet? </span>
+                <span className={isDark ? 'text-gray-400' : 'text-[rgba(0,0,0,0.5)]'}>{t("auth.dontHaveAccount")} </span>
                 <a href="/auth/sign-up" className="text-[#b93c54] hover:underline">
-                  Sign up now and get started
+                  {t("auth.signUpNow")}
                 </a>
               </p>
             </div>

@@ -24,9 +24,12 @@ import { Notification } from "@/components/ui/Notification";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { ImportModal } from "@/components/ui/ImportModal";
 import { exportToExcel } from "@/lib/exportExcel";
+import { useTheme } from "@/app/hooks/useTheme";
 
 export function EmployeeDatabase() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   // Data & loading states
   const [employees, setEmployees] = useState([]);
@@ -366,66 +369,66 @@ export function EmployeeDatabase() {
       {/* ===== STAT CARDS ===== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {/* Card 1: Periode */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#1D395E] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-[#1D395E]" />
+        <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
+          <div className={`${isDark ? 'bg-blue-900' : 'bg-[#1D395E]'} px-4 py-3 flex items-center gap-3`}>
+            <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
+              <Calendar className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
               Periode
             </p>
           </div>
           <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">{periodDisplay}</p>
+            <p className={`text-3xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>{periodDisplay}</p>
           </div>
         </div>
 
         {/* Card 2: Total Employee */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#1D395E] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#1D395E]" />
+        <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
+          <div className={`${isDark ? 'bg-blue-900' : 'bg-[#1D395E]'} px-4 py-3 flex items-center gap-3`}>
+            <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
+              <Users className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
               Total Employee
             </p>
           </div>
           <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">
+            <p className={`text-3xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
               {loading ? "..." : stats.total}
             </p>
           </div>
         </div>
 
         {/* Card 3: Total New Hire */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#1D395E] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <UserPlus className="w-5 h-5 text-[#1D395E]" />
+        <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
+          <div className={`${isDark ? 'bg-blue-900' : 'bg-[#1D395E]'} px-4 py-3 flex items-center gap-3`}>
+            <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
+              <UserPlus className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
               Total New Hire
             </p>
           </div>
           <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">
+            <p className={`text-3xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
               {loading ? "..." : stats.newHire}
             </p>
           </div>
         </div>
 
         {/* Card 4: Full Time Employee */}
-        <div className="bg-white rounded-xl border border-gray-200/70 shadow-sm overflow-hidden">
-          <div className="bg-[#1D395E] px-4 py-3 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-              <Briefcase className="w-5 h-5 text-[#1D395E]" />
+        <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
+          <div className={`${isDark ? 'bg-blue-900' : 'bg-[#1D395E]'} px-4 py-3 flex items-center gap-3`}>
+            <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
+              <Briefcase className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
               Full Time Employee
             </p>
           </div>
           <div className="p-5">
-            <p className="text-3xl font-semibold text-[#1D395E]">
+            <p className={`text-3xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
               {loading ? "..." : stats.fullTime}
             </p>
           </div>
@@ -433,12 +436,12 @@ export function EmployeeDatabase() {
       </div>
 
       {/* ===== WRAPPER TABEL EMPLOYEE ===== */}
-      <section className="bg-white rounded-xl border border-gray-200/70 shadow-sm p-6">
+      <section className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm p-6 transition-colors duration-300`}>
         {/* Header tabel + action bar */}
         <div className="mb-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Title */}
-            <h2 className="text-xl lg:text-2xl font-semibold text-[#1D395E]">
+            <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
               All Employees Information
             </h2>
 
@@ -451,9 +454,9 @@ export function EmployeeDatabase() {
                   placeholder="Search Employee"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
+                  className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${isDark ? 'border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400' : 'border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black'} text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]`}
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1D395E]" />
+                <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-gray-400' : 'text-[#1D395E]'}`} />
               </div>
 
               {/* Buttons: Filter, Export, Import, Tambah Data */}
@@ -461,7 +464,7 @@ export function EmployeeDatabase() {
                 <button 
                   onClick={fetchEmployees}
                   disabled={loading}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                   <span>Refresh</span>
@@ -476,7 +479,7 @@ export function EmployeeDatabase() {
 
                 <button 
                   onClick={() => setShowImportModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm"
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm`}
                 >
                   <Download className="w-4 h-4" />
                   <span>Import</span>
@@ -485,7 +488,7 @@ export function EmployeeDatabase() {
                 <button 
                   onClick={handleExport}
                   disabled={exporting || employees.length === 0}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <Upload className="w-4 h-4" />
                   <span>Export</span>
@@ -506,22 +509,22 @@ export function EmployeeDatabase() {
         {/* ===== LOADING STATE ===== */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="w-10 h-10 text-[#1D395E] animate-spin mb-3" />
-            <p className="text-gray-500">Memuat data karyawan...</p>
+            <Loader2 className={`w-10 h-10 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'} animate-spin mb-3`} />
+            <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>Memuat data karyawan...</p>
           </div>
         )}
 
         {/* ===== ERROR STATE ===== */}
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center mb-4">
+            <div className={`w-16 h-16 rounded-full ${isDark ? 'bg-rose-900/30' : 'bg-rose-50'} flex items-center justify-center mb-4`}>
               <AlertCircle className="w-8 h-8 text-rose-500" />
             </div>
-            <p className="text-gray-700 font-medium mb-2">Gagal Memuat Data</p>
-            <p className="text-gray-500 text-sm mb-4">{error}</p>
+            <p className={`${isDark ? 'text-gray-200' : 'text-gray-700'} font-medium mb-2`}>Gagal Memuat Data</p>
+            <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm mb-4`}>{error}</p>
             <button
               onClick={fetchEmployees}
-              className="px-4 py-2 bg-[#1D395E] text-white rounded-lg hover:bg-[#2a4a73] transition"
+              className={`px-4 py-2 ${isDark ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#1D395E] hover:bg-[#2a4a73]'} text-white rounded-lg transition`}
             >
               Coba Lagi
             </button>
@@ -531,11 +534,11 @@ export function EmployeeDatabase() {
         {/* ===== EMPTY STATE ===== */}
         {!loading && !error && employees.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-              <Users className="w-8 h-8 text-gray-400" />
+            <div className={`w-16 h-16 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'} flex items-center justify-center mb-4`}>
+              <Users className={`w-8 h-8 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
             </div>
-            <p className="text-gray-700 font-medium mb-2">Belum Ada Data Karyawan</p>
-            <p className="text-gray-500 text-sm mb-4">
+            <p className={`${isDark ? 'text-gray-200' : 'text-gray-700'} font-medium mb-2`}>Belum Ada Data Karyawan</p>
+            <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm mb-4`}>
               {debouncedSearch 
                 ? `Tidak ditemukan karyawan dengan kata kunci "${debouncedSearch}"`
                 : "Mulai dengan menambahkan karyawan pertama"
@@ -555,10 +558,10 @@ export function EmployeeDatabase() {
         {/* ===== TABLE ===== */}
         {!loading && !error && employees.length > 0 && (
           <>
-            <div className="overflow-x-auto rounded-xl border border-gray-200/70">
+            <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-gray-700' : 'border-gray-200/70'}`}>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-[#F5F7FA] text-gray-700">
+                  <tr className={`${isDark ? 'bg-gray-700 text-gray-200' : 'bg-[#F5F7FA] text-gray-700'}`}>
                     <th className="px-4 py-3 text-left font-medium">No.</th>
                     <th className="px-4 py-3 text-left font-medium">Avatar</th>
                     <th className="px-4 py-3 text-left font-medium">
@@ -584,11 +587,13 @@ export function EmployeeDatabase() {
                   {currentEmployees.map((employee, index) => (
                     <tr
                       key={employee.id}
-                      className={`border-t border-gray-100 ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      } hover:bg-gray-100/60 transition-colors`}
+                      className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-100'} ${
+                        index % 2 === 0 
+                          ? isDark ? 'bg-gray-800' : 'bg-white' 
+                          : isDark ? 'bg-gray-750' : 'bg-gray-50'
+                      } ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100/60'} transition-colors`}
                     >
-                      <td className="px-4 py-3 text-gray-700">{startIndex + index + 1}</td>
+                      <td className={`px-4 py-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{startIndex + index + 1}</td>
 
                       {/* Avatar bulat + huruf depan atau gambar */}
                       <td className="px-4 py-3">
@@ -599,50 +604,50 @@ export function EmployeeDatabase() {
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-gray-600 font-medium">
+                          <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-200'} flex items-center justify-center`}>
+                            <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} font-medium`}>
                               {employee.firstName?.charAt(0) || "?"}
                             </span>
                           </div>
                         )}
                       </td>
 
-                      <td className="px-4 py-3 text-gray-800">
+                      <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                         <div className="flex items-center gap-2">
                           {employee.firstName} {employee.lastName || ""}
                           {employee.isNew && (
-                            <span className="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-700 rounded-full">
+                            <span className={`px-2 py-0.5 text-xs ${isDark ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'} rounded-full`}>
                               New
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-800 font-mono text-xs">
+                      <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'} font-mono text-xs`}>
                         {employee.employeeId || "-"}
                       </td>
-                      <td className="px-4 py-3 text-gray-800">
+                      <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                         {employee.gender === "M" || employee.gender === "Laki-Laki" 
                           ? "Laki-Laki" 
                           : employee.gender === "F" || employee.gender === "Perempuan"
                           ? "Perempuan"
                           : employee.gender || "-"}
                       </td>
-                      <td className="px-4 py-3 text-gray-800">{employee.phone || "-"}</td>
-                      <td className="px-4 py-3 text-gray-800">{employee.branch || "-"}</td>
-                      <td className="px-4 py-3 text-gray-800">{employee.jobdesk || "-"}</td>
+                      <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{employee.phone || "-"}</td>
+                      <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{employee.branch || "-"}</td>
+                      <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{employee.jobdesk || "-"}</td>
 
                       {/* Contract Type Badge */}
                       <td className="px-4 py-3">
                         <span className={`px-2 py-1 text-xs rounded-full font-medium ${
                           employee.contractType === 'permanent' 
-                            ? 'bg-blue-100 text-blue-700'
+                            ? isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-700'
                             : employee.contractType === 'contract'
-                            ? 'bg-amber-100 text-amber-700'
+                            ? isDark ? 'bg-amber-900/50 text-amber-400' : 'bg-amber-100 text-amber-700'
                             : employee.contractType === 'intern'
-                            ? 'bg-purple-100 text-purple-700'
+                            ? isDark ? 'bg-purple-900/50 text-purple-400' : 'bg-purple-100 text-purple-700'
                             : employee.contractType === 'resign'
-                            ? 'bg-gray-100 text-gray-700'
-                            : 'bg-gray-100 text-gray-600'
+                            ? isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-700'
+                            : isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
                         }`}>
                           {employee.contractType || "N/A"}
                         </span>
@@ -655,7 +660,7 @@ export function EmployeeDatabase() {
                           <button
                             type="button"
                             onClick={() => handleViewEmployee(employee)}
-                            className="p-2 rounded-lg bg-[rgba(124,166,191,0.15)] text-[#1D395E] hover:bg-[rgba(124,166,191,0.25)] transition"
+                            className={`p-2 rounded-lg ${isDark ? 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50' : 'bg-[rgba(124,166,191,0.15)] text-[#1D395E] hover:bg-[rgba(124,166,191,0.25)]'} transition`}
                             title="View Detail"
                           >
                             <Eye className="w-4 h-4" />
@@ -665,7 +670,7 @@ export function EmployeeDatabase() {
                           <button
                             type="button"
                             onClick={() => handleEditEmployee(employee)}
-                            className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition"
+                            className={`p-2 rounded-lg ${isDark ? 'bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'} transition`}
                             title="Edit Employee"
                           >
                             <Edit className="w-4 h-4" />
@@ -675,7 +680,7 @@ export function EmployeeDatabase() {
                           <button
                             type="button"
                             onClick={() => handleDeleteClick(employee)}
-                            className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition"
+                            className={`p-2 rounded-lg ${isDark ? 'bg-rose-900/30 text-rose-400 hover:bg-rose-900/50' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'} transition`}
                             title="Delete Employee"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -689,7 +694,7 @@ export function EmployeeDatabase() {
             </div>
 
             {/* ===== PAGINATION ===== */}
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+            <div className={`mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               {/* Left: Show entries dropdown */}
               <div className="flex items-center gap-2">
                 <span>Showing</span>
@@ -699,7 +704,7 @@ export function EmployeeDatabase() {
                     setRecordsPerPage(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="px-3 py-1.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
+                  className={`px-3 py-1.5 border ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200' : 'border-gray-300 bg-white'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1D395E]`}
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>
@@ -709,7 +714,7 @@ export function EmployeeDatabase() {
               </div>
 
               {/* Center: Info text */}
-              <div className="text-gray-500">
+              <div className={isDark ? 'text-gray-400' : 'text-gray-500'}>
                 Showing {employees.length > 0 ? startIndex + 1 : 0} to {Math.min(endIndex, totalRecords)}{" "}
                 of {totalRecords} records
               </div>
@@ -719,7 +724,7 @@ export function EmployeeDatabase() {
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className={`p-2 rounded-lg border ${isDark ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-50'} disabled:opacity-50 disabled:cursor-not-allowed transition`}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -743,8 +748,8 @@ export function EmployeeDatabase() {
                       onClick={() => setCurrentPage(pageNumber)}
                       className={`px-3 py-1.5 rounded-lg transition ${
                         currentPage === pageNumber
-                          ? "bg-[#1D395E] text-white"
-                          : "border border-gray-300 hover:bg-gray-50"
+                          ? isDark ? "bg-blue-600 text-white" : "bg-[#1D395E] text-white"
+                          : isDark ? "border border-gray-600 hover:bg-gray-700" : "border border-gray-300 hover:bg-gray-50"
                       }`}
                     >
                       {pageNumber}
@@ -755,7 +760,7 @@ export function EmployeeDatabase() {
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className={`p-2 rounded-lg border ${isDark ? 'border-gray-600 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-50'} disabled:opacity-50 disabled:cursor-not-allowed transition`}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -768,23 +773,23 @@ export function EmployeeDatabase() {
       {/* ===== DELETE CONFIRM MODAL ===== */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-2xl max-w-md w-full p-6`}>
             <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
-                <Trash2 className="w-7 h-7 text-rose-600" />
+              <div className={`w-14 h-14 rounded-full ${isDark ? 'bg-rose-900/30' : 'bg-rose-50'} flex items-center justify-center`}>
+                <Trash2 className={`w-7 h-7 ${isDark ? 'text-rose-400' : 'text-rose-600'}`} />
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'} text-center mb-2`}>
               Hapus Data Karyawan?
             </h3>
-            <p className="text-sm text-gray-600 text-center mb-5">
+            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} text-center mb-5`}>
               Apakah kamu yakin ingin menghapus data karyawan{" "}
               <span className="font-semibold">
                 {selectedEmployee?.firstName} {selectedEmployee?.lastName || ""}
               </span>{" "}
               dari database? Tindakan ini tidak dapat dibatalkan.
             </p>
-            <div className="bg-gray-50 rounded-lg p-4 mb-5 text-sm text-gray-700">
+            <div className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg p-4 mb-5 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
               <div className="flex justify-between">
                 <span>Employee ID:</span>
                 <span className="font-medium font-mono">
@@ -815,7 +820,7 @@ export function EmployeeDatabase() {
                 type="button"
                 onClick={handleCancelDelete}
                 disabled={deleting}
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className={`flex-1 px-4 py-2.5 rounded-lg border ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'} text-sm font-medium disabled:opacity-50`}
               >
                 Tidak, Batalkan
               </button>

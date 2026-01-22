@@ -1,21 +1,26 @@
 import logoHris from "@/assets/images/logo-hris-2.png";
+import logoHrisWhite from "@/assets/images/hris-putih.png";
+import { useTheme } from "@/app/hooks/useTheme";
 
 /**
  * Full Page Loading Spinner
  */
 export function PageLoader() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  
   return (
-    <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       <div className="text-center">
         <div className="relative mb-6">
           <img 
-            src={logoHris} 
+            src={isDark ? logoHrisWhite : logoHris} 
             alt="HRIS" 
             className="h-12 mx-auto animate-pulse"
           />
         </div>
         <div className="loading-spinner mx-auto mb-4"></div>
-        <p className="text-gray-500 text-sm animate-pulse">Loading...</p>
+        <p className={`text-sm animate-pulse ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Loading...</p>
       </div>
     </div>
   );

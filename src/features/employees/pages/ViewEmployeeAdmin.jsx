@@ -4,11 +4,14 @@ import { useState, useEffect } from "react";
 import { Calendar, ChevronDown, ArrowLeft, Loader2 } from "lucide-react";
 import { employeeService } from "@/app/services/employee.api";
 import { Notification } from "@/components/ui/Notification";
+import { useTheme } from "@/app/hooks/useTheme";
 
 export function ViewEmployeeAdmin() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -125,35 +128,39 @@ export function ViewEmployeeAdmin() {
         <button
           type="button"
           onClick={() => navigate("/admin/employees-database")}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50"
+          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm ${
+            isDark 
+              ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' 
+              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+          }`}
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
-        <h1 className="text-xl md:text-2xl font-semibold text-[#1D395E]">
+        <h1 className={`text-xl md:text-2xl font-semibold ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
           Employee Detail
         </h1>
       </div>
 
       {/* Loading state */}
       {loading ? (
-        <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm p-6 lg:p-8">
+        <section className={`rounded-2xl border shadow-sm p-6 lg:p-8 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'}`}>
           <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="w-10 h-10 text-[#1D395E] animate-spin mb-4" />
-            <p className="text-gray-600">Memuat data karyawan...</p>
+            <Loader2 className={`w-10 h-10 animate-spin mb-4 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
+            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Memuat data karyawan...</p>
           </div>
         </section>
       ) : (
-      <section className="bg-white rounded-2xl border border-gray-200/70 shadow-sm p-6 lg:p-8">
-        <h2 className="text-lg md:text-xl font-semibold text-[#1D395E] mb-5">
+      <section className={`rounded-2xl border shadow-sm p-6 lg:p-8 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'}`}>
+        <h2 className={`text-lg md:text-xl font-semibold mb-5 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
           View Employee Information
         </h2>
 
-        <div className="rounded-2xl border border-[#BFD0E0] bg-[#F7FAFC] px-5 py-6 md:px-8 md:py-8">
+        <div className={`rounded-2xl border px-5 py-6 md:px-8 md:py-8 ${isDark ? 'border-gray-600 bg-gray-700' : 'border-[#BFD0E0] bg-[#F7FAFC]'}`}>
           {/* Avatar + basic info */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-28 h-28 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
+              <div className={`w-28 h-28 rounded-lg flex items-center justify-center overflow-hidden ${isDark ? 'bg-gray-600' : 'bg-gray-200'}`}>
                 {display.avatarUrl ? (
                   <img 
                     src={display.avatarUrl} 
@@ -161,30 +168,32 @@ export function ViewEmployeeAdmin() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-xl font-semibold text-gray-600">
+                  <span className={`text-xl font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     {display.firstName?.charAt(0) || "E"}
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-base font-semibold text-gray-900">
+                <p className={`text-base font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {display.fullName}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   {display.position} • {display.branch}
                 </p>
                 {display.email !== "-" && (
-                  <p className="text-sm text-gray-500 mt-1">{display.email}</p>
+                  <p className={`text-sm mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{display.email}</p>
                 )}
               </div>
             </div>
 
-            <div className="text-sm text-gray-600">
+            <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               <p>
                 Status:{" "}
                 <span
                   className={`font-semibold ${
-                    display.isActive ? "text-emerald-600" : "text-rose-600"
+                    display.isActive 
+                      ? (isDark ? "text-emerald-400" : "text-emerald-600")
+                      : (isDark ? "text-rose-400" : "text-rose-600")
                   }`}
                 >
                   {display.isActive ? "Active" : "Inactive"}
@@ -197,8 +206,8 @@ export function ViewEmployeeAdmin() {
           <div className="space-y-6">
             {/* Baris 1 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <ReadOnlyInput label="First Name" value={display.firstName} />
-              <ReadOnlyInput label="Last Name" value={display.lastName} />
+              <ReadOnlyInput label="First Name" value={display.firstName} isDark={isDark} />
+              <ReadOnlyInput label="Last Name" value={display.lastName} isDark={isDark} />
             </div>
 
             {/* Baris 2 */}
@@ -206,24 +215,26 @@ export function ViewEmployeeAdmin() {
               <ReadOnlyInput
                 label="Mobile Number"
                 value={display.mobileNumber}
+                isDark={isDark}
               />
-              <ReadOnlyInput label="NIK" value={display.nik} />
+              <ReadOnlyInput label="NIK" value={display.nik} isDark={isDark} />
             </div>
 
             {/* Baris 3 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <ReadOnlyInput label="Gender" value={display.gender} />
+              <ReadOnlyInput label="Gender" value={display.gender} isDark={isDark} />
               <ReadOnlyInput
                 label="Pendidikan Terakhir"
                 value={display.education}
+                isDark={isDark}
               />
             </div>
 
             {/* Baris 4 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <ReadOnlyInput label="Tempat Lahir" value={display.birthPlace} />
+              <ReadOnlyInput label="Tempat Lahir" value={display.birthPlace} isDark={isDark} />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Tanggal Lahir
                 </label>
                 <div className="relative">
@@ -232,7 +243,11 @@ export function ViewEmployeeAdmin() {
                     value={display.birthDate}
                     readOnly
                     disabled
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-gray-100 text-gray-700"
+                    className={`w-full rounded-lg border px-4 py-2.5 text-sm ${
+                      isDark 
+                        ? 'border-gray-600 bg-gray-600 text-gray-300' 
+                        : 'border-gray-300 bg-gray-100 text-gray-700'
+                    }`}
                   />
                   <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -241,22 +256,23 @@ export function ViewEmployeeAdmin() {
 
             {/* Baris 5 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <ReadOnlyInput label="Jabatan" value={display.position} />
-              <ReadOnlyInput label="Cabang" value={display.branch} />
+              <ReadOnlyInput label="Jabatan" value={display.position} isDark={isDark} />
+              <ReadOnlyInput label="Cabang" value={display.branch} isDark={isDark} />
             </div>
 
             {/* Baris 6 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <ReadOnlyInput label="Tipe Kontrak" value={display.contractType} />
-              <ReadOnlyInput label="Grade" value={display.grade} />
+              <ReadOnlyInput label="Tipe Kontrak" value={display.contractType} isDark={isDark} />
+              <ReadOnlyInput label="Grade" value={display.grade} isDark={isDark} />
             </div>
 
             {/* Baris 7 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <ReadOnlyInput label="Bank" value={display.bank} />
+              <ReadOnlyInput label="Bank" value={display.bank} isDark={isDark} />
               <ReadOnlyInput
                 label="Nomor Rekening"
                 value={display.accountNumber}
+                isDark={isDark}
               />
             </div>
 
@@ -265,8 +281,9 @@ export function ViewEmployeeAdmin() {
               <ReadOnlyInput
                 label="Atas Nama Rekening"
                 value={display.accountName}
+                isDark={isDark}
               />
-              <ReadOnlyInput label="Tipe SP" value={display.spType || "-"} />
+              <ReadOnlyInput label="Tipe SP" value={display.spType || "-"} isDark={isDark} />
             </div>
           </div>
 
@@ -274,7 +291,11 @@ export function ViewEmployeeAdmin() {
             <button
               type="button"
               onClick={() => navigate("/admin/employees-database")}
-              className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className={`px-6 py-2.5 rounded-lg border text-sm font-medium ${
+                isDark 
+                  ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+              }`}
             >
               Close
             </button>
@@ -287,10 +308,10 @@ export function ViewEmployeeAdmin() {
 }
 
 // Small helper component for read-only input
-function ReadOnlyInput({ label, value }) {
+function ReadOnlyInput({ label, value, isDark }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
         {label}
       </label>
       <input
@@ -298,7 +319,11 @@ function ReadOnlyInput({ label, value }) {
         readOnly
         disabled
         value={value || ""}
-        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-gray-100 text-gray-700"
+        className={`w-full rounded-lg border px-4 py-2.5 text-sm ${
+          isDark 
+            ? 'border-gray-600 bg-gray-600 text-gray-300' 
+            : 'border-gray-300 bg-gray-100 text-gray-700'
+        }`}
       />
     </div>
   );

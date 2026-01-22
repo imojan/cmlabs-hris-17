@@ -109,7 +109,6 @@ export function exportToExcel({
 
   // Calculate total columns for merging
   const totalCols = columns.length;
-  const lastColLetter = XLSX.utils.encode_col(totalCols - 1);
 
   // Build worksheet data with styles
   const wsData = [];

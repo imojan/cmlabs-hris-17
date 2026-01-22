@@ -18,9 +18,12 @@ import { MapComponent } from "../components/MapComponent";
 import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 import { attendanceService } from "@/app/services/attendance.api";
 import { locationService } from "@/app/services/location.api";
+import { useTheme } from "@/app/hooks/useTheme";
 
 export default function AddCheckclockUser() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   const [formData, setFormData] = useState({
     attendanceType: "",
@@ -343,7 +346,7 @@ export default function AddCheckclockUser() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 relative" style={{ overflow: showConfirmModal ? 'hidden' : 'auto' }}>
+    <div className={`min-h-screen relative ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ overflow: showConfirmModal ? 'hidden' : 'auto' }}>
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -355,10 +358,10 @@ export default function AddCheckclockUser() {
       )}
       
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-4 lg:p-6">
+        <div className={`rounded-2xl border shadow-lg p-4 lg:p-6 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           {/* Header */}
           <div className="mb-6">
-            <h2 className="text-xl lg:text-2xl font-semibold text-gray-900">
+            <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
               Add Checkclock
             </h2>
           </div>
@@ -371,7 +374,7 @@ export default function AddCheckclockUser() {
                 <div className="space-y-5">
                   {/* Tipe Absensi + Waktu Realtime */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Tipe Absensi
                     </label>
                     <CustomDropdown
@@ -388,7 +391,7 @@ export default function AddCheckclockUser() {
 
                     {/* Waktu Realtime */}
                     <div className="mt-4 space-y-1.5">
-                      <label className="block text-xs font-medium text-gray-500">
+                      <label className={`block text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                         Waktu Absensi (Realtime)
                       </label>
                       <div className="relative">
@@ -396,11 +399,11 @@ export default function AddCheckclockUser() {
                           type="text"
                           value={currentTime}
                           readOnly
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm bg-gray-50 text-gray-800 focus:outline-none"
+                          className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-gray-50 border-gray-300 text-gray-800'}`}
                         />
-                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Clock className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                       </div>
-                      <p className="text-[11px] text-gray-500">
+                      <p className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                         Saat kamu memilih tipe absensi, jam ini disimpan sebagai{" "}
                         <span className="font-semibold">
                           {formData.capturedTime || "--:--:--"}
@@ -414,7 +417,7 @@ export default function AddCheckclockUser() {
                   {["Annual Leave", "Sick Leave"].includes(formData.attendanceType) && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                           Start Date
                         </label>
                         <div className="relative">
@@ -423,13 +426,13 @@ export default function AddCheckclockUser() {
                             name="startDate"
                             value={formData.startDate}
                             onChange={handleInputChange}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 text-gray-700 bg-white'}`}
                           />
-                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          <Calendar className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                           End Date
                         </label>
                         <div className="relative">
@@ -438,9 +441,9 @@ export default function AddCheckclockUser() {
                             name="endDate"
                             value={formData.endDate}
                             onChange={handleInputChange}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100' : 'border-gray-300 text-gray-700 bg-white'}`}
                           />
-                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          <Calendar className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                         </div>
                       </div>
                     </div>
@@ -448,16 +451,16 @@ export default function AddCheckclockUser() {
 
                   {/* Upload Bukti Pendukung */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Upload Bukti Pendukung
                     </label>
 
                     {/* Show preview if file is uploaded */}
                     {proofFile ? (
-                      <div className="border-2 border-gray-200 rounded-lg p-4">
+                      <div className={`border-2 rounded-lg p-4 ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
                         {/* Image Preview */}
                         {proofPreview && (
-                          <div className="mb-4 rounded-lg overflow-hidden border border-gray-200">
+                          <div className={`mb-4 rounded-lg overflow-hidden border ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
                             <img 
                               src={proofPreview} 
                               alt="Preview" 
@@ -467,20 +470,20 @@ export default function AddCheckclockUser() {
                         )}
 
                         {/* File Info */}
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className={`flex items-center justify-between p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-blue-900/30' : 'bg-blue-100'}`}>
                               {proofFile.type.startsWith("image/") ? (
-                                <Upload className="w-5 h-5 text-blue-600" />
+                                <Upload className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                               ) : (
-                                <AlertCircle className="w-5 h-5 text-blue-600" />
+                                <AlertCircle className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                               )}
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                              <p className={`text-sm font-medium truncate max-w-[200px] ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                                 {proofFile.name}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                 {(proofFile.size / 1024).toFixed(1)} KB
                               </p>
                             </div>
@@ -489,7 +492,7 @@ export default function AddCheckclockUser() {
                           <button
                             type="button"
                             onClick={handleRemoveFile}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                            className={`p-2 rounded-lg transition ${isDark ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
                             title="Remove file"
                           >
                             <XCircle className="w-5 h-5" />
@@ -507,22 +510,22 @@ export default function AddCheckclockUser() {
                           />
                           <label
                             htmlFor="proof-file-user-change"
-                            className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                            className={`inline-block px-4 py-2 border rounded-lg text-sm font-medium cursor-pointer transition ${isDark ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'}`}
                           >
                             Change File
                           </label>
                         </div>
                       </div>
                     ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                      <div className={`border-2 border-dashed rounded-lg p-8 text-center ${isDark ? 'border-gray-600' : 'border-gray-300'}`}>
                         <div className="flex flex-col items-center">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
-                            <Upload className="w-6 h-6 text-gray-400" />
+                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <Upload className={`w-6 h-6 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                           </div>
-                          <p className="text-sm text-gray-600 mb-1">
+                          <p className={`text-sm mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                             Drag n Drop here
                           </p>
-                          <p className="text-sm text-gray-500 mb-3">Or</p>
+                          <p className={`text-sm mb-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Or</p>
 
                           <input
                             type="file"
@@ -533,7 +536,7 @@ export default function AddCheckclockUser() {
                           />
                           <label
                             htmlFor="proof-file-user"
-                            className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                            className={`inline-block px-4 py-2 border rounded-lg text-sm font-medium cursor-pointer transition ${isDark ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'}`}
                           >
                             Browse
                           </label>
@@ -547,7 +550,7 @@ export default function AddCheckclockUser() {
                 <div className="space-y-5">
                   {/* Lokasi dropdown */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Lokasi
                     </label>
                     <CustomDropdown
@@ -568,7 +571,7 @@ export default function AddCheckclockUser() {
                       ]}
                     />
                     {companyLocations.length === 0 && !loadingLocations && (
-                      <p className="text-xs text-amber-600 mt-1">
+                      <p className={`text-xs mt-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                         Belum ada lokasi kantor terdaftar. Hubungi admin untuk menambahkan.
                       </p>
                     )}
@@ -576,7 +579,7 @@ export default function AddCheckclockUser() {
 
                   {/* Detail Alamat */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Detail Alamat
                     </label>
                     <input
@@ -585,14 +588,14 @@ export default function AddCheckclockUser() {
                       value={formData.address}
                       onChange={handleInputChange}
                       placeholder="Masukkan detail alamat..."
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400' : 'border-gray-300 text-gray-700 bg-white'}`}
                     />
                   </div>
 
                   {/* Catatan */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Catatan <span className="text-gray-400 font-normal">(opsional)</span>
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Catatan <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>(opsional)</span>
                     </label>
                     <textarea
                       name="notes"
@@ -600,14 +603,14 @@ export default function AddCheckclockUser() {
                       onChange={handleInputChange}
                       placeholder="Tambahkan catatan jika diperlukan..."
                       rows={3}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400' : 'border-gray-300 text-gray-700 bg-white'}`}
                     />
                   </div>
 
                   {/* Map Section */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
+                      <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Pilih Lokasi di Peta
                       </label>
                       <button
@@ -620,7 +623,7 @@ export default function AddCheckclockUser() {
                       </button>
                     </div>
 
-                    <div className="rounded-xl overflow-hidden border border-gray-200">
+                    <div className={`rounded-xl overflow-hidden border ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
                       <MapComponent
                         mapPosition={mapPosition}
                         onLocationChange={handleMapLocationChange}
@@ -629,15 +632,15 @@ export default function AddCheckclockUser() {
 
                     {/* Coordinates Display */}
                     {formData.latitude && formData.longitude && (
-                      <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                      <div className={`mt-3 p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                         <div className="grid grid-cols-2 gap-4 text-xs">
                           <div>
-                            <span className="text-gray-500">Latitude:</span>
-                            <span className="ml-2 font-medium text-gray-800">{formData.latitude}</span>
+                            <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Latitude:</span>
+                            <span className={`ml-2 font-medium ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{formData.latitude}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Longitude:</span>
-                            <span className="ml-2 font-medium text-gray-800">{formData.longitude}</span>
+                            <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Longitude:</span>
+                            <span className={`ml-2 font-medium ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{formData.longitude}</span>
                           </div>
                         </div>
                       </div>
@@ -647,22 +650,22 @@ export default function AddCheckclockUser() {
               </div>
 
               {/* Warning Box */}
-              <div className="mt-6 flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className={`mt-6 flex items-start gap-3 p-4 rounded-xl border ${isDark ? 'bg-amber-900/20 border-amber-700/50' : 'bg-amber-50 border-amber-200'}`}>
+                <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />
                 <div>
-                  <p className="text-sm font-medium text-amber-800">Perhatian</p>
-                  <p className="text-xs text-amber-700 mt-0.5">
+                  <p className={`text-sm font-medium ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>Perhatian</p>
+                  <p className={`text-xs mt-0.5 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
                     Pastikan Anda berada di lokasi yang benar sebelum melakukan absensi. Data lokasi akan dicatat secara otomatis.
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-100">
+              <div className={`flex justify-end gap-3 mt-6 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                  className={`px-6 py-2.5 border rounded-lg text-sm font-medium transition-colors ${isDark ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                 >
                   Cancel
                 </button>
@@ -683,20 +686,20 @@ export default function AddCheckclockUser() {
                 className="absolute inset-0 bg-black/50"
                 onClick={() => !isLoading && setShowConfirmModal(false)}
               />
-              <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <div className={`relative rounded-2xl shadow-xl max-w-md w-full p-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-[#1D395E]/10">
-                    <Clock className="w-8 h-8 text-[#1D395E]" />
+                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-900/30' : 'bg-[#1D395E]/10'}`}>
+                    <Clock className={`w-8 h-8 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
                     Konfirmasi Absensi
                   </h3>
-                  <div className="text-sm text-gray-600 mb-4 space-y-1">
+                  <div className={`text-sm mb-4 space-y-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     <p>Tipe: <span className="font-semibold">{formData.attendanceType}</span></p>
                     <p>Waktu: <span className="font-semibold">{formData.capturedTime}</span></p>
                     <p>Lokasi: <span className="font-semibold">{formData.location}</span></p>
                   </div>
-                  <p className="text-sm text-gray-500 mb-6">
+                  <p className={`text-sm mb-6 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
                     Apakah Anda yakin ingin menyimpan data absensi ini?
                   </p>
                   
@@ -705,7 +708,7 @@ export default function AddCheckclockUser() {
                       type="button"
                       onClick={handleCancelSave}
                       disabled={isLoading}
-                      className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      className={`flex-1 px-4 py-2.5 border rounded-xl font-medium transition-colors disabled:opacity-50 ${isDark ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                     >
                       Batal
                     </button>

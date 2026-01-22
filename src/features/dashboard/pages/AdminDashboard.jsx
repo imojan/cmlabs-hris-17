@@ -13,6 +13,8 @@ import { AttendanceChart } from "../../../components/charts/AttendanceChart";
 import { AttendanceTable } from "../../../components/ui/AttendanceTable";
 
 import dashboardService from "../../../app/services/dashboard.api";
+import { useTranslation } from "@/app/hooks/useTranslation";
+import { useTheme } from "@/app/hooks/useTheme";
 
 // Pages (employees & attendance)
 import { EmployeeDatabase } from "../../employees/pages/EmployeeDatabase";
@@ -37,23 +39,6 @@ const AddCheckclockAdmin = lazy(() =>
 );
 
 // ====================== CONSTANTS ======================
-
-// mapping nama page → judul yang muncul di header & tab browser
-const PAGE_TITLES = {
-  dashboard: "Dashboard",
-  "employee-database": "Employee Database",
-  "employee-add": "Add Employee Database",
-  "employee-view": "View Employee Database",
-  "employee-edit": "Edit Employee Database",
-  checkclock: "Checkclock",
-  "checkclock-add-admin": "Add Checkclock Admin",
-  "work-schedule": "Work Schedule",
-  "faq-help": "FAQ & Help",
-  settings: "Setting",
-  "settings-profile": "Pengaturan Profil",
-  "settings-locations": "Pengaturan Lokasi Kantor",
-  notifications: "Notifications",
-};
 
 // mapping nama page → URL path (hanya yang diakses lewat sidebar)
 const PAGE_TO_PATH = {
@@ -106,6 +91,9 @@ function getCurrentPage(pathname) {
 export default function AdminDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
@@ -115,6 +103,25 @@ export default function AdminDashboard() {
   const [statusChartData, setStatusChartData] = useState(null);
   const [attendanceChartData, setAttendanceChartData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Dynamic page titles based on language
+  const getPageTitles = () => ({
+    dashboard: t("nav.dashboard"),
+    "employee-database": t("nav.employeeDatabase"),
+    "employee-add": t("employee.addEmployee"),
+    "employee-view": t("employee.viewEmployee"),
+    "employee-edit": t("employee.editEmployee"),
+    checkclock: t("nav.attendance"),
+    "checkclock-add-admin": t("attendance.addAttendance"),
+    "work-schedule": t("nav.workSchedule"),
+    "faq-help": t("nav.faqHelp"),
+    settings: t("nav.settings"),
+    "settings-profile": t("settings.profileSettings"),
+    "settings-locations": t("settings.locationSettings"),
+    notifications: t("nav.notifications"),
+  });
+
+  const PAGE_TITLES = getPageTitles();
 
   // currentPage diambil dari URL
   const currentPage = getCurrentPage(location.pathname);
@@ -139,16 +146,8 @@ export default function AdminDashboard() {
         }
 
         if (empChartRes.success) {
-          // Transform to monthly data format expected by chart
-          const monthlyData = {};
-          empChartRes.data.forEach((item) => {
-            monthlyData[item.month] = [
-              { name: "New", value: item.new },
-              { name: "Active", value: item.active },
-              { name: "Resign", value: item.resign },
-            ];
-          });
-          setEmployeeChartData(monthlyData);
+          // Store raw data, transform labels in render
+          setEmployeeChartData(empChartRes.data);
         }
 
         if (statusChartRes.success) {
@@ -173,9 +172,24 @@ export default function AdminDashboard() {
 
   // === UPDATE <title> BERDASARKAN currentPage ===
   useEffect(() => {
-    const pageTitle = PAGE_TITLES[currentPage] ?? "Dashboard";
+    const titles = {
+      dashboard: t("nav.dashboard"),
+      "employee-database": t("nav.employeeDatabase"),
+      "employee-add": t("employee.addEmployee"),
+      "employee-view": t("employee.viewEmployee"),
+      "employee-edit": t("employee.editEmployee"),
+      checkclock: t("nav.attendance"),
+      "checkclock-add-admin": t("attendance.addAttendance"),
+      "work-schedule": t("nav.workSchedule"),
+      "faq-help": t("nav.faqHelp"),
+      settings: t("nav.settings"),
+      "settings-profile": t("settings.profileSettings"),
+      "settings-locations": t("settings.locationSettings"),
+      notifications: t("nav.notifications"),
+    };
+    const pageTitle = titles[currentPage] ?? t("nav.dashboard");
     document.title = `${pageTitle} | HRIS`;
-  }, [currentPage]);
+  }, [currentPage, t]);
 
   const handleToggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -187,10 +201,13 @@ export default function AdminDashboard() {
     navigate(path);
   };
 
-  const headerTitle = PAGE_TITLES[currentPage] ?? "Dashboard";
+  const headerTitle = PAGE_TITLES[currentPage] ?? t("nav.dashboard");
+
+  // Dynamic background based on theme
+  const mainBg = isDark ? "bg-gray-900" : "bg-gray-50";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${mainBg} transition-colors duration-300`}>
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -225,32 +242,32 @@ export default function AdminDashboard() {
               {/* STAT CARDS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 <StatCard
-                  title="Total Employees"
+                  title={t("dashboard.totalEmployees")}
                   value={dashboardStats?.employees?.total ?? 0}
                   icon={Users}
                   iconColor="bg-[#1D395E]"
-                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  updateDate={new Date().toLocaleDateString(t("common.locale"), { month: "long", day: "numeric", year: "numeric" })}
                 />
                 <StatCard
-                  title="New Employees"
+                  title={t("dashboard.newEmployees")}
                   value={dashboardStats?.employees?.new ?? 0}
                   icon={UserPlus}
                   iconColor="bg-[#D4AF37]"
-                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  updateDate={new Date().toLocaleDateString(t("common.locale"), { month: "long", day: "numeric", year: "numeric" })}
                 />
                 <StatCard
-                  title="Active Employees"
+                  title={t("dashboard.activeEmployees")}
                   value={dashboardStats?.employees?.active ?? 0}
                   icon={UserCheck}
                   iconColor="bg-[#2D5F3F]"
-                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  updateDate={new Date().toLocaleDateString(t("common.locale"), { month: "long", day: "numeric", year: "numeric" })}
                 />
                 <StatCard
-                  title="Past Employees"
+                  title={t("dashboard.pastEmployees")}
                   value={dashboardStats?.employees?.past ?? 0}
                   icon={UserX}
                   iconColor="bg-[#8B3A3A]"
-                  updateDate={new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  updateDate={new Date().toLocaleDateString(t("common.locale"), { month: "long", day: "numeric", year: "numeric" })}
                 />
               </div>
 
@@ -281,7 +298,7 @@ export default function AdminDashboard() {
 
           {currentPage === "checkclock-add-admin" && (
             <Suspense
-              fallback={<div className="p-8 text-center">Loading...</div>}
+              fallback={<div className="p-8 text-center">{t("common.loading")}</div>}
             >
               <AddCheckclockAdmin />
             </Suspense>

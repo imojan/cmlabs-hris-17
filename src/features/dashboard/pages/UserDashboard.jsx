@@ -16,6 +16,8 @@ import { Header } from "../../../components/ui/Header";
 import { Sidebar } from "../../../components/ui/Sidebar";
 import { StatCard } from "../../../components/ui/StatCard";
 import dashboardService from "../../../app/services/dashboard.api";
+import { useTranslation } from "@/app/hooks/useTranslation";
+import { useTheme } from "@/app/hooks/useTheme";
 
 // Attendance pages for user
 import { AttendanceUser } from "../../attendance/pages/AttendanceUser";
@@ -34,17 +36,6 @@ const AddCheckclockUser = lazy(() =>
 );
 
 // ====================== CONSTANTS ======================
-
-// mapping nama page → judul yang muncul di header & tab browser
-const PAGE_TITLES = {
-  dashboard: "Dashboard",
-  checkclock: "Checkclock",
-  "checkclock-add": "Check In/Out",
-  "faq-help": "FAQ & Help",
-  settings: "Pengaturan",
-  "settings-profile": "Pengaturan Profil",
-  notifications: "Notifications",
-};
 
 // mapping nama page → URL path (hanya yang diakses lewat sidebar)
 const PAGE_TO_PATH = {
@@ -75,17 +66,42 @@ function getCurrentPage(pathname) {
 export default function UserDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Dynamic page titles based on language
+  const getPageTitles = () => ({
+    dashboard: t("nav.dashboard"),
+    checkclock: t("nav.attendance"),
+    "checkclock-add": t("attendance.checkInOut"),
+    "faq-help": t("nav.faqHelp"),
+    settings: t("nav.settings"),
+    "settings-profile": t("settings.profileSettings"),
+    notifications: t("nav.notifications"),
+  });
+
+  const PAGE_TITLES = getPageTitles();
 
   // currentPage diambil dari URL
   const currentPage = getCurrentPage(location.pathname);
 
   // === UPDATE <title> BERDASARKAN currentPage ===
   useEffect(() => {
-    const pageTitle = PAGE_TITLES[currentPage] ?? "Dashboard";
+    const titles = {
+      dashboard: t("nav.dashboard"),
+      checkclock: t("nav.attendance"),
+      "checkclock-add": t("attendance.checkInOut"),
+      "faq-help": t("nav.faqHelp"),
+      settings: t("nav.settings"),
+      "settings-profile": t("settings.profileSettings"),
+      notifications: t("nav.notifications"),
+    };
+    const pageTitle = titles[currentPage] ?? t("nav.dashboard");
     document.title = `${pageTitle} | HRIS`;
-  }, [currentPage]);
+  }, [currentPage, t]);
 
   const handleToggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -97,10 +113,10 @@ export default function UserDashboard() {
     navigate(path);
   };
 
-  const headerTitle = PAGE_TITLES[currentPage] ?? "Dashboard";
+  const headerTitle = PAGE_TITLES[currentPage] ?? t("nav.dashboard");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -132,7 +148,7 @@ export default function UserDashboard() {
 
           {currentPage === "checkclock-add" && (
             <Suspense
-              fallback={<div className="p-8 text-center">Loading...</div>}
+              fallback={<div className={`p-8 text-center ${isDark ? 'text-gray-400' : ''}`}>{t("common.loading")}</div>}
             >
               <AddCheckclockUser />
             </Suspense>
@@ -155,6 +171,9 @@ export default function UserDashboard() {
 
 // ====================== USER DASHBOARD CONTENT ======================
 function UserDashboardContent() {
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [attendanceFilter, setAttendanceFilter] = useState("month");
   const [_leaveFilter, setLeaveFilter] = useState("year");
   const [workHoursFilter, setWorkHoursFilter] = useState("week");
@@ -260,8 +279,8 @@ function UserDashboardContent() {
   // Error state
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-        <p className="font-medium">Error loading dashboard</p>
+      <div className={`rounded-lg p-4 border ${isDark ? 'bg-red-900/20 border-red-700/50 text-red-400' : 'bg-red-50 border-red-200 text-red-700'}`}>
+        <p className="font-medium">{t("dashboard.errorLoading")}</p>
         <p className="text-sm mt-1">{error}</p>
       </div>
     );
@@ -272,28 +291,28 @@ function UserDashboardContent() {
       {/* STAT CARDS - 4 cards like admin dashboard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         <StatCard
-          title="Work Hours"
+          title={t("dashboard.workHours")}
           value={totalWorkDisplay}
           icon={Clock}
           iconColor="bg-[#1D395E]"
           updateDate={displayMonth}
         />
         <StatCard
-          title="On Time"
+          title={t("dashboard.onTime")}
           value={String(stats.onTime)}
           icon={CheckCircle}
           iconColor="bg-[#2D5F3F]"
           updateDate={displayMonth}
         />
         <StatCard
-          title="Late"
+          title={t("dashboard.late")}
           value={String(stats.late)}
           icon={AlertCircle}
           iconColor="bg-[#D4AF37]"
           updateDate={displayMonth}
         />
         <StatCard
-          title="Absent"
+          title={t("dashboard.absent")}
           value={String(stats.absent)}
           icon={XCircle}
           iconColor="bg-[#8B3A3A]"
@@ -304,9 +323,9 @@ function UserDashboardContent() {
       {/* Attendance Summary & Leave Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
         {/* Attendance Summary */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:p-6">
+        <div className={`rounded-2xl shadow-sm border p-5 lg:p-6 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-[#1D395E]">Attendance Summary</h3>
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>{t("dashboard.attendanceSummary")}</h3>
             <div className="relative">
               <button
                 onClick={() => {
@@ -316,23 +335,23 @@ function UserDashboardContent() {
                 }}
                 className="flex items-center gap-2 px-4 py-2 bg-[#1D395E] text-white rounded-full text-sm font-medium"
               >
-                {attendanceFilter === "month" ? "Month" : attendanceFilter === "week" ? "Week" : "Year"}
+                {attendanceFilter === "month" ? t("time.month") : attendanceFilter === "week" ? t("time.week") : t("time.year")}
                 <ChevronDown className={`w-4 h-4 transition-transform ${showAttendanceDropdown ? 'rotate-180' : ''}`} />
               </button>
               {showAttendanceDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
-                  {["week", "month", "year"].map((opt) => (
+                <div className={`absolute right-0 top-full mt-2 w-32 rounded-xl shadow-lg border py-1 z-20 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                  {[{key: "week", label: t("time.week")}, {key: "month", label: t("time.month")}, {key: "year", label: t("time.year")}].map((opt) => (
                     <button
-                      key={opt}
+                      key={opt.key}
                       onClick={() => {
-                        setAttendanceFilter(opt);
+                        setAttendanceFilter(opt.key);
                         setShowAttendanceDropdown(false);
                       }}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 capitalize ${
-                        attendanceFilter === opt ? "text-[#1D395E] font-medium" : "text-gray-700"
+                      className={`w-full text-left px-4 py-2 text-sm ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} ${
+                        attendanceFilter === opt.key ? (isDark ? "text-blue-400 font-medium" : "text-[#1D395E] font-medium") : (isDark ? "text-gray-300" : "text-gray-700")
                       }`}
                     >
-                      {opt}
+                      {opt.label}
                     </button>
                   ))}
                 </div>
@@ -381,8 +400,8 @@ function UserDashboardContent() {
               </svg>
               {/* Center Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs text-gray-500">Total</span>
-                <span className="text-lg font-bold text-[#1D395E]">Presensi</span>
+                <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("common.total")}</span>
+                <span className={`text-lg font-bold ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>{t("dashboard.attendance")}</span>
               </div>
             </div>
 
@@ -390,24 +409,24 @@ function UserDashboardContent() {
             <div className="flex items-center justify-center gap-6 mt-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#2D5F3F]" />
-                <span className="text-sm text-gray-700">Ontime</span>
+                <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.onTime")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#DC2626]" />
-                <span className="text-sm text-gray-700">Late</span>
+                <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.late")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#F59E0B]" />
-                <span className="text-sm text-gray-700">Absent</span>
+                <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.absent")}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Leave Summary */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:p-6">
+        <div className={`rounded-2xl shadow-sm border p-5 lg:p-6 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-[#1D395E]">Leave Summary</h3>
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>{t("dashboard.leaveSummary")}</h3>
             <div className="relative">
               <button
                 onClick={() => {
@@ -417,21 +436,21 @@ function UserDashboardContent() {
                 }}
                 className="flex items-center gap-2 px-4 py-2 bg-[#1D395E] text-white rounded-full text-sm font-medium"
               >
-                Rentang Waktu
+                {t("time.timeRange")}
                 <ChevronDown className={`w-4 h-4 transition-transform ${showLeaveDropdown ? 'rotate-180' : ''}`} />
               </button>
               {showLeaveDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
-                  {["This Month", "This Year", "All Time"].map((opt) => (
+                <div className={`absolute right-0 top-full mt-2 w-40 rounded-xl shadow-lg border py-1 z-20 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                  {[{key: "thisMonth", label: t("time.thisMonth")}, {key: "thisYear", label: t("time.thisYear")}, {key: "allTime", label: t("time.allTime")}].map((opt) => (
                     <button
-                      key={opt}
+                      key={opt.key}
                       onClick={() => {
-                        setLeaveFilter(opt);
+                        setLeaveFilter(opt.key);
                         setShowLeaveDropdown(false);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-gray-700"
+                      className={`w-full text-left px-4 py-2 text-sm ${isDark ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-700'}`}
                     >
-                      {opt}
+                      {opt.label}
                     </button>
                   ))}
                 </div>
@@ -440,42 +459,42 @@ function UserDashboardContent() {
           </div>
 
           {/* Total Quota */}
-          <div className="border border-gray-200 rounded-xl p-4 mb-4">
+          <div className={`border rounded-xl p-4 mb-4 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-gray-300" />
-              <span className="text-sm font-medium text-gray-700">Total Quota Annual Leave</span>
+              <div className={`w-2.5 h-2.5 rounded-full ${isDark ? 'bg-gray-500' : 'bg-gray-300'}`} />
+              <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.totalQuotaAnnualLeave")}</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900 mb-3">{LEAVE_DATA.totalQuota} <span className="text-sm font-normal text-gray-500">hari</span></p>
-            <button className="text-sm text-[#1D395E] hover:underline font-medium">
-              Request Leave
+            <p className={`text-2xl font-bold mb-3 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{LEAVE_DATA.totalQuota} <span className={`text-sm font-normal ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("time.days")}</span></p>
+            <button className={`text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
+              {t("dashboard.requestLeave")}
             </button>
           </div>
 
           {/* Taken & Remaining */}
           <div className="grid grid-cols-2 gap-4">
             {/* Taken */}
-            <div className="border border-gray-200 rounded-xl p-4">
+            <div className={`border rounded-xl p-4 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]" />
-                <span className="text-sm font-medium text-gray-700">Taken</span>
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.taken")}</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-4">{LEAVE_DATA.taken} <span className="text-sm font-normal text-gray-500">hari</span></p>
-              <button className="flex items-center gap-1.5 text-sm text-[#1D395E] hover:underline font-medium">
+              <p className={`text-2xl font-bold mb-4 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{LEAVE_DATA.taken} <span className={`text-sm font-normal ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("time.days")}</span></p>
+              <button className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
                 <Eye className="w-4 h-4" />
-                See Details
+                {t("common.seeDetails")}
               </button>
             </div>
 
             {/* Remaining */}
-            <div className="border border-gray-200 rounded-xl p-4">
+            <div className={`border rounded-xl p-4 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#2D5F3F]" />
-                <span className="text-sm font-medium text-gray-700">Remaining</span>
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t("dashboard.remaining")}</span>
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-4">{LEAVE_DATA.remaining} <span className="text-sm font-normal text-gray-500">hari</span></p>
-              <button className="flex items-center gap-1.5 text-sm text-[#1D395E] hover:underline font-medium">
+              <p className={`text-2xl font-bold mb-4 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{LEAVE_DATA.remaining} <span className={`text-sm font-normal ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("time.days")}</span></p>
+              <button className={`flex items-center gap-1.5 text-sm font-medium hover:underline ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>
                 <Send className="w-4 h-4" />
-                Request Leave
+                {t("dashboard.requestLeave")}
               </button>
             </div>
           </div>
@@ -483,11 +502,11 @@ function UserDashboardContent() {
       </div>
 
       {/* Your Work Hours */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:p-6">
+      <div className={`rounded-2xl shadow-sm border p-5 lg:p-6 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h3 className="text-lg font-semibold text-[#1D395E]">Your Work Hours</h3>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalWorkDisplay}</p>
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>{t("dashboard.yourWorkHours")}</h3>
+            <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{totalWorkDisplay}</p>
           </div>
           <div className="relative">
             <button
@@ -498,23 +517,23 @@ function UserDashboardContent() {
               }}
               className="flex items-center gap-2 px-4 py-2 bg-[#1D395E] text-white rounded-full text-sm font-medium"
             >
-              view by {workHoursFilter}
+              {t("dashboard.viewBy")} {workHoursFilter === "day" ? t("time.day") : workHoursFilter === "week" ? t("time.week") : t("time.month")}
               <ChevronDown className={`w-4 h-4 transition-transform ${showWorkHoursDropdown ? 'rotate-180' : ''}`} />
             </button>
             {showWorkHoursDropdown && (
-              <div className="absolute right-0 top-full mt-2 w-36 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
-                {["day", "week", "month"].map((opt) => (
+              <div className={`absolute right-0 top-full mt-2 w-40 rounded-xl shadow-lg border py-1 z-20 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                {[{key: "day", label: t("time.day")}, {key: "week", label: t("time.week")}, {key: "month", label: t("time.month")}].map((opt) => (
                   <button
-                    key={opt}
+                    key={opt.key}
                     onClick={() => {
-                      setWorkHoursFilter(opt);
+                      setWorkHoursFilter(opt.key);
                       setShowWorkHoursDropdown(false);
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 capitalize ${
-                      workHoursFilter === opt ? "text-[#1D395E] font-medium" : "text-gray-700"
+                    className={`w-full text-left px-4 py-2 text-sm ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} ${
+                      workHoursFilter === opt.key ? (isDark ? "text-blue-400 font-medium" : "text-[#1D395E] font-medium") : (isDark ? "text-gray-300" : "text-gray-700")
                     }`}
                   >
-                    view by {opt}
+                    {t("dashboard.viewBy")} {opt.label}
                   </button>
                 ))}
               </div>
@@ -526,9 +545,9 @@ function UserDashboardContent() {
         <div className="relative">
           {/* Dashed guidelines */}
           <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-            <div className="border-t border-dashed border-gray-300" />
-            <div className="border-t border-dashed border-gray-300" />
-            <div className="border-t border-dashed border-gray-300" />
+            <div className={`border-t border-dashed ${isDark ? 'border-gray-600' : 'border-gray-300'}`} />
+            <div className={`border-t border-dashed ${isDark ? 'border-gray-600' : 'border-gray-300'}`} />
+            <div className={`border-t border-dashed ${isDark ? 'border-gray-600' : 'border-gray-300'}`} />
           </div>
 
           {/* Bars */}
@@ -536,10 +555,10 @@ function UserDashboardContent() {
             {workHoursData.map((item, index) => (
               <div key={index} className="flex-1 flex flex-col items-center">
                 <div 
-                  className="w-full max-w-[40px] bg-[#A8C5DA] rounded-t-lg transition-all hover:bg-[#7BA3C0]"
+                  className={`w-full max-w-[40px] rounded-t-lg transition-all ${isDark ? 'bg-blue-600 hover:bg-blue-500' : 'bg-[#A8C5DA] hover:bg-[#7BA3C0]'}`}
                   style={{ height: `${(item.hours / maxHours) * 100}%` }}
                 />
-                <span className="text-xs text-gray-500 mt-2">{item.month}</span>
+                <span className={`text-xs mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{item.month}</span>
               </div>
             ))}
           </div>

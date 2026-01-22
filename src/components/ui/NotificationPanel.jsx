@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Bell, X, Loader2 } from "lucide-react";
 import { notificationService } from "@/app/services/notification.api";
 import { useAuth } from "@/app/store/authStore";
+import { useTheme } from "@/app/hooks/useTheme";
 
 // Format time ago
 function formatTimeAgo(dateStr) {
@@ -33,12 +34,12 @@ function getNotificationLink(notification, isAdmin) {
   switch (type) {
     case "CHECKCLOCK_APPROVED":
     case "CHECKCLOCK_REJECTED":
-      return `${basePath}/attendance`;
+      return `${basePath}/checkclock`;
     case "CHECKCLOCK_SUBMITTED":
-      return isAdmin ? "/admin/attendance" : "/user/attendance";
+      return isAdmin ? "/admin/checkclock" : "/user/checkclock";
     case "EMPLOYEE_ADDED":
     case "EMPLOYEE_UPDATED":
-      return "/admin/employees";
+      return "/admin/employees-database";
     case "SCHEDULE_UPDATED":
       return `${basePath}/work-schedule`;
     default:
@@ -73,6 +74,8 @@ export function NotificationPanel({ isOpen, onClose }) {
   const navigate = useNavigate();
   const user = useAuth((s) => s.user);
   const isAdmin = user?.role === "admin";
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   // Fetch notifications when panel opens
   useEffect(() => {
@@ -145,18 +148,18 @@ export function NotificationPanel({ isOpen, onClose }) {
   return (
     <div
       ref={panelRef}
-      className="fixed sm:absolute right-2 sm:right-0 top-16 sm:top-full sm:mt-2 w-[calc(100vw-5rem)] sm:w-80 max-w-sm bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
+      className={`fixed sm:absolute right-2 sm:right-0 top-16 sm:top-full sm:mt-2 w-[calc(100vw-5rem)] sm:w-80 max-w-sm ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg shadow-lg border overflow-hidden z-50 transition-colors duration-300`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-100">
-        <h3 className="font-semibold text-gray-900 text-[10px] sm:text-base">Notifications</h3>
+      <div className={`flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
+        <h3 className={`font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'} text-[10px] sm:text-base`}>Notifications</h3>
         <div className="flex items-center gap-1 text-xs">
           <button
             onClick={() => setFilter("all")}
             className={`px-2 py-1 rounded transition-colors ${
               filter === "all"
-                ? "text-gray-900 font-medium"
-                : "text-gray-500 hover:text-gray-700"
+                ? isDark ? "text-gray-100 font-medium" : "text-gray-900 font-medium"
+                : isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"
             }`}
           >
             All
@@ -165,8 +168,8 @@ export function NotificationPanel({ isOpen, onClose }) {
             onClick={() => setFilter("unread")}
             className={`px-2 py-1 rounded transition-colors ${
               filter === "unread"
-                ? "text-gray-900 font-medium"
-                : "text-gray-500 hover:text-gray-700"
+                ? isDark ? "text-gray-100 font-medium" : "text-gray-900 font-medium"
+                : isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"
             }`}
           >
             Unread
@@ -178,10 +181,10 @@ export function NotificationPanel({ isOpen, onClose }) {
       <div className="overflow-y-auto max-h-[300px] sm:max-h-[360px] overscroll-contain">
         {loading ? (
           <div className="flex items-center justify-center py-8 sm:py-10">
-            <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+            <Loader2 className={`w-5 h-5 animate-spin ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
           </div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 sm:py-10 text-gray-400">
+          <div className={`flex flex-col items-center justify-center py-8 sm:py-10 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
             <Bell className="w-7 h-7 sm:w-8 sm:h-8 mb-2" />
             <p className="text-xs sm:text-sm">No notifications</p>
           </div>
@@ -195,18 +198,18 @@ export function NotificationPanel({ isOpen, onClose }) {
                 <div
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`flex items-start gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-50 transition-colors ${
+                  className={`flex items-start gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors ${
                     link ? "cursor-pointer" : ""
-                  } ${!notification.isRead ? "bg-blue-50/40" : ""}`}
+                  } ${!notification.isRead ? isDark ? "bg-blue-900/20" : "bg-blue-50/40" : ""}`}
                 >
                   {/* Avatar */}
-                  <div className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  <div className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'} flex items-center justify-center overflow-hidden`}>
                     {avatar.type === "initials" ? (
-                      <span className="text-[10px] sm:text-xs font-medium text-gray-600">
+                      <span className={`text-[10px] sm:text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                         {avatar.value}
                       </span>
                     ) : (
-                      <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
+                      <Bell className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
                     )}
                   </div>
 
@@ -214,15 +217,15 @@ export function NotificationPanel({ isOpen, onClose }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-1.5 sm:gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] sm:text-xs text-gray-900">
+                        <p className={`text-[11px] sm:text-xs ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                           <span className={!notification.isRead ? "font-semibold" : "font-medium"}>
                             {notification.title}
                           </span>
-                          <span className="text-gray-500 ml-1">
+                          <span className={`${isDark ? 'text-gray-400' : 'text-gray-500'} ml-1`}>
                             {formatTimeAgo(notification.createdAt)}
                           </span>
                         </p>
-                        <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5 line-clamp-2">
+                        <p className={`text-[11px] sm:text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mt-0.5 line-clamp-2`}>
                           {notification.message}
                         </p>
                       </div>
@@ -240,10 +243,10 @@ export function NotificationPanel({ isOpen, onClose }) {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-100">
+      <div className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
         <button
           onClick={handleViewAll}
-          className="w-full px-4 py-2.5 text-xs text-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors font-medium"
+          className={`w-full px-4 py-2.5 text-xs text-center ${isDark ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'} transition-colors font-medium`}
         >
           View all notifications
         </button>

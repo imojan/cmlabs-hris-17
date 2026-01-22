@@ -113,17 +113,25 @@ export const useAuth = create((set, get) => ({
     if (!get().token) return;
     try {
       const me = await authService.me();
-      const currentUser = get().user;
       const newUser = me?.data || me?.user || me || null;
 
-      // Gabungkan, jadi field yang sudah ada tidak hilang
-      const mergedUser = {
-        ...(currentUser || {}),
-        ...(newUser || {}),
-      };
-      
-      persistUser(mergedUser);
-      set({ user: mergedUser });
+      if (newUser) {
+        // Server data should take priority for critical fields
+        // This ensures avatar, position, name changes are reflected
+        const currentUser = get().user || {};
+        const mergedUser = {
+          ...currentUser,
+          ...newUser,
+          // Explicit override for fields that should always use server data
+          avatar: newUser.avatar ?? currentUser.avatar,
+          position: newUser.position ?? currentUser.position,
+          firstName: newUser.firstName ?? currentUser.firstName,
+          lastName: newUser.lastName ?? currentUser.lastName,
+        };
+        
+        persistUser(mergedUser);
+        set({ user: mergedUser });
+      }
     } catch (err) {
       // Hanya logout jika error 401 (token invalid/expired)
       // Jangan logout untuk error lain (network error, server error, dll)

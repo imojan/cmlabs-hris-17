@@ -1,7 +1,7 @@
 // src/components/UserProfileMini.jsx
 import { ChevronDown } from "lucide-react";
 import { useAuth } from "@/app/store/authStore";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ENV } from "@/app/config/env";
 
 function getInitials(str) {
@@ -18,30 +18,42 @@ export default function UserProfileMini() {
   const [imgError, setImgError] = useState(false);
 
   // Display name: firstName + lastName > username > email prefix
-  const displayUsername =
-    (user?.firstName || user?.lastName
-      ? [user.firstName, user.lastName].filter(Boolean).join(" ")
-      : null) ||
-    user?.username ||
-    (user?.email ? user.email.split("@")[0] : "User");
+  const displayUsername = useMemo(() => {
+    return (
+      (user?.firstName || user?.lastName
+        ? [user.firstName, user.lastName].filter(Boolean).join(" ")
+        : null) ||
+      user?.username ||
+      user?.name ||
+      (user?.email ? user.email.split("@")[0] : "User")
+    );
+  }, [user?.firstName, user?.lastName, user?.username, user?.name, user?.email]);
 
   const initials = useMemo(
     () => getInitials(displayUsername),
     [displayUsername]
   );
 
-  // Role/Position label - prioritas: position > role
-  const roleLabel = user?.position || 
-    (user?.role === "admin" ? "Admin" : 
-     user?.role === "employee" ? "Employee" : "User");
+  // Role/Position label - prioritas: position > jobdesk > role
+  const roleLabel = useMemo(() => {
+    if (user?.position) return user.position;
+    if (user?.jobdesk) return user.jobdesk;
+    if (user?.role === "admin") return "Admin";
+    if (user?.role === "employee") return "Employee";
+    return "User";
+  }, [user?.position, user?.jobdesk, user?.role]);
 
-  // Avatar URL
-  const avatarUrl = user?.avatar 
-    ? (user.avatar.startsWith("http") ? user.avatar : `${ENV.API_URL}${user.avatar}`)
-    : null;
+  // Avatar URL - dengan cache buster untuk force refresh
+  const avatarUrl = useMemo(() => {
+    if (!user?.avatar) return null;
+    const baseUrl = user.avatar.startsWith("http") 
+      ? user.avatar 
+      : `${ENV.API_URL}${user.avatar}`;
+    return baseUrl;
+  }, [user?.avatar]);
 
   // Reset error state when avatar changes
-  useMemo(() => {
+  useEffect(() => {
     setImgError(false);
   }, [user?.avatar]);
 

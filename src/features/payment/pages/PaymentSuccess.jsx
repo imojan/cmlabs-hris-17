@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CheckCircle, Download, ArrowRight, Home } from "lucide-react";
 import { jsPDF } from "jspdf";
+import { useTheme } from "@/app/hooks/useTheme";
 
 // Assets
 import logoHris from "@/assets/images/logo-hris-2.png";
@@ -10,6 +11,8 @@ import logoHrisPutih from "@/assets/images/hris-putih.png";
 export default function PaymentSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [isLoaded, setIsLoaded] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
@@ -323,7 +326,7 @@ export default function PaymentSuccess() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">
             <img 
-              src={logoHris} 
+              src={isDark ? logoHrisPutih : logoHris} 
               alt="HRIS" 
               className="h-8 sm:h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
               onClick={() => navigate("/")}

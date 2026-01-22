@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+import { useTheme } from "@/app/hooks/useTheme";
 import { Notification } from "@/components/ui/Notification";
 import companyNameIllustration from "@/assets/images/auth/company-name.png";
 
@@ -8,6 +9,8 @@ import companyNameIllustration from "@/assets/images/auth/company-name.png";
 export default function CompanyName() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [isLoaded, setIsLoaded] = useState(false);
   
   // Get user data from Google sign up (if any) - prefixed with _ to indicate intentionally unused
@@ -72,7 +75,7 @@ export default function CompanyName() {
   };
 
   return (
-    <div className={`bg-white min-h-screen flex ${isLoaded ? "auth-page-enter" : "opacity-0"}`}>
+    <div className={`min-h-screen flex ${isLoaded ? "auth-page-enter" : "opacity-0"} ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -84,7 +87,7 @@ export default function CompanyName() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-12 auth-illustration-enter">
+      <div className={`hidden lg:flex lg:w-1/2 items-center justify-center px-16 py-12 auth-illustration-enter ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="w-full max-w-[600px]">
           <img
             src={companyNameIllustration}
@@ -95,14 +98,14 @@ export default function CompanyName() {
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-8 auth-content-enter">
+      <div className={`w-full lg:w-1/2 flex items-center justify-center px-8 sm:px-12 lg:px-16 py-8 auth-content-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="w-full max-w-[550px]">
           {/* Title Section - Centered */}
           <div className="mb-8 text-center">
-            <h1 className="text-[42px] sm:text-[48px] font-bold text-[#1d395e] tracking-[1.2px] leading-tight mb-3">
+            <h1 className={`text-[42px] sm:text-[48px] font-bold tracking-[1.2px] leading-tight mb-3 ${isDark ? 'text-blue-400' : 'text-[#1d395e]'}`}>
               One More Step!
             </h1>
-            <p className="text-[16px] sm:text-[18px] text-gray-600 tracking-[0.5px] leading-[28px]">
+            <p className={`text-[16px] sm:text-[18px] tracking-[0.5px] leading-[28px] ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
               Enter your company name to{" "}
               <br className="hidden sm:block" />
               finish setting up your HRIS workspace.
@@ -115,7 +118,7 @@ export default function CompanyName() {
             <div className="space-y-2">
               <label 
                 htmlFor="companyName" 
-                className="block text-[16px] text-[#1d395e] font-medium tracking-[0.48px] align-left"
+                className={`block text-[16px] font-medium tracking-[0.48px] align-left ${isDark ? 'text-blue-400' : 'text-[#1d395e]'}`}
               >
                 Company Name
               </label>
@@ -130,13 +133,12 @@ export default function CompanyName() {
                 className={`
                   w-full px-4 py-4 
                   border-2 rounded-xl 
-                  text-[16px] text-gray-800 align-left
-                  placeholder:text-gray-400
+                  text-[16px] align-left
                   transition-all duration-200
-                  focus:outline-none focus:ring-2 focus:ring-[#1d395e]/20
-                  ${touched && !companyName.trim() 
-                    ? "border-red-400 focus:border-red-400" 
-                    : "border-gray-200 focus:border-[#1d395e]"
+                  focus:outline-none focus:ring-2
+                  ${isDark 
+                    ? `bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400 focus:ring-blue-400/20 ${touched && !companyName.trim() ? "border-red-400 focus:border-red-400" : "focus:border-blue-400"}`
+                    : `bg-white border-gray-200 text-gray-800 placeholder:text-gray-400 focus:ring-[#1d395e]/20 ${touched && !companyName.trim() ? "border-red-400 focus:border-red-400" : "focus:border-[#1d395e]"}`
                   }
                 `}
               />
@@ -172,7 +174,7 @@ export default function CompanyName() {
             <button
               type="button"
               onClick={() => navigate("/auth/sign-in")}
-              className="text-gray-500 text-sm hover:text-[#1d395e] transition-colors underline"
+              className={`text-sm transition-colors underline ${isDark ? 'text-gray-400 hover:text-blue-400' : 'text-gray-500 hover:text-[#1d395e]'}`}
             >
               Skip for now
             </button>

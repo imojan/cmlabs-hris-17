@@ -1,6 +1,7 @@
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import { useState } from 'react';
 import { CustomDropdown } from '../ui/CustomDropdown';
+import { useTheme } from '@/app/hooks/useTheme';
 
 const COLORS = ['#3d5a80', '#4a8b6f', '#d4a942', '#98b4d4'];
 
@@ -20,6 +21,8 @@ const MONTH_OPTIONS = [
 ];
 
 export function EmployeeStatusChart({ statusData = null, loading = false }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return now.toLocaleString("en-US", { month: "long" });
@@ -36,11 +39,11 @@ export function EmployeeStatusChart({ statusData = null, loading = false }) {
   const data = statusData || defaultData;
 
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100">
+    <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border transition-colors duration-300`}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
         <div>
-          <p className="text-xs sm:text-sm text-gray-500">Employee Statistics</p>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Employee Status</h3>
+          <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Employee Statistics</p>
+          <h3 className={`text-base sm:text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Employee Status</h3>
         </div>
         <CustomDropdown
           name="month"
@@ -63,12 +66,20 @@ export function EmployeeStatusChart({ statusData = null, loading = false }) {
             margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
             barSize={50}
           >
-            <XAxis type="number" tick={{ fontSize: 11 }} />
+            <XAxis type="number" tick={{ fill: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', fontSize: 11 }} />
             <YAxis 
               dataKey="name" 
               type="category" 
-              tick={{ fontSize: 11 }}
+              tick={{ fill: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', fontSize: 11 }}
               width={100}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: isDark ? '#1f2937' : '#fff', 
+                border: isDark ? '1px solid #374151' : '1px solid #e5e7eb',
+                borderRadius: '8px',
+                color: isDark ? '#f3f4f6' : '#111827'
+              }} 
             />
             <Bar dataKey="value" radius={[0, 8, 8, 0]}>
               {data.map((entry, index) => (

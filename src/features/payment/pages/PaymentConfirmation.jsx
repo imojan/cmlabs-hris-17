@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Download, Clock, Info, CheckCircle, Copy, ExternalLink } from "lucide-react";
 import { Notification } from "@/components/ui/Notification";
+import { useTheme } from "@/app/hooks/useTheme";
 
 // Assets
 import logoHris from "@/assets/images/logo-hris-2.png";
+import logoHrisWhite from "@/assets/images/hris-putih.png";
 
 // Generate random order number
 const generateOrderNumber = () => {
@@ -95,6 +97,8 @@ const paymentConfigs = {
 export default function PaymentConfirmation() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   // Get payment data from navigation state
   const paymentData = location.state || {};
@@ -217,7 +221,7 @@ export default function PaymentConfirmation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">
             <img 
-              src={logoHris} 
+              src={isDark ? logoHrisWhite : logoHris} 
               alt="HRIS" 
               className="h-8 sm:h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
               onClick={() => navigate("/")}
@@ -300,7 +304,7 @@ export default function PaymentConfirmation() {
               {/* Timer */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <img src={logoHris} alt="HRIS" className="h-6 w-auto opacity-50" />
+                  <img src={isDark ? logoHrisWhite : logoHris} alt="HRIS" className="h-6 w-auto opacity-50" />
                 </div>
                 <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${timeLeft < 60 ? "bg-red-50 text-red-600" : "bg-[#e85a5a]/10 text-[#e85a5a]"}`}>
                   <Clock className="w-4 h-4" />

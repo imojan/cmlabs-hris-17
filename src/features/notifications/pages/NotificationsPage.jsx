@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { notificationService } from "@/app/services/notification.api";
 import { useAuth } from "@/app/store/authStore";
+import { useTheme } from "@/app/hooks/useTheme";
 
 // Format full date
 function formatFullDate(dateStr) {
@@ -36,12 +37,12 @@ function getNotificationLink(notification, isAdmin) {
   switch (type) {
     case "CHECKCLOCK_APPROVED":
     case "CHECKCLOCK_REJECTED":
-      return `${basePath}/attendance`;
+      return `${basePath}/checkclock`;
     case "CHECKCLOCK_SUBMITTED":
-      return isAdmin ? "/admin/attendance" : "/user/attendance";
+      return isAdmin ? "/admin/checkclock" : "/user/checkclock";
     case "EMPLOYEE_ADDED":
     case "EMPLOYEE_UPDATED":
-      return "/admin/employees";
+      return "/admin/employees-database";
     case "SCHEDULE_UPDATED":
       return `${basePath}/work-schedule`;
     default:
@@ -50,16 +51,32 @@ function getNotificationLink(notification, isAdmin) {
 }
 
 // Get notification icon config
-function getNotificationConfig(type) {
+function getNotificationConfig(type, isDark) {
   switch (type) {
     case "CHECKCLOCK_APPROVED":
-      return { icon: Check, bgColor: "bg-emerald-100", iconColor: "text-emerald-600" };
+      return { 
+        icon: Check, 
+        bgColor: isDark ? "bg-emerald-900/30" : "bg-emerald-100", 
+        iconColor: isDark ? "text-emerald-400" : "text-emerald-600" 
+      };
     case "CHECKCLOCK_REJECTED":
-      return { icon: X, bgColor: "bg-rose-100", iconColor: "text-rose-600" };
+      return { 
+        icon: X, 
+        bgColor: isDark ? "bg-rose-900/30" : "bg-rose-100", 
+        iconColor: isDark ? "text-rose-400" : "text-rose-600" 
+      };
     case "CHECKCLOCK_SUBMITTED":
-      return { icon: Clock, bgColor: "bg-amber-100", iconColor: "text-amber-600" };
+      return { 
+        icon: Clock, 
+        bgColor: isDark ? "bg-amber-900/30" : "bg-amber-100", 
+        iconColor: isDark ? "text-amber-400" : "text-amber-600" 
+      };
     default:
-      return { icon: Bell, bgColor: "bg-blue-100", iconColor: "text-blue-600" };
+      return { 
+        icon: Bell, 
+        bgColor: isDark ? "bg-blue-900/30" : "bg-blue-100", 
+        iconColor: isDark ? "text-blue-400" : "text-blue-600" 
+      };
   }
 }
 
@@ -74,6 +91,8 @@ export default function NotificationsPage() {
   const navigate = useNavigate();
   const user = useAuth((s) => s.user);
   const isAdmin = user?.role === "admin";
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   useEffect(() => {
     fetchNotifications();
@@ -154,20 +173,20 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-4 sm:space-y-6 px-1">
       {/* Header Card */}
-      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className={`rounded-xl sm:rounded-2xl border shadow-sm overflow-hidden ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
+        <div className={`px-4 sm:px-6 py-4 sm:py-5 border-b ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate(-1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors -ml-2"
+                className={`p-2 rounded-lg transition-colors -ml-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                <ArrowLeft className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
               </button>
               <div>
-                <h1 className="text-lg sm:text-xl font-semibold text-[#1D395E]">Notifications</h1>
-                <p className="text-xs sm:text-sm text-gray-500">
+                <h1 className={`text-lg sm:text-xl font-semibold ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`}>Notifications</h1>
+                <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   {unreadCount > 0 ? `${unreadCount} unread` : "All caught up!"}
                 </p>
               </div>
@@ -192,16 +211,16 @@ export default function NotificationsPage() {
         </div>
 
         {/* Filters */}
-        <div className="px-4 sm:px-6 py-3 bg-gray-50/50 border-b border-gray-100">
+        <div className={`px-4 sm:px-6 py-3 border-b ${isDark ? 'bg-gray-700/50 border-gray-700' : 'bg-gray-50/50 border-gray-100'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             {/* Filter tabs */}
-            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg self-start">
+            <div className={`flex items-center gap-1 p-1 rounded-lg self-start ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
               <button
                 onClick={() => setFilter("all")}
                 className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
                   filter === "all"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? (isDark ? "bg-gray-600 text-gray-100 shadow-sm" : "bg-white text-gray-900 shadow-sm")
+                    : (isDark ? "text-gray-400 hover:text-gray-200" : "text-gray-600 hover:text-gray-900")
                 }`}
               >
                 All
@@ -210,13 +229,13 @@ export default function NotificationsPage() {
                 onClick={() => setFilter("unread")}
                 className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors flex items-center gap-1 ${
                   filter === "unread"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? (isDark ? "bg-gray-600 text-gray-100 shadow-sm" : "bg-white text-gray-900 shadow-sm")
+                    : (isDark ? "text-gray-400 hover:text-gray-200" : "text-gray-600 hover:text-gray-900")
                 }`}
               >
                 Unread
                 {unreadCount > 0 && (
-                  <span className="px-1.5 py-0.5 bg-rose-100 text-rose-600 rounded-full text-[10px] font-semibold">
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${isDark ? 'bg-rose-900/30 text-rose-400' : 'bg-rose-100 text-rose-600'}`}>
                     {unreadCount}
                   </span>
                 )}
@@ -231,7 +250,11 @@ export default function NotificationsPage() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm text-black bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1D395E]/20 focus:border-[#1D395E]"
+                className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${
+                  isDark 
+                    ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400 focus:ring-blue-500/40 focus:border-blue-500' 
+                    : 'bg-white border-gray-200 text-black focus:ring-[#1D395E]/20 focus:border-[#1D395E]'
+                }`}
               />
             </div>
           </div>
@@ -244,9 +267,9 @@ export default function NotificationsPage() {
               <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
             </div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-gray-400 px-4">
+            <div className={`flex flex-col items-center justify-center py-16 sm:py-20 px-4 ${isDark ? 'text-gray-400' : 'text-gray-400'}`}>
               <Bell className="w-10 h-10 sm:w-12 sm:h-12 mb-3" />
-              <p className="font-medium text-gray-600 text-sm sm:text-base">No notifications</p>
+              <p className={`font-medium text-sm sm:text-base ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>No notifications</p>
               <p className="text-xs sm:text-sm text-center">
                 {filter === "unread"
                   ? "You've read all your notifications"
@@ -254,18 +277,20 @@ export default function NotificationsPage() {
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-100'}`}>
               {filteredNotifications.map((notification) => {
-                const config = getNotificationConfig(notification.type);
+                const config = getNotificationConfig(notification.type, isDark);
                 const IconComponent = config.icon;
                 const link = getNotificationLink(notification, isAdmin);
 
                 return (
                   <div
                     key={notification.id}
-                    className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-gray-50 transition-colors ${
-                      !notification.isRead ? "bg-blue-50/30" : ""
-                    }`}
+                    className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-4 transition-colors ${
+                      !notification.isRead 
+                        ? (isDark ? "bg-blue-900/20" : "bg-blue-50/30")
+                        : ""
+                    } ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                   >
                     {/* Icon */}
                     <div
@@ -281,15 +306,15 @@ export default function NotificationsPage() {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900">
+                          <p className={`text-sm ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                             <span className={!notification.isRead ? "font-semibold" : "font-medium"}>
                               {notification.title}
                             </span>
                           </p>
-                          <p className="text-xs sm:text-sm text-gray-600 mt-0.5 line-clamp-2">
+                          <p className={`text-xs sm:text-sm mt-0.5 line-clamp-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                             {notification.message}
                           </p>
-                          <p className="text-[10px] sm:text-xs text-gray-400 mt-1">
+                          <p className={`text-[10px] sm:text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                             {formatFullDate(notification.createdAt)}
                           </p>
                         </div>
@@ -307,7 +332,11 @@ export default function NotificationsPage() {
                             e.stopPropagation();
                             handleMarkAsRead(notification.id);
                           }}
-                          className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
+                            isDark 
+                              ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/30' 
+                              : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+                          }`}
                           title="Mark as read"
                         >
                           <Check className="w-4 h-4" />
@@ -319,7 +348,11 @@ export default function NotificationsPage() {
                           handleDelete(notification.id);
                         }}
                         disabled={deletingId === notification.id}
-                        className="p-1.5 sm:p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
+                          isDark 
+                            ? 'text-gray-400 hover:text-rose-400 hover:bg-rose-900/30' 
+                            : 'text-gray-400 hover:text-rose-600 hover:bg-rose-50'
+                        }`}
                         title="Delete"
                       >
                         {deletingId === notification.id ? (

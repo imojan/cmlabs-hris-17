@@ -21,6 +21,7 @@ import { Notification } from "@/components/ui/Notification";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { ImportModal } from "@/components/ui/ImportModal";
 import { exportToExcel } from "@/lib/exportExcel";
+import { useTheme } from "@/app/hooks/useTheme";
 
 const initialData = [
   {
@@ -197,6 +198,8 @@ function statusClass(status) {
 
 export function AttendanceAdmin() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   // Data & loading states
   const [attendanceData, setAttendanceData] = useState([]);
@@ -327,9 +330,9 @@ export function AttendanceAdmin() {
     if (debouncedSearch) {
       const searchLower = debouncedSearch.toLowerCase();
       result = result.filter((item) => 
-        item.name.toLowerCase().includes(searchLower) ||
-        item.role.toLowerCase().includes(searchLower) ||
-        item.status.toLowerCase().includes(searchLower) ||
+        (item.name && item.name.toLowerCase().includes(searchLower)) ||
+        (item.role && item.role.toLowerCase().includes(searchLower)) ||
+        (item.status && item.status.toLowerCase().includes(searchLower)) ||
         (item.employeeId && item.employeeId.toLowerCase().includes(searchLower))
       );
     }
@@ -475,13 +478,13 @@ export function AttendanceAdmin() {
       )}
 
       {/* ===== WRAPPER TABEL ATTENDANCE ===== */}
-      <section className="bg-white rounded-xl border border-gray-200/70 shadow-sm p-6">
+      <section className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm p-6 transition-colors duration-300`}>
         {/* Header tabel + action bar */}
         <div className="mb-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Title */}
             <div>
-              <h2 className="text-xl lg:text-2xl font-semibold text-[#1D395E]">
+              <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
                 Checkclock Overview
               </h2>
             </div>
@@ -495,9 +498,9 @@ export function AttendanceAdmin() {
                   placeholder="Search Employee"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]"
+                  className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${isDark ? 'border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400' : 'border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black'} text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]`}
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1D395E]" />
+                <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-gray-400' : 'text-[#1D395E]'}`} />
               </div>
 
               {/* Buttons: Refresh, Filter, Export, Tambah Data */}
@@ -505,7 +508,7 @@ export function AttendanceAdmin() {
                 <button 
                   onClick={fetchAttendance}
                   disabled={loading}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
                   <span>Refresh</span>
@@ -521,7 +524,7 @@ export function AttendanceAdmin() {
                 <button 
                   onClick={handleExport}
                   disabled={exporting || attendanceData.length === 0}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm disabled:opacity-50"
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <Upload className="w-4 h-4" />
                   <span>Export</span>
@@ -542,34 +545,34 @@ export function AttendanceAdmin() {
         {/* Loading State */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="w-10 h-10 text-[#1D395E] animate-spin mb-4" />
-            <p className="text-gray-600">Memuat data attendance...</p>
+            <Loader2 className={`w-10 h-10 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'} animate-spin mb-4`} />
+            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Memuat data attendance...</p>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16">
             <AlertCircle className="w-10 h-10 text-rose-500 mb-4" />
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} mb-4`}>{error}</p>
             <button
               onClick={fetchAttendance}
-              className="px-4 py-2 rounded-lg bg-[#1D395E] text-white text-sm hover:bg-[#142848]"
+              className={`px-4 py-2 rounded-lg ${isDark ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#1D395E] hover:bg-[#142848]'} text-white text-sm`}
             >
               Coba Lagi
             </button>
           </div>
         ) : processedData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <AlertCircle className="w-10 h-10 text-gray-400 mb-4" />
-            <p className="text-gray-600">
+            <AlertCircle className={`w-10 h-10 ${isDark ? 'text-gray-500' : 'text-gray-400'} mb-4`} />
+            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
               {debouncedSearch ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data attendance"}
             </p>
           </div>
         ) : (
         <>
         {/* ===== TABLE ===== */}
-        <div className="overflow-x-auto rounded-xl border border-gray-200/70">
+        <div className={`overflow-x-auto rounded-xl border ${isDark ? 'border-gray-700' : 'border-gray-200/70'}`}>
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#F5F7FA] text-gray-700">
+              <tr className={`${isDark ? 'bg-gray-700 text-gray-200' : 'bg-[#F5F7FA] text-gray-700'}`}>
                 <th className="px-4 py-3 text-left font-medium">
                   Employee Name
                 </th>
@@ -589,14 +592,16 @@ export function AttendanceAdmin() {
               {currentData.map((employee, index) => (
                 <tr
                   key={employee.id}
-                  className={`border-t border-gray-100 ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-gray-100/60 transition-colors`}
+                  className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-100'} ${
+                    index % 2 === 0 
+                      ? isDark ? 'bg-gray-800' : 'bg-white' 
+                      : isDark ? 'bg-gray-750' : 'bg-gray-50'
+                  } ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100/60'} transition-colors`}
                 >
                   {/* Employee Name with Avatar */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                      <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-200'} flex items-center justify-center overflow-hidden`}>
                         {employee.avatar ? (
                           <img 
                             src={employee.avatar.startsWith("http") ? employee.avatar : `${import.meta.env.VITE_API_URL}${employee.avatar}`}
@@ -604,25 +609,25 @@ export function AttendanceAdmin() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-gray-600 font-medium">
+                          <span className={`${isDark ? 'text-gray-300' : 'text-gray-600'} font-medium`}>
                             {employee.name.charAt(0)}
                           </span>
                         )}
                       </div>
-                      <span className="font-medium text-gray-900">
+                      <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                         {employee.name}
                       </span>
                     </div>
                   </td>
 
-                  <td className="px-4 py-3 text-gray-800">{employee.role}</td>
-                  <td className="px-4 py-3 text-center text-gray-800">
+                  <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{employee.role}</td>
+                  <td className={`px-4 py-3 text-center ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                     {employee.clockIn}
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-800">
+                  <td className={`px-4 py-3 text-center ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                     {employee.clockOut}
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-800">
+                  <td className={`px-4 py-3 text-center ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                     {employee.workHours}
                   </td>
 
@@ -635,7 +640,7 @@ export function AttendanceAdmin() {
                           onClick={() =>
                             handleApprovalClick(employee, "reject")
                           }
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-xs font-medium border border-rose-100 hover:bg-rose-100 transition"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? 'bg-rose-900/30 text-rose-400 border-rose-800 hover:bg-rose-900/50' : 'bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100'} text-xs font-medium border transition`}
                         >
                           <XCircle className="w-4 h-4" />
                           <span>Reject</span>
@@ -646,7 +651,7 @@ export function AttendanceAdmin() {
                           onClick={() =>
                             handleApprovalClick(employee, "approve")
                           }
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100 hover:bg-emerald-100 transition"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? 'bg-emerald-900/30 text-emerald-400 border-emerald-800 hover:bg-emerald-900/50' : 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100'} text-xs font-medium border transition`}
                         >
                           <CheckCircle className="w-4 h-4" />
                           <span>Approve</span>
@@ -655,14 +660,14 @@ export function AttendanceAdmin() {
                     )}
 
                     {employee.approvalStatus === "approved" && (
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-100 justify-center">
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? 'bg-emerald-900/30 text-emerald-400 border-emerald-800' : 'bg-emerald-50 text-emerald-700 border-emerald-100'} text-xs font-semibold border justify-center`}>
                         <CheckCircle className="w-4 h-4" />
                         <span>Approved</span>
                       </div>
                     )}
 
                     {employee.approvalStatus === "rejected" && (
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-100 justify-center">
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? 'bg-rose-900/30 text-rose-400 border-rose-800' : 'bg-rose-50 text-rose-700 border-rose-100'} text-xs font-semibold border justify-center`}>
                         <XCircle className="w-4 h-4" />
                         <span>Rejected</span>
                       </div>
@@ -684,7 +689,7 @@ export function AttendanceAdmin() {
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => handleViewDetails(employee)}
-                      className="px-3 py-1.5 rounded-lg border-2 border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+                      className={`px-3 py-1.5 rounded-lg border-2 ${isDark ? 'border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500' : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-xs font-semibold transition-all`}
                     >
                       View
                     </button>

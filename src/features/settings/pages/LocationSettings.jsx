@@ -18,6 +18,7 @@ import "leaflet/dist/leaflet.css";
 
 import { locationService } from "@/app/services/location.api";
 import { Notification } from "@/components/ui/Notification";
+import { useTheme } from "@/app/hooks/useTheme";
 
 // Fix Leaflet default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -66,6 +67,8 @@ function LocationPicker({ position, onChange }) {
 
 export default function LocationSettings() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
@@ -267,7 +270,7 @@ export default function LocationSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-6">
+    <div className={`min-h-screen p-3 sm:p-6 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Notification */}
       {notification && (
         <Notification
@@ -283,15 +286,15 @@ export default function LocationSettings() {
         <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
           <button
             onClick={() => navigate("/admin/settings")}
-            className="p-2 hover:bg-gray-200 rounded-lg transition-colors flex-shrink-0"
+            className={`p-2 rounded-lg transition-colors flex-shrink-0 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
           >
-            <ArrowLeft size={20} className="sm:w-6 sm:h-6 text-gray-600" />
+            <ArrowLeft size={20} className={`sm:w-6 sm:h-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
           </button>
           <div>
-            <h1 className="text-lg sm:text-2xl font-bold text-gray-800">
+            <h1 className={`text-lg sm:text-2xl font-bold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
               Pengaturan Lokasi Kantor
             </h1>
-            <p className="text-gray-500 text-xs sm:text-sm">
+            <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
               Kelola lokasi kantor yang dapat dipilih saat checkclock
             </p>
           </div>
@@ -309,53 +312,53 @@ export default function LocationSettings() {
         </div>
 
         {/* Location List */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className={`rounded-xl shadow-sm border ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="animate-spin text-blue-600" size={32} />
             </div>
           ) : locations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-gray-500 px-4">
-              <MapPin size={40} className="sm:w-12 sm:h-12 mb-3 sm:mb-4 text-gray-300" />
+            <div className={`flex flex-col items-center justify-center py-8 sm:py-12 px-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <MapPin size={40} className={`sm:w-12 sm:h-12 mb-3 sm:mb-4 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
               <p className="text-sm sm:text-base text-center">Belum ada lokasi yang ditambahkan</p>
               <p className="text-xs sm:text-sm text-center">
                 Klik tombol &quot;Tambah Lokasi&quot; untuk menambahkan lokasi baru
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-100'}`}>
               {locations.map((location) => (
                 <div
                   key={location.id}
                   className={`p-3 sm:p-4 flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 ${
-                    !location.isActive ? "bg-gray-50 opacity-60" : ""
+                    !location.isActive ? (isDark ? "bg-gray-700/50 opacity-60" : "bg-gray-50 opacity-60") : ""
                   }`}
                 >
                   <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
                     <div
                       className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${
                         location.isActive
-                          ? "bg-red-50 text-red-500"
-                          : "bg-gray-100 text-gray-400"
+                          ? (isDark ? "bg-red-900/30 text-red-400" : "bg-red-50 text-red-500")
+                          : (isDark ? "bg-gray-700 text-gray-500" : "bg-gray-100 text-gray-400")
                       }`}
                     >
                       <MapPin size={16} className="sm:w-5 sm:h-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-medium text-gray-800 text-sm sm:text-base flex flex-wrap items-center gap-2">
+                      <h3 className={`font-medium text-sm sm:text-base flex flex-wrap items-center gap-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
                         <span className="truncate">{location.name}</span>
                         {!location.isActive && (
-                          <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded flex-shrink-0">
+                          <span className={`text-xs px-2 py-0.5 rounded flex-shrink-0 ${isDark ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 text-gray-600'}`}>
                             Nonaktif
                           </span>
                         )}
                       </h3>
                       {location.address && (
-                        <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
+                        <p className={`text-xs sm:text-sm mt-1 line-clamp-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           {location.address}
                         </p>
                       )}
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                         <span className="hidden sm:inline">Koordinat: </span>
                         <span className="font-mono">{location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}</span>
                       </p>
@@ -368,8 +371,8 @@ export default function LocationSettings() {
                       onClick={() => handleToggleActive(location)}
                       className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                         location.isActive
-                          ? "hover:bg-gray-100 text-gray-500"
-                          : "hover:bg-green-50 text-green-600"
+                          ? (isDark ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500")
+                          : (isDark ? "hover:bg-green-900/30 text-green-400" : "hover:bg-green-50 text-green-600")
                       }`}
                       title={location.isActive ? "Nonaktifkan" : "Aktifkan"}
                     >
@@ -383,7 +386,7 @@ export default function LocationSettings() {
                     {/* Edit */}
                     <button
                       onClick={() => handleEdit(location)}
-                      className="p-1.5 sm:p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
+                      className={`p-1.5 sm:p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-blue-900/30 text-blue-400' : 'hover:bg-blue-50 text-blue-600'}`}
                       title="Edit"
                     >
                       <Edit2 size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -392,7 +395,7 @@ export default function LocationSettings() {
                     {/* Delete */}
                     <button
                       onClick={() => setDeleteId(location.id)}
-                      className="p-1.5 sm:p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
+                      className={`p-1.5 sm:p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-red-900/30 text-red-400' : 'hover:bg-red-50 text-red-500'}`}
                       title="Hapus"
                     >
                       <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -405,20 +408,20 @@ export default function LocationSettings() {
         </div>
 
         {/* Info Box */}
-        <div className="mt-4 sm:mt-6 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
+        <div className={`mt-4 sm:mt-6 rounded-xl p-3 sm:p-4 border ${isDark ? 'bg-blue-900/20 border-blue-700/50' : 'bg-blue-50 border-blue-200'}`}>
           <div className="flex gap-2 sm:gap-3">
-            <Map className="text-blue-600 flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6" />
+            <Map className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
             <div>
-              <h4 className="font-medium text-blue-800 text-sm sm:text-base">
+              <h4 className={`font-medium text-sm sm:text-base ${isDark ? 'text-blue-300' : 'text-blue-800'}`}>
                 Tentang Lokasi Kantor
               </h4>
-              <p className="text-xs sm:text-sm text-blue-700 mt-1">
+              <p className={`text-xs sm:text-sm mt-1 ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
                 Lokasi yang ditambahkan di sini akan muncul sebagai pilihan saat
                 admin atau karyawan melakukan checkclock. Setiap lokasi terkait
                 dengan company Anda, sehingga perusahaan lain akan memiliki
                 daftar lokasi mereka sendiri.
               </p>
-              <p className="text-xs sm:text-sm text-blue-700 mt-2">
+              <p className={`text-xs sm:text-sm mt-2 ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
                 <strong>Tips:</strong> Klik pada peta untuk memilih koordinat lokasi
                 dengan mudah.
               </p>
@@ -430,24 +433,24 @@ export default function LocationSettings() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+          <div className={`rounded-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
                   {modalMode === "add" ? "Tambah Lokasi Baru" : "Edit Lokasi"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                 >
-                  <X size={20} className="text-gray-700" />
+                  <X size={20} className={isDark ? 'text-gray-400' : 'text-gray-700'} />
                 </button>
               </div>
 
               <form onSubmit={handleSubmit}>
                 {/* Name */}
                 <div className="mb-3 sm:mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  <label className={`block text-sm font-medium mb-1.5 sm:mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Nama Lokasi <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -457,13 +460,13 @@ export default function LocationSettings() {
                       setFormData((prev) => ({ ...prev, name: e.target.value }))
                     }
                     placeholder="Contoh: Kantor Pusat"
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400' : 'border-gray-300 text-black'}`}
                   />
                 </div>
 
                 {/* Address */}
                 <div className="mb-3 sm:mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  <label className={`block text-sm font-medium mb-1.5 sm:mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Alamat Lengkap (Opsional)
                   </label>
                   <textarea
@@ -476,19 +479,19 @@ export default function LocationSettings() {
                     }
                     placeholder="Contoh: Jl. Raya Blimbing No.10, Malang"
                     rows={2}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black text-sm sm:text-base"
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400' : 'border-gray-300 text-black'}`}
                   />
                 </div>
 
                 {/* Map */}
                 <div className="mb-3 sm:mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  <label className={`block text-sm font-medium mb-1.5 sm:mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Pilih Lokasi pada Peta <span className="text-red-500">*</span>
                   </label>
-                  <p className="text-xs text-gray-500 mb-2">
+                  <p className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                     Klik pada peta untuk menentukan koordinat lokasi
                   </p>
-                  <div className="h-48 sm:h-64 rounded-lg overflow-hidden border border-gray-300">
+                  <div className={`h-48 sm:h-64 rounded-lg overflow-hidden border ${isDark ? 'border-gray-600' : 'border-gray-300'}`}>
                     <MapContainer
                       center={mapPosition || [-7.9666, 112.6326]} // Default: Malang
                       zoom={13}
@@ -509,7 +512,7 @@ export default function LocationSettings() {
                 {/* Coordinates */}
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                    <label className={`block text-sm font-medium mb-1.5 sm:mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Latitude
                     </label>
                     <input
@@ -522,11 +525,11 @@ export default function LocationSettings() {
                         }))
                       }
                       placeholder="-7.9666"
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base font-mono"
+                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base font-mono ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400' : 'border-gray-300 text-black'}`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                    <label className={`block text-sm font-medium mb-1.5 sm:mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Longitude
                     </label>
                     <input
@@ -539,7 +542,7 @@ export default function LocationSettings() {
                         }))
                       }
                       placeholder="112.6326"
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base font-mono"
+                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base font-mono ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400' : 'border-gray-300 text-black'}`}
                     />
                   </div>
                 </div>
@@ -549,7 +552,7 @@ export default function LocationSettings() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                    className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 border rounded-lg transition-colors text-sm sm:text-base ${isDark ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                   >
                     Batal
                   </button>
@@ -571,22 +574,22 @@ export default function LocationSettings() {
       {/* Delete Confirmation Modal */}
       {deleteId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-4 sm:p-6">
+          <div className={`rounded-xl max-w-md w-full p-4 sm:p-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="text-center">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <Trash2 size={24} className="sm:w-8 sm:h-8 text-red-500" />
+              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 ${isDark ? 'bg-red-900/30' : 'bg-red-100'}`}>
+                <Trash2 size={24} className={`sm:w-8 sm:h-8 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
+              <h3 className={`text-lg sm:text-xl font-bold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
                 Hapus Lokasi?
               </h3>
-              <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">
+              <p className={`text-sm sm:text-base mb-4 sm:mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 Lokasi yang dihapus tidak dapat dikembalikan. Apakah Anda yakin
                 ingin menghapus lokasi ini?
               </p>
               <div className="flex flex-col-reverse sm:flex-row justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setDeleteId(null)}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                  className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 border rounded-lg transition-colors text-sm sm:text-base ${isDark ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                 >
                   Batal
                 </button>

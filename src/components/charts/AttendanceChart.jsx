@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { useTheme } from '@/app/hooks/useTheme';
 
 const defaultData = [
   { name: 'Ontime', value: 0, color: '#6366f1' },
@@ -7,6 +8,8 @@ const defaultData = [
 ];
 
 export function AttendanceChart({ attendanceData = null, date = null, loading = false }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const data = attendanceData || defaultData;
   
   // Format date for display
@@ -15,16 +18,16 @@ export function AttendanceChart({ attendanceData = null, date = null, loading = 
     : new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" });
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100">
+    <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-4 sm:p-5 shadow-sm border transition-colors duration-300`}>
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4">
         <div>
-          <p className="text-xs text-gray-500 mb-0.5">Statistics</p>
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Attendance</h3>
+          <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-0.5`}>Statistics</p>
+          <h3 className={`text-lg sm:text-xl font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Attendance</h3>
         </div>
-        <div className="text-xs text-gray-600 mt-2 sm:mt-0">
-          <p className="text-gray-500">Today</p>
-          <p className="font-semibold text-gray-900">{displayDate}</p>
+        <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'} mt-2 sm:mt-0`}>
+          <p className={isDark ? 'text-gray-500' : 'text-gray-500'}>Today</p>
+          <p className={`font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{displayDate}</p>
         </div>
       </div>
       
@@ -61,7 +64,7 @@ export function AttendanceChart({ attendanceData = null, date = null, loading = 
               className="w-3 h-3 rounded-sm" 
               style={{ backgroundColor: item.color }}
             />
-            <span className="text-gray-700 font-medium">
+            <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'} font-medium`}>
               {item.name}: <span className="font-semibold">{item.value}</span>
             </span>
           </div>

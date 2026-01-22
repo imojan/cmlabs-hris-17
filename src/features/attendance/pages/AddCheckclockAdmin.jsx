@@ -1,5 +1,5 @@
 // src/features/attendance/pages/AddCheckclockAdmin.jsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ChevronDown,
@@ -19,10 +19,13 @@ import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 import { employeeService } from "@/app/services/employee.api";
 import { attendanceService } from "@/app/services/attendance.api";
 import { locationService } from "@/app/services/location.api";
+import { useTheme } from "@/app/hooks/useTheme";
 
 
 export default function AddCheckclockAdmin() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   const [formData, setFormData] = useState({
     employeeId: "",
@@ -379,7 +382,7 @@ export default function AddCheckclockAdmin() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-6 relative" style={{ overflow: showConfirmModal ? 'hidden' : 'auto' }}>
+    <div className={`min-h-screen p-4 lg:p-6 relative ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ overflow: showConfirmModal ? 'hidden' : 'auto' }}>
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -390,10 +393,10 @@ export default function AddCheckclockAdmin() {
         />
       )}
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg p-4 lg:p-6">
+        <div className={`rounded-2xl border shadow-lg p-4 lg:p-6 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           {/* Header */}
           <div className="mb-6">
-            <h2 className="text-xl lg:text-2xl font-semibold text-gray-900">
+            <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
               Add Checkclock
             </h2>
           </div>
@@ -406,11 +409,11 @@ export default function AddCheckclockAdmin() {
               <div className="space-y-5">
                 {/* Karyawan */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Karyawan
                   </label>
                   {loadingEmployees ? (
-                    <div className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-500">
+                    <div className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg text-sm ${isDark ? 'border-gray-600 text-gray-400' : 'border-gray-300 text-gray-500'}`}>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Memuat data karyawan...
                     </div>
@@ -442,7 +445,7 @@ export default function AddCheckclockAdmin() {
 
                 {/* Tipe Absensi + Waktu Realtime */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Tipe Absensi
                   </label>
                   <CustomDropdown
@@ -459,7 +462,7 @@ export default function AddCheckclockAdmin() {
 
                   {/* Waktu Realtime */}
                   <div className="mt-4 space-y-1.5">
-                    <label className="block text-xs font-medium text-gray-500">
+                    <label className={`block text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       Waktu Absensi (Realtime)
                     </label>
                     <div className="relative">
@@ -467,11 +470,15 @@ export default function AddCheckclockAdmin() {
                         type="text"
                         value={currentTime}
                         readOnly
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm bg-gray-50 text-gray-800 focus:outline-none"
+                        className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none ${
+                          isDark 
+                            ? 'border-gray-600 bg-gray-700 text-gray-200' 
+                            : 'border-gray-300 bg-gray-50 text-gray-800'
+                        }`}
                       />
                       <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     </div>
-                    <p className="text-[11px] text-gray-500">
+                    <p className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       Saat kamu memilih tipe absensi, jam ini disimpan sebagai{" "}
                       <span className="font-semibold">
                         {formData.capturedTime || "--:--:--"}
@@ -485,7 +492,7 @@ export default function AddCheckclockAdmin() {
                 {["Annual Leave", "Sick Leave"].includes(formData.attendanceType) && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         Start Date
                       </label>
                       <div className="relative">
@@ -494,13 +501,17 @@ export default function AddCheckclockAdmin() {
                           name="startDate"
                           value={formData.startDate}
                           onChange={handleInputChange}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            isDark 
+                              ? 'border-gray-600 bg-gray-700 text-gray-200' 
+                              : 'border-gray-300 bg-white text-gray-700'
+                          }`}
                         />
                         <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         End Date
                       </label>
                       <div className="relative">
@@ -509,7 +520,11 @@ export default function AddCheckclockAdmin() {
                           name="endDate"
                           value={formData.endDate}
                           onChange={handleInputChange}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            isDark 
+                              ? 'border-gray-600 bg-gray-700 text-gray-200' 
+                              : 'border-gray-300 bg-white text-gray-700'
+                          }`}
                         />
                         <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                       </div>
@@ -519,16 +534,16 @@ export default function AddCheckclockAdmin() {
 
                 {/* Upload Bukti Pendukung */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Upload Bukti Pendukung
                   </label>
 
                   {/* Show preview if file is uploaded */}
                   {proofFile ? (
-                    <div className="border-2 border-gray-200 rounded-lg p-4">
+                    <div className={`border-2 rounded-lg p-4 ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
                       {/* Image Preview */}
                       {proofPreview && (
-                        <div className="mb-4 rounded-lg overflow-hidden border border-gray-200">
+                        <div className={`mb-4 rounded-lg overflow-hidden border ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
                           <img 
                             src={proofPreview} 
                             alt="Preview" 
@@ -538,20 +553,20 @@ export default function AddCheckclockAdmin() {
                       )}
 
                       {/* File Info */}
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className={`flex items-center justify-between p-3 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-blue-900/30' : 'bg-blue-100'}`}>
                             {proofFile.type.startsWith("image/") ? (
-                              <Upload className="w-5 h-5 text-blue-600" />
+                              <Upload className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                             ) : (
-                              <AlertCircle className="w-5 h-5 text-blue-600" />
+                              <AlertCircle className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                             )}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                            <p className={`text-sm font-medium truncate max-w-[200px] ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                               {proofFile.name}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                               {(proofFile.size / 1024).toFixed(1)} KB
                             </p>
                           </div>
@@ -560,7 +575,7 @@ export default function AddCheckclockAdmin() {
                         <button
                           type="button"
                           onClick={handleRemoveFile}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                          className={`p-2 rounded-lg transition ${isDark ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/30' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
                           title="Remove file"
                         >
                           <XCircle className="w-5 h-5" />
@@ -578,22 +593,26 @@ export default function AddCheckclockAdmin() {
                         />
                         <label
                           htmlFor="proof-file-change"
-                          className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                          className={`inline-block px-4 py-2 border rounded-lg text-sm font-medium cursor-pointer transition ${
+                            isDark 
+                              ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                          }`}
                         >
                           Change File
                         </label>
                       </div>
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <div className={`border-2 border-dashed rounded-lg p-8 text-center ${isDark ? 'border-gray-600' : 'border-gray-300'}`}>
                       <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
-                          <Upload className="w-6 h-6 text-gray-400" />
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                          <Upload className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
                         </div>
-                        <p className="text-sm text-gray-600 mb-1">
+                        <p className={`text-sm mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                           Drag n Drop here
                         </p>
-                        <p className="text-sm text-gray-500 mb-3">Or</p>
+                        <p className={`text-sm mb-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Or</p>
 
                         <input
                           type="file"
@@ -604,7 +623,11 @@ export default function AddCheckclockAdmin() {
                         />
                         <label
                           htmlFor="proof-file"
-                          className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer transition"
+                          className={`inline-block px-4 py-2 border rounded-lg text-sm font-medium cursor-pointer transition ${
+                            isDark 
+                              ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                          }`}
                         >
                           Browse
                         </label>
@@ -618,7 +641,7 @@ export default function AddCheckclockAdmin() {
               <div className="space-y-5">
                 {/* Lokasi dropdown */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Lokasi
                   </label>
                   <CustomDropdown
@@ -639,7 +662,7 @@ export default function AddCheckclockAdmin() {
                     ]}
                   />
                   {companyLocations.length === 0 && !loadingLocations && (
-                    <p className="text-xs text-amber-600 mt-1">
+                    <p className={`text-xs mt-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                       Belum ada lokasi kantor terdaftar. Tambahkan di Settings → Lokasi Kantor
                     </p>
                   )}
@@ -648,7 +671,7 @@ export default function AddCheckclockAdmin() {
                 {/* Map Section dengan Tombol My Location yang Terpisah */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Peta Lokasi
                     </label>
                     {/* Tombol My Location di luar map - selalu terlihat */}
@@ -669,14 +692,14 @@ export default function AddCheckclockAdmin() {
                     onLocationChange={handleMapLocationChange}
                   />
                   
-                  <p className="text-xs text-gray-500 mt-1.5">
+                  <p className={`text-xs mt-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                     Klik pada peta untuk memilih lokasi atau gunakan tombol "My Location"
                   </p>
                 </div>
 
                 {/* Detail Alamat */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     Detail Alamat
                   </label>
                   <input
@@ -685,14 +708,18 @@ export default function AddCheckclockAdmin() {
                     value={formData.address}
                     onChange={handleInputChange}
                     placeholder="Nama Jalan, No. Rumah/Apartemen dan lainnya"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      isDark 
+                        ? 'border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400' 
+                        : 'border-gray-300 bg-white text-gray-900'
+                    }`}
                   />
                 </div>
 
                 {/* Lat/Long */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Latitude
                     </label>
                     <input
@@ -701,12 +728,16 @@ export default function AddCheckclockAdmin() {
                       value={formData.latitude}
                       onChange={handleInputChange}
                       placeholder="Lat Lokasi"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                      className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        isDark 
+                          ? 'border-gray-600 bg-gray-700 text-gray-200' 
+                          : 'border-gray-300 bg-gray-50 text-gray-900'
+                      }`}
                       readOnly
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       Longitude
                     </label>
                     <input
@@ -715,7 +746,11 @@ export default function AddCheckclockAdmin() {
                       value={formData.longitude}
                       onChange={handleInputChange}
                       placeholder="Long Lokasi"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                      className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        isDark 
+                          ? 'border-gray-600 bg-gray-700 text-gray-200' 
+                          : 'border-gray-300 bg-gray-50 text-gray-900'
+                      }`}
                       readOnly
                     />
                   </div>
@@ -725,7 +760,7 @@ export default function AddCheckclockAdmin() {
 
             {/* Notes (full width) */}
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                 Additional Notes
               </label>
               <textarea
@@ -734,16 +769,24 @@ export default function AddCheckclockAdmin() {
                 onChange={handleInputChange}
                 placeholder="Tambahkan keterangan tambahan jika diperlukan..."
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
+                  isDark 
+                    ? 'border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400' 
+                    : 'border-gray-300 bg-white text-gray-900'
+                }`}
               />
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
+            <div className={`flex items-center justify-end gap-3 mt-6 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
               <button
                 type="button"
                 onClick={() => navigate("/admin/checkclock")}
-                className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                className={`px-6 py-2.5 rounded-lg border text-sm font-medium transition ${
+                  isDark 
+                    ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                }`}
               >
                 Cancel
               </button>
@@ -766,50 +809,50 @@ export default function AddCheckclockAdmin() {
           onClick={handleCancelSave}
         >
           <div 
-            className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all"
+            className={`rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all ${isDark ? 'bg-gray-800' : 'bg-white'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Icon */}
             <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-7 h-7 text-blue-600" />
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
+                <AlertCircle className={`w-7 h-7 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
               </div>
             </div>
 
             {/* Title */}
-            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+            <h3 className={`text-lg font-semibold text-center mb-2 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
               Konfirmasi Penyimpanan Data
             </h3>
 
             {/* Message */}
-            <p className="text-sm text-gray-600 text-center mb-5">
+            <p className={`text-sm text-center mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Apakah Anda yakin ingin mengirim data absensi ini?<br />
               Pastikan semua informasi yang dimasukkan sudah benar.
             </p>
 
             {/* Summary Info */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-5 space-y-2.5">
+            <div className={`rounded-lg p-4 mb-5 space-y-2.5 ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Karyawan:</span>
-                <span className="font-medium text-gray-900">
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Karyawan:</span>
+                <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.employeeName || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Tipe Absensi:</span>
-                <span className="font-medium text-gray-900">
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Tipe Absensi:</span>
+                <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.attendanceType || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Waktu:</span>
-                <span className="font-medium text-gray-900">
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Waktu:</span>
+                <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.capturedTime || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Lokasi:</span>
-                <span className="font-medium text-gray-900">
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Lokasi:</span>
+                <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.location || "-"}
                 </span>
               </div>
@@ -821,7 +864,11 @@ export default function AddCheckclockAdmin() {
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
                 disabled={submitting}
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className={`flex-1 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors disabled:opacity-50 ${
+                  isDark 
+                    ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                }`}
               >
                 Batal
               </button>

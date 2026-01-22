@@ -1,6 +1,7 @@
 // src/components/ui/CustomDropdown.jsx
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Check } from "lucide-react";
+import { useTheme } from "@/app/hooks/useTheme";
 
 /**
  * CustomDropdown - Komponen dropdown minimalis dan modern
@@ -12,7 +13,7 @@ import { ChevronDown, Check } from "lucide-react";
  * @param {string} name - Nama field untuk form
  * @param {string} className - Custom className tambahan
  * @param {boolean} disabled - Disabled state
- * @param {string} variant - "default" | "dark" - Style variant
+ * @param {string} variant - "default" | "dark" | "auto" - Style variant
  */
 export function CustomDropdown({
   value,
@@ -22,10 +23,17 @@ export function CustomDropdown({
   name = "",
   className = "",
   disabled = false,
-  variant = "default",
+  variant = "auto",
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  // Determine actual variant based on theme if auto
+  const effectiveVariant = variant === "auto" 
+    ? (isDark ? "dark" : "default") 
+    : variant;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -84,24 +92,24 @@ export function CustomDropdown({
     },
     dark: {
       trigger: `
-        bg-[#1D395E] border border-[#1D395E] rounded-xl
+        bg-gray-700 border border-gray-600 rounded-lg
         ${disabled 
-          ? "opacity-50 cursor-not-allowed" 
-          : "hover:bg-[#142848] focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer"
+          ? "bg-gray-800 cursor-not-allowed text-gray-500" 
+          : "hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400 cursor-pointer"
         }
-        ${isOpen ? "ring-2 ring-blue-400" : ""}
+        ${isOpen ? "border-blue-400 ring-2 ring-blue-400/30" : ""}
       `,
-      triggerText: "text-white",
-      chevron: "text-white",
-      menu: "bg-[#1D395E] border border-[#2a4a73] shadow-xl",
+      triggerText: selectedOption ? "text-gray-100" : "text-gray-400",
+      chevron: "text-gray-400",
+      menu: "bg-gray-700 border border-gray-600 shadow-xl shadow-black/30",
       option: (isSelected) => isSelected 
-        ? "bg-white/10 text-white font-medium" 
-        : "text-white/90 hover:bg-white/10",
-      check: "text-white",
+        ? "bg-blue-900/30 text-blue-400 font-medium" 
+        : "text-gray-200 hover:bg-gray-600",
+      check: "text-blue-400",
     },
   };
 
-  const currentVariant = variants[variant] || variants.default;
+  const currentVariant = variants[effectiveVariant] || variants.default;
 
   return (
     <div ref={dropdownRef} className={`relative ${className}`}>

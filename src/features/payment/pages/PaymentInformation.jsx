@@ -2,10 +2,12 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Minus, Plus, Check, User, LogIn, AlertCircle } from "lucide-react";
 import { useAuth } from "@/app/store/authStore";
+import { useTheme } from "@/app/hooks/useTheme";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 // Assets
 import logoHris from "@/assets/images/logo-hris-2.png";
+import logoHrisWhite from "@/assets/images/hris-putih.png";
 import logoBni from "@/assets/images/payment/logo-bni.png";
 
 // Payment method logos (using placeholder/external URLs for demo)
@@ -137,6 +139,8 @@ export default function PaymentInformation() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, token } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   // Check if user is authenticated
   const isAuthenticated = !!token;
@@ -325,7 +329,7 @@ Klik 'Sign In' untuk masuk atau membuat akun baru."
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
               <img 
-                src={logoHris} 
+                src={isDark ? logoHrisWhite : logoHris} 
                 alt="HRIS" 
                 className="h-8 sm:h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
                 onClick={() => navigate("/")}

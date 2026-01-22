@@ -4,12 +4,15 @@ import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 import { authService } from "@/app/services/auth.api";
 import { Notification } from "@/components/ui/Notification";
+import { useTheme } from "@/app/hooks/useTheme";
 import setNewPasswordIllustration from "@/assets/images/auth/set-new-password.png";
 
 /* ---------- Page ---------- */
 export default function SetNewPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [isLoaded, setIsLoaded] = useState(false);
   
   // Get token from URL query param (sent from email link)
@@ -108,7 +111,7 @@ export default function SetNewPassword() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex auth-page-enter">
+    <div className={`min-h-screen flex auth-page-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Notification Toast */}
       {notification && (
         <Notification
@@ -120,7 +123,7 @@ export default function SetNewPassword() {
       )}
 
       {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-white items-center justify-center px-16 py-20 auth-illustration-enter">
+      <div className={`hidden lg:flex lg:w-1/2 items-center justify-center px-16 py-20 auth-illustration-enter ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="w-full max-w-[600px]">
           <img
             src={setNewPasswordIllustration}
@@ -131,14 +134,14 @@ export default function SetNewPassword() {
       </div>
 
       {/* RIGHT SIDE - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter">
+      <div className={`w-full lg:w-1/2 flex items-center justify-center px-8 sm:px-12 lg:px-16 py-12 auth-content-enter ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="w-full max-w-[600px]">
           {/* Title Section */}
           <div className="mb-8">
-            <h1 className="text-[48px] font-bold text-[#2a2a2a] tracking-[1.8px] leading-tight mb-4">
+            <h1 className={`text-[48px] font-bold tracking-[1.8px] leading-tight mb-4 ${isDark ? 'text-gray-100' : 'text-[#2a2a2a]'}`}>
               Set new password
             </h1>
-            <p className="text-[18px] text-black tracking-[0.72px] leading-[28px]">
+            <p className={`text-[18px] tracking-[0.72px] leading-[28px] ${isDark ? 'text-gray-300' : 'text-black'}`}>
               Enter your new password below to complete the reset process. Ensure it's strong and secure
             </p>
           </div>
@@ -149,7 +152,7 @@ export default function SetNewPassword() {
             <div className="space-y-2">
               <label
                 htmlFor="newPassword"
-                className="block text-[16px] text-black tracking-[0.48px]"
+                className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}
               >
                 New Password
               </label>
@@ -162,17 +165,21 @@ export default function SetNewPassword() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   onBlur={onBlurNewPassword}
                   placeholder="Enter Your Password"
-                  className="w-full h-full px-5 py-6 pr-14 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  className={`w-full h-full px-5 py-6 pr-14 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                    isDark 
+                      ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                      : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                  className={`absolute right-5 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
                 >
                   {showNewPassword ? <EyeOff size={24} /> : <Eye size={24} />}
                 </button>
               </div>
-              <p className="text-[14px] text-gray-500 tracking-[0.42px]">
+              <p className={`text-[14px] tracking-[0.42px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 Must be at least 8 character
               </p>
             </div>
@@ -181,7 +188,7 @@ export default function SetNewPassword() {
             <div className="space-y-2">
               <label
                 htmlFor="confirmPassword"
-                className="block text-[16px] text-black tracking-[0.48px]"
+                className={`block text-[16px] tracking-[0.48px] ${isDark ? 'text-gray-300' : 'text-black'}`}
               >
                 Confirm Password
               </label>
@@ -194,12 +201,16 @@ export default function SetNewPassword() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onBlur={onBlurConfirmPassword}
                   placeholder="Enter Your Password"
-                  className="w-full h-full px-5 py-6 pr-14 bg-white border border-[#7ca6bf] rounded-xl text-[16px] tracking-[0.48px] text-black placeholder:text-gray-400 focus:outline-none focus:border-[#1d395e] focus:ring-2 focus:ring-[#1d395e]/20 transition-all"
+                  className={`w-full h-full px-5 py-6 pr-14 border rounded-xl text-[16px] tracking-[0.48px] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                    isDark 
+                      ? 'bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-400 focus:ring-blue-400/20' 
+                      : 'bg-white border-[#7ca6bf] text-black focus:border-[#1d395e] focus:ring-[#1d395e]/20'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                  className={`absolute right-5 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
                 >
                   {showConfirmPassword ? <EyeOff size={24} /> : <Eye size={24} />}
                 </button>
@@ -222,7 +233,7 @@ export default function SetNewPassword() {
               <button
                 type="button"
                 onClick={() => navigate("/auth/sign-in")}
-                className="w-full flex items-center justify-center gap-2 text-[16px] text-black hover:text-[#1d395e] transition-colors"
+                className={`w-full flex items-center justify-center gap-2 text-[16px] transition-colors ${isDark ? 'text-gray-300 hover:text-blue-400' : 'text-black hover:text-[#1d395e]'}`}
               >
                 <ArrowLeft size={20} />
                 <span>Back to log in</span>
