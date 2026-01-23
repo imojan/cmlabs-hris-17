@@ -17,6 +17,13 @@ export default function UserProfileMini() {
   const user = useAuth((s) => s.user);
   const [imgError, setImgError] = useState(false);
 
+  // Debug logging
+  console.log("🖼️ UserProfileMini - user:", user);
+  console.log("🖼️ UserProfileMini - user.avatarUrl:", user?.avatarUrl);
+  console.log("🖼️ UserProfileMini - user.position:", user?.position);
+  console.log("🖼️ UserProfileMini - user.jobdesk:", user?.jobdesk);
+  console.log("🖼️ UserProfileMini - user.role:", user?.role);
+
   // Display name: firstName + lastName > username > email prefix
   const displayUsername = useMemo(() => {
     return (
@@ -45,17 +52,17 @@ export default function UserProfileMini() {
 
   // Avatar URL - dengan cache buster untuk force refresh
   const avatarUrl = useMemo(() => {
-    if (!user?.avatar) return null;
-    const baseUrl = user.avatar.startsWith("http") 
-      ? user.avatar 
-      : `${ENV.API_URL}${user.avatar}`;
+    if (!user?.avatarUrl) return null;
+    const baseUrl = user.avatarUrl.startsWith("http") 
+      ? user.avatarUrl 
+      : `${ENV.API_URL}${user.avatarUrl}`;
     return baseUrl;
-  }, [user?.avatar]);
+  }, [user?.avatarUrl]);
 
   // Reset error state when avatar changes
   useEffect(() => {
     setImgError(false);
-  }, [user?.avatar]);
+  }, [user?.avatarUrl]);
 
   const showAvatar = avatarUrl && !imgError;
 

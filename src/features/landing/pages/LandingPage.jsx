@@ -776,26 +776,45 @@ export default function LandingPage() {
   const activeSection = useActiveSection(sectionIds);
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [isReady, setIsReady] = useState(false);
 
-  // Initialize scroll animations
+  // Initialize scroll animations - re-run when theme changes
   useScrollAnimations();
 
   // Page transition: fade-in saat load
   useEffect(() => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const page = document.getElementById('page-transition');
-        if (page) page.classList.add('page-transition-active');
-      });
-    });
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 50);
+    
     document.documentElement.style.scrollBehavior = 'smooth';
-    return () => { document.documentElement.style.scrollBehavior = 'auto'; };
+    return () => { 
+      clearTimeout(timer);
+      document.documentElement.style.scrollBehavior = 'auto'; 
+    };
   }, []);
 
+  // Re-trigger animations when theme changes
+  useEffect(() => {
+    if (isReady) {
+      // Re-add in-view class to all animated elements that are visible
+      const animatedElements = document.querySelectorAll('[data-animate]');
+      animatedElements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          el.classList.add('in-view');
+        }
+      });
+    }
+  }, [theme, isReady]);
+
   return (
-    <>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       <Navbar activeSection={activeSection} isDark={isDark} />
-      <div id="page-transition" className={`page-transition min-h-screen ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      <div 
+        className={`transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+      >
         <div id="landing-content">
           <HeroSection isDark={isDark} />
           <FeaturesSection isDark={isDark} />
@@ -805,6 +824,6 @@ export default function LandingPage() {
           <Footer isDark={isDark} />
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -14,6 +14,7 @@ export default function SetNewPassword() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isValidatingToken, setIsValidatingToken] = useState(true);
   
   // Get token from URL query param (sent from email link)
   const token = searchParams.get("token") || "";
@@ -26,9 +27,31 @@ export default function SetNewPassword() {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  // ✅ VALIDATE TOKEN ON PAGE LOAD
   useEffect(() => {
-    setIsLoaded(true);
-  }, []);
+    const validateToken = async () => {
+      if (!token) {
+        navigate("/auth/link-expired");
+        return;
+      }
+
+      try {
+        const response = await authService.verifyResetToken(token);
+        if (!response.valid) {
+          navigate("/auth/link-expired");
+          return;
+        }
+        setIsLoaded(true);
+      } catch (error) {
+        console.error("Token validation failed:", error);
+        navigate("/auth/link-expired");
+      } finally {
+        setIsValidatingToken(false);
+      }
+    };
+
+    validateToken();
+  }, [token, navigate]);
 
   // validation
   const isPasswordValid = newPassword.length >= 8;
@@ -52,6 +75,18 @@ export default function SetNewPassword() {
       });
     }
   };
+
+  // Show loading while validating token
+  if (isValidatingToken) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>Memvalidasi link...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();

@@ -113,22 +113,30 @@ export const useAuth = create((set, get) => ({
     if (!get().token) return;
     try {
       const me = await authService.me();
+      console.log("🔍 fetchMe response:", me);
       const newUser = me?.data || me?.user || me || null;
+      console.log("🔍 newUser from response:", newUser);
+      console.log("🔍 newUser.avatarUrl:", newUser?.avatarUrl);
+      console.log("🔍 newUser.position:", newUser?.position);
+      console.log("🔍 newUser.role:", newUser?.role);
 
       if (newUser) {
         // Server data should take priority for critical fields
         // This ensures avatar, position, name changes are reflected
         const currentUser = get().user || {};
+        
+        // ✅ WAJIB konsisten: gunakan avatarUrl (prioritas dari server)
         const mergedUser = {
           ...currentUser,
           ...newUser,
           // Explicit override for fields that should always use server data
-          avatar: newUser.avatar ?? currentUser.avatar,
-          position: newUser.position ?? currentUser.position,
+          avatarUrl: newUser.avatarUrl ?? currentUser.avatarUrl,
           firstName: newUser.firstName ?? currentUser.firstName,
           lastName: newUser.lastName ?? currentUser.lastName,
+          position: newUser.position ?? currentUser.position,
         };
         
+        console.log("🔍 mergedUser.avatarUrl:", mergedUser.avatarUrl);
         persistUser(mergedUser);
         set({ user: mergedUser });
       }

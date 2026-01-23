@@ -124,8 +124,10 @@ export default function ProfileSettings() {
       setFormData(profileData);
       setInitialFormData(profileData);
 
-      // Set avatar
-      if (data.avatar) {
+      // Set avatar - prioritas avatarUrl (full URL) > avatar (path)
+      if (data.avatarUrl) {
+        setExistingAvatar(data.avatarUrl);
+      } else if (data.avatar) {
         setExistingAvatar(`${ENV.API_URL}${data.avatar}`);
       }
     } catch (err) {

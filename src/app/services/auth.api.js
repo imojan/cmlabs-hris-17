@@ -10,6 +10,7 @@ const PATH = {
   google:         "/api/auth/google",          // POST - Google OAuth
   forgotPassword: "/api/password/forgot-password",  // POST - request reset password
   resetPassword:  "/api/password/reset-password",   // POST - reset password dengan token
+  verifyResetToken: "/api/password/verify-reset-token", // GET - verify reset token
   // Profile endpoints
   profile:        "/api/profile",              // GET/PUT - profile
   avatar:         "/api/profile/avatar",       // PUT/DELETE - avatar
@@ -62,6 +63,10 @@ export const authService = {
 
   async resetPassword({ token, password }) {
     return http(PATH.resetPassword, { method: "POST", body: { token, password } });
+  },
+
+  async verifyResetToken(token) {
+    return http(`${PATH.verifyResetToken}?token=${token}`, { method: "GET" });
   },
 
   // ============================================
