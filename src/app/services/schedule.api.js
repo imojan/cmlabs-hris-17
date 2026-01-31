@@ -47,7 +47,7 @@ const scheduleService = {
   createShiftType: async (data) => {
     return await http('/api/schedules/shift-types', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: data,
     });
   },
 
@@ -61,7 +61,7 @@ const scheduleService = {
   assignSchedule: async (data) => {
     return await http('/api/schedules/assign', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: data,
     });
   },
 
@@ -75,7 +75,7 @@ const scheduleService = {
   updateSchedule: async (employeeId, data) => {
     return await http(`/api/schedules/${employeeId}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: data,
     });
   },
 

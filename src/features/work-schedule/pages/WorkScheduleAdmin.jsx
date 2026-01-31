@@ -386,17 +386,27 @@ export function WorkScheduleAdmin() {
     try {
       setLoadingEmployees(true);
       const response = await scheduleService.getUnassignedEmployees();
-      if (response.success) {
+      if (response.success && response.data?.length > 0) {
         // Map the response to match expected format
-        setEmployeeOptions(response.data?.map(emp => ({
+        // id = database ID (for API calls)
+        // employeeId = employee code like "EMP001" (for display)
+        setEmployeeOptions(response.data.map(emp => ({
           id: emp.id,
-          employeeId: emp.employeeId,
-          employeeName: emp.name
-        })) || []);
+          employeeId: emp.employeeId || emp.id,
+          employeeName: emp.name || `${emp.firstName || ''} ${emp.lastName || ''}`.trim()
+        })));
+      } else {
+        // No unassigned employees, show notification
+        setEmployeeOptions([]);
+        setNotification({
+          show: true,
+          type: 'info',
+          message: 'Semua karyawan sudah memiliki jadwal kerja'
+        });
       }
     } catch (err) {
       console.error('Failed to fetch employees:', err);
-      // Fallback: show all employees from current data
+      // Fallback: show all employees from current data (with their database IDs)
       setEmployeeOptions(schedules.map(s => ({
         id: s.id,
         employeeId: s.employeeId,
@@ -420,6 +430,9 @@ export function WorkScheduleAdmin() {
     
     try {
       setSaving(true);
+      
+      // Use updateSchedule which handles both creating and updating schedules
+      // The employeeId here is the database ID (integer), not the employee code
       const response = await scheduleService.updateSchedule(newSchedule.employeeId, {
         shiftType: newSchedule.shiftType,
         schedules: newSchedule.schedules
@@ -434,13 +447,21 @@ export function WorkScheduleAdmin() {
         fetchSchedules();
         fetchStats();
         setShowAddModal(false);
+        // Reset form
+        setNewSchedule({
+          employeeId: '',
+          shiftType: 'Regular',
+          schedules: { ...defaultSchedules }
+        });
+      } else {
+        throw new Error(response.message || 'Gagal menambahkan jadwal kerja');
       }
     } catch (err) {
       console.error('Add schedule error:', err);
       setNotification({
         show: true,
         type: 'error',
-        message: err.message || 'Gagal menambahkan jadwal kerja'
+        message: err.message || 'Gagal menambahkan jadwal kerja. Pastikan karyawan memiliki akun user yang terhubung.'
       });
     } finally {
       setSaving(false);
@@ -1215,7 +1236,7 @@ export function WorkScheduleAdmin() {
                     >
                       <option value="">-- Pilih Karyawan --</option>
                       {employeeOptions.map((emp) => (
-                        <option key={emp.id} value={emp.employeeId}>
+                        <option key={emp.id} value={emp.id}>
                           {emp.employeeName} ({emp.employeeId})
                         </option>
                       ))}
