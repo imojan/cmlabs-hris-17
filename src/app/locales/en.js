@@ -100,6 +100,7 @@ export default {
     tryForFree: "Try for free!",
     firstName: "First Name",
     lastName: "Last Name",
+    email: "Email",
     companyName: "Company Name",
     confirmPassword: "Confirm Password",
     alreadyHaveAccount: "Already have an account?",

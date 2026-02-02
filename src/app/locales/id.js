@@ -100,6 +100,7 @@ export default {
     tryForFree: "Coba gratis!",
     firstName: "Nama Depan",
     lastName: "Nama Belakang",
+    email: "Email",
     companyName: "Nama Perusahaan",
     confirmPassword: "Konfirmasi Kata Sandi",
     alreadyHaveAccount: "Sudah punya akun?",
