@@ -712,7 +712,9 @@ export function EmployeeDatabase() {
                       <td className="px-4 py-3">
                         {employee.avatar ? (
                           <img 
-                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}${employee.avatar}`}
+                            src={employee.avatar.startsWith('http') 
+                              ? employee.avatar 
+                              : `${import.meta.env.VITE_API_URL?.replace('/api', '')}${employee.avatar}`}
                             alt={employee.firstName}
                             className="w-10 h-10 rounded-full object-cover"
                           />
