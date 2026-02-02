@@ -680,7 +680,7 @@ export function WorkScheduleAdmin() {
                     <div className="flex items-center gap-3">
                       {schedule.avatar ? (
                         <img
-                          src={`${API_URL}${schedule.avatar}`}
+                          src={schedule.avatar.startsWith('http') ? schedule.avatar : `${API_URL}${schedule.avatar}`}
                           alt={schedule.employeeName}
                           className="w-10 h-10 rounded-full object-cover"
                           onError={(e) => {
@@ -873,7 +873,7 @@ export function WorkScheduleAdmin() {
               <div className={`flex items-center gap-4 pb-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
                 {selectedSchedule.avatar ? (
                   <img
-                    src={`${API_URL}${selectedSchedule.avatar}`}
+                    src={selectedSchedule.avatar.startsWith('http') ? selectedSchedule.avatar : `${API_URL}${selectedSchedule.avatar}`}
                     alt={selectedSchedule.employeeName}
                     className="w-16 h-16 rounded-full object-cover"
                     onError={(e) => {
