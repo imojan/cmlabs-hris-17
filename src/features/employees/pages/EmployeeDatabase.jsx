@@ -43,8 +43,7 @@ export function EmployeeDatabase() {
   const [stats, setStats] = useState({
     total: 0,
     newHire: 0,
-    active: 0,
-    past: 0,
+    fullTime: 0,
   });
   
   // Pagination
@@ -140,16 +139,14 @@ export function EmployeeDatabase() {
         setStats({
           total: statsRes.stats.total || 0,
           newHire: statsRes.stats.new || 0,
-          active: statsRes.stats.active || 0,
-          past: statsRes.stats.past || 0,
+          fullTime: statsRes.stats.fullTime || 0,
         });
       } else {
         // Fallback: hitung dari data lokal
         const total = data.length;
         const newHire = data.filter(emp => emp.isNew).length;
-        const active = data.filter(emp => emp.isActive !== false && !emp.terminationType).length;
-        const past = data.filter(emp => emp.terminationType).length;
-        setStats({ total, newHire, active, past });
+        const fullTime = data.filter(emp => emp.contractType === 'permanent' && !emp.terminationType).length;
+        setStats({ total, newHire, fullTime });
       }
       
       setTotalRecords(empRes?.pagination?.total || data.length);
@@ -465,82 +462,70 @@ export function EmployeeDatabase() {
 
       {/* ===== STAT CARDS ===== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        {/* Card 1: Total Employees */}
+        {/* Card 1: Periode (Bulan Tahun) */}
         <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
           <div className={`${isDark ? 'bg-blue-900' : 'bg-[#1D395E]'} px-4 py-3 flex items-center gap-3`}>
             <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
-              <Users className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
+              <Calendar className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'}`} />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
-              Total Employees
+              Periode
             </p>
           </div>
           <div className="p-5">
-            <p className={`text-3xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
-              {loading ? "..." : stats.total}
-            </p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              Update: {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+            <p className={`text-2xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
+              {new Date().toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
             </p>
           </div>
         </div>
 
-        {/* Card 2: New Employees */}
+        {/* Card 2: Total Employee */}
         <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
           <div className="bg-amber-600 px-4 py-3 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
-              <UserPlus className="w-5 h-5 text-amber-600" />
+              <Users className="w-5 h-5 text-amber-600" />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
-              New Employees
+              Total Employee
             </p>
           </div>
           <div className="p-5">
             <p className={`text-3xl font-semibold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-              {loading ? "..." : stats.newHire}
-            </p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              Update: {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+              {loading ? "..." : stats.total}
             </p>
           </div>
         </div>
 
-        {/* Card 3: Active Employees */}
+        {/* Card 3: Total New Hire */}
         <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
           <div className="bg-emerald-600 px-4 py-3 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
-              <UserCheck className="w-5 h-5 text-emerald-600" />
+              <UserPlus className="w-5 h-5 text-emerald-600" />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
-              Active Employees
+              Total New Hire
             </p>
           </div>
           <div className="p-5">
             <p className={`text-3xl font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-              {loading ? "..." : stats.active || stats.total}
-            </p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              Update: {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+              {loading ? "..." : stats.newHire}
             </p>
           </div>
         </div>
 
-        {/* Card 4: Past Employees (Resigned/Terminated) */}
+        {/* Card 4: Full Time Employee */}
         <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'} rounded-xl border shadow-sm overflow-hidden transition-colors duration-300`}>
-          <div className="bg-rose-600 px-4 py-3 flex items-center gap-3">
+          <div className="bg-violet-600 px-4 py-3 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full ${isDark ? 'bg-gray-800' : 'bg-white'} flex items-center justify-center`}>
-              <UserX className="w-5 h-5 text-rose-600" />
+              <Briefcase className="w-5 h-5 text-violet-600" />
             </div>
             <p className="text-white font-medium" style={{ color: "#FFFFFF" }}>
-              Past Employees
+              Full Time Employee
             </p>
           </div>
           <div className="p-5">
-            <p className={`text-3xl font-semibold ${isDark ? 'text-rose-400' : 'text-rose-600'}`}>
-              {loading ? "..." : stats.past || 0}
-            </p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              Update: {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+            <p className={`text-3xl font-semibold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>
+              {loading ? "..." : stats.fullTime}
             </p>
           </div>
         </div>
