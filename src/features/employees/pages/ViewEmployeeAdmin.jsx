@@ -85,6 +85,21 @@ export function ViewEmployeeAdmin() {
         : `${import.meta.env.VITE_API_URL}${employee.avatar}`;
     }
 
+    // Determine status based on terminationType and isActive
+    let status = "Active";
+    if (!employee.isActive) {
+      status = "Inactive";
+    } else if (employee.terminationType) {
+      // Map terminationType to display status
+      if (employee.terminationType.toLowerCase() === "resign") {
+        status = "Resigned";
+      } else if (employee.terminationType.toLowerCase() === "terminated") {
+        status = "Terminated (PHK)";
+      } else {
+        status = "Inactive";
+      }
+    }
+
     return {
       firstName: employee.firstName || "",
       lastName: employee.lastName || "",
@@ -105,7 +120,8 @@ export function ViewEmployeeAdmin() {
       spType: employee.spType || "-",
       email: employee.User?.email || "-",
       avatarUrl,
-      isActive: employee.contractType !== "resign",
+      status,
+      isActive: !employee.terminationType && employee.isActive,
     };
   };
 
@@ -193,10 +209,12 @@ export function ViewEmployeeAdmin() {
                   className={`font-semibold ${
                     display.isActive 
                       ? (isDark ? "text-emerald-400" : "text-emerald-600")
+                      : display.status === "Resigned" || display.status === "Terminated (PHK)"
+                      ? (isDark ? "text-orange-400" : "text-orange-600")
                       : (isDark ? "text-rose-400" : "text-rose-600")
                   }`}
                 >
-                  {display.isActive ? "Active" : "Inactive"}
+                  {display.status}
                 </span>
               </p>
             </div>

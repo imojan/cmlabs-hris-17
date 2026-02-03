@@ -666,13 +666,19 @@ export function WorkScheduleAdmin() {
                   </td>
                 </tr>
               ) : (
-                processedSchedules.map((schedule, index) => (
+                processedSchedules.map((schedule, index) => {
+                  // Check if employee is terminated/resigned
+                  const isTerminated = schedule.terminationType || !schedule.isActive;
+                  
+                  return (
                 <tr
                   key={schedule.id}
                   className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-100'} ${
-                    index % 2 === 0 
-                      ? isDark ? "bg-gray-800" : "bg-white" 
-                      : isDark ? "bg-gray-700/50" : "bg-gray-50"
+                    isTerminated
+                      ? isDark ? "bg-gray-800/60 opacity-60" : "bg-gray-100/80 opacity-70"
+                      : index % 2 === 0 
+                        ? isDark ? "bg-gray-800" : "bg-white" 
+                        : isDark ? "bg-gray-700/50" : "bg-gray-50"
                   } ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100/60'} transition-colors`}
                 >
                   {/* Employee Name with Avatar */}
@@ -682,7 +688,7 @@ export function WorkScheduleAdmin() {
                         <img
                           src={schedule.avatar.startsWith('http') ? schedule.avatar : `${API_URL}${schedule.avatar}`}
                           alt={schedule.employeeName}
-                          className="w-10 h-10 rounded-full object-cover"
+                          className={`w-10 h-10 rounded-full object-cover ${isTerminated ? 'grayscale' : ''}`}
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'flex';
@@ -690,16 +696,25 @@ export function WorkScheduleAdmin() {
                         />
                       ) : null}
                       <div 
-                        className={`w-10 h-10 rounded-full items-center justify-center ${isDark ? 'bg-gray-600' : 'bg-gray-200'} ${schedule.avatar ? 'hidden' : 'flex'}`}
+                        className={`w-10 h-10 rounded-full items-center justify-center ${isDark ? 'bg-gray-600' : 'bg-gray-200'} ${schedule.avatar ? 'hidden' : 'flex'} ${isTerminated ? 'grayscale' : ''}`}
                       >
                         <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                           {schedule.employeeName?.charAt(0) || '?'}
                         </span>
                       </div>
                       <div>
-                        <p className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-                          {schedule.employeeName}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className={`font-medium ${isTerminated ? (isDark ? 'text-gray-400' : 'text-gray-500') : (isDark ? 'text-gray-100' : 'text-gray-900')}`}>
+                            {schedule.employeeName}
+                          </p>
+                          {isTerminated && (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              isDark ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-100 text-orange-700'
+                            }`}>
+                              {schedule.terminationType === 'resign' ? 'Resigned' : schedule.terminationType === 'terminated' ? 'PHK' : 'Inactive'}
+                            </span>
+                          )}
+                        </div>
                         <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{schedule.position}</p>
                       </div>
                     </div>
@@ -770,7 +785,8 @@ export function WorkScheduleAdmin() {
                     </div>
                   </td>
                 </tr>
-              ))
+              );
+              })
               )}
             </tbody>
           </table>
