@@ -22,6 +22,7 @@ import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { ImportModal } from "@/components/ui/ImportModal";
 import { exportToExcel } from "@/lib/exportExcel";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useTranslation } from "@/app/hooks/useTranslation";
 
 const initialData = [
   {
@@ -200,6 +201,7 @@ export function AttendanceAdmin() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { t } = useTranslation();
   
   // Data & loading states
   const [attendanceData, setAttendanceData] = useState([]);
@@ -485,7 +487,7 @@ export function AttendanceAdmin() {
             {/* Title */}
             <div>
               <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
-                Checkclock Overview
+                {t("attendance.overview")}
               </h2>
             </div>
 
@@ -495,7 +497,7 @@ export function AttendanceAdmin() {
               <div className="relative w-full sm:max-w-xs lg:max-w-sm">
                 <input
                   type="text"
-                  placeholder="Search Employee"
+                  placeholder={t("attendance.searchEmployee")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${isDark ? 'border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400' : 'border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black'} text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]`}
@@ -511,7 +513,7 @@ export function AttendanceAdmin() {
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-                  <span>Refresh</span>
+                  <span>{t("common.refresh")}</span>
                 </button>
 
                 {/* Filter Dropdown */}
@@ -527,7 +529,7 @@ export function AttendanceAdmin() {
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <Upload className="w-4 h-4" />
-                  <span>Export</span>
+                  <span>{t("common.export")}</span>
                 </button>
 
                 <button
@@ -535,7 +537,7 @@ export function AttendanceAdmin() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Tambah Data</span>
+                  <span>{t("attendance.addData")}</span>
                 </button>
               </div>
             </div>
@@ -546,7 +548,7 @@ export function AttendanceAdmin() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Loader2 className={`w-10 h-10 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'} animate-spin mb-4`} />
-            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Memuat data attendance...</p>
+            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("attendance.loadingData")}</p>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16">
@@ -556,7 +558,7 @@ export function AttendanceAdmin() {
               onClick={fetchAttendance}
               className={`px-4 py-2 rounded-lg ${isDark ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#1D395E] hover:bg-[#142848]'} text-white text-sm`}
             >
-              Coba Lagi
+              {t("employee.tryAgain")}
             </button>
           </div>
         ) : (
@@ -567,17 +569,17 @@ export function AttendanceAdmin() {
             <thead>
               <tr className={`${isDark ? 'bg-gray-700 text-gray-200' : 'bg-[#F5F7FA] text-gray-700'}`}>
                 <th className="px-4 py-3 text-left font-medium">
-                  Employee Name
+                  {t("attendance.employee")}
                 </th>
-                <th className="px-4 py-3 text-left font-medium">Jabatan</th>
-                <th className="px-4 py-3 text-center font-medium">Clock In</th>
-                <th className="px-4 py-3 text-center font-medium">Clock Out</th>
+                <th className="px-4 py-3 text-left font-medium">{t("employee.position")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("attendance.clockIn")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("attendance.clockOut")}</th>
                 <th className="px-4 py-3 text-center font-medium">
-                  Work Hours
+                  {t("attendance.workHours")}
                 </th>
-                <th className="px-4 py-3 text-center font-medium">Approve</th>
-                <th className="px-4 py-3 text-center font-medium">Status</th>
-                <th className="px-4 py-3 text-center font-medium">Details</th>
+                <th className="px-4 py-3 text-center font-medium">{t("attendance.approvalStatus")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("common.status")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("common.seeDetails")}</th>
               </tr>
             </thead>
 
@@ -588,7 +590,7 @@ export function AttendanceAdmin() {
                     <div className="flex flex-col items-center justify-center">
                       <AlertCircle className={`w-10 h-10 ${isDark ? 'text-gray-500' : 'text-gray-400'} mb-4`} />
                       <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
-                        {debouncedSearch ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data attendance"}
+                        {debouncedSearch ? t("attendance.noDataMatch") : t("attendance.noAttendanceData")}
                       </p>
                     </div>
                   </td>

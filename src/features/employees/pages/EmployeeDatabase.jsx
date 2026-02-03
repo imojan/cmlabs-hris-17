@@ -27,11 +27,13 @@ import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { ImportModal } from "@/components/ui/ImportModal";
 import { exportToExcel } from "@/lib/exportExcel";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useTranslation } from "@/app/hooks/useTranslation";
 
 export function EmployeeDatabase() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { t } = useTranslation();
   
   // Data & loading states
   const [employees, setEmployees] = useState([]);
@@ -538,7 +540,7 @@ export function EmployeeDatabase() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Title */}
             <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-blue-300' : 'text-[#1D395E]'}`}>
-              All Employees Information
+              {t("employee.allInfo")}
             </h2>
 
             {/* Right side: search + buttons */}
@@ -547,7 +549,7 @@ export function EmployeeDatabase() {
               <div className="relative w-full sm:max-w-xs lg:max-w-sm">
                 <input
                   type="text"
-                  placeholder="Search Employee"
+                  placeholder={t("employee.searchEmployee")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${isDark ? 'border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400' : 'border-[#7CA6BF] bg-[rgba(124,166,191,0.08)] text-black'} text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E]`}
@@ -563,7 +565,7 @@ export function EmployeeDatabase() {
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                  <span>Refresh</span>
+                  <span>{t("common.refresh")}</span>
                 </button>
 
                 {/* Filter Dropdown */}
@@ -578,7 +580,7 @@ export function EmployeeDatabase() {
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm`}
                 >
                   <Download className="w-4 h-4" />
-                  <span>Import</span>
+                  <span>{t("common.import")}</span>
                 </button>
 
                 <button 
@@ -587,7 +589,7 @@ export function EmployeeDatabase() {
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 ${isDark ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400'} text-sm transition-all shadow-sm disabled:opacity-50`}
                 >
                   <Upload className="w-4 h-4" />
-                  <span>Export</span>
+                  <span>{t("common.export")}</span>
                 </button>
 
                 <button
@@ -595,7 +597,7 @@ export function EmployeeDatabase() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Tambah Data</span>
+                  <span>{t("employee.addData")}</span>
                 </button>
               </div>
             </div>
@@ -606,7 +608,7 @@ export function EmployeeDatabase() {
         {loading && (
           <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className={`w-10 h-10 ${isDark ? 'text-blue-400' : 'text-[#1D395E]'} animate-spin mb-3`} />
-            <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>Memuat data karyawan...</p>
+            <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>{t("employee.loadingData")}</p>
           </div>
         )}
 
@@ -616,13 +618,13 @@ export function EmployeeDatabase() {
             <div className={`w-16 h-16 rounded-full ${isDark ? 'bg-rose-900/30' : 'bg-rose-50'} flex items-center justify-center mb-4`}>
               <AlertCircle className="w-8 h-8 text-rose-500" />
             </div>
-            <p className={`${isDark ? 'text-gray-200' : 'text-gray-700'} font-medium mb-2`}>Gagal Memuat Data</p>
+            <p className={`${isDark ? 'text-gray-200' : 'text-gray-700'} font-medium mb-2`}>{t("employee.failedToLoad")}</p>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm mb-4`}>{error}</p>
             <button
               onClick={fetchEmployees}
               className={`px-4 py-2 ${isDark ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#1D395E] hover:bg-[#2a4a73]'} text-white rounded-lg transition`}
             >
-              Coba Lagi
+              {t("employee.tryAgain")}
             </button>
           </div>
         )}
@@ -633,11 +635,11 @@ export function EmployeeDatabase() {
             <div className={`w-16 h-16 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'} flex items-center justify-center mb-4`}>
               <Users className={`w-8 h-8 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
             </div>
-            <p className={`${isDark ? 'text-gray-200' : 'text-gray-700'} font-medium mb-2`}>Belum Ada Data Karyawan</p>
+            <p className={`${isDark ? 'text-gray-200' : 'text-gray-700'} font-medium mb-2`}>{t("employee.noEmployeeData")}</p>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm mb-4`}>
               {debouncedSearch 
-                ? `Tidak ditemukan karyawan dengan kata kunci "${debouncedSearch}"`
-                : "Mulai dengan menambahkan karyawan pertama"
+                ? `${t("employee.noEmployeeWithKeyword")} "${debouncedSearch}"`
+                : t("employee.startByAdding")
               }
             </p>
             {!debouncedSearch && (
@@ -645,7 +647,7 @@ export function EmployeeDatabase() {
                 onClick={() => navigate("/admin/employees/add")}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
               >
-                Tambah Karyawan
+                {t("employee.addEmployee")}
               </button>
             )}
           </div>

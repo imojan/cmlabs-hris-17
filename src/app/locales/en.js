@@ -21,6 +21,7 @@ export default {
     confirm: "Confirm",
     close: "Close",
     loading: "Loading...",
+    loadingData: "Loading data...",
     noData: "No data available",
     success: "Success",
     error: "Error",
@@ -56,6 +57,11 @@ export default {
     rejected: "Rejected",
     pending: "Pending",
     notes: "Notes",
+    failedToExport: "Failed to export data",
+    exportSuccess: "Data exported successfully",
+    failedToLoad: "Failed to load data",
+    tryAgain: "Try Again",
+    none: "None",
   },
 
   // ============================================
@@ -231,11 +237,20 @@ export default {
   employee: {
     title: "Employee Database",
     subtitle: "Manage your company's employee data",
+    allInfo: "All Employees Information",
     addEmployee: "Add Employee",
+    addData: "Add Data",
     editEmployee: "Edit Employee",
     deleteEmployee: "Delete Employee",
     viewEmployee: "View Employee Details",
     employeeList: "Employee List",
+    loadingData: "Loading employee data...",
+    failedToLoad: "Failed to Load Data",
+    tryAgain: "Try Again",
+    noEmployeeData: "No Employee Data Yet",
+    noEmployeeWithKeyword: "No employee found with keyword",
+    startByAdding: "Start by adding your first employee",
+    searchEmployee: "Search Employee",
     
     // Table Headers
     employeeId: "Employee ID",
@@ -305,12 +320,19 @@ export default {
   attendance: {
     title: "Attendance",
     subtitle: "Manage employee attendance",
+    overview: "Checkclock Overview",
     checkIn: "Check In",
     checkOut: "Check Out",
     checkInOut: "Check In/Out",
     clockIn: "Clock In",
     clockOut: "Clock Out",
     addAttendance: "Add Attendance",
+    addData: "Add Data",
+    loadingData: "Loading attendance data...",
+    noDataMatch: "No data matches your search",
+    noAttendanceData: "No attendance data yet",
+    clickAddData: "Click \"Add Data\" to add new attendance",
+    searchEmployee: "Search Employee",
     
     // Status
     present: "Present",
@@ -371,12 +393,18 @@ export default {
   // ============================================
   schedule: {
     title: "Work Schedule",
+    pageTitle: "Employee Work Schedule",
     subtitle: "Manage work shifts and schedules",
+    manageWeeklySchedule: "Manage weekly work schedule for all employees",
+    searchEmployee: "Search Employee...",
     addSchedule: "Add Schedule",
     editSchedule: "Edit Schedule",
     deleteSchedule: "Delete Schedule",
     
     // Table Headers
+    employeeColumn: "Employee",
+    branchColumn: "Branch",
+    shiftTypeColumn: "Shift Type",
     scheduleName: "Schedule Name",
     shiftName: "Shift Name",
     startTime: "Start Time",
@@ -404,6 +432,12 @@ export default {
     scheduleCreated: "Schedule successfully created",
     scheduleUpdated: "Schedule successfully updated",
     scheduleDeleted: "Schedule successfully deleted",
+    failedToLoadSchedule: "Failed to load schedule data",
+    failedToDeleteSchedule: "Failed to delete schedule",
+    failedToUpdateSchedule: "Failed to update schedule",
+    failedToAddSchedule: "Failed to add schedule",
+    noScheduleData: "No schedule data available",
+    loadingEmployees: "Loading employees...",
     
     // Stats
     totalSchedules: "Total Schedules",

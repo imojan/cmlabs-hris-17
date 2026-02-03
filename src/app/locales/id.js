@@ -21,6 +21,7 @@ export default {
     confirm: "Konfirmasi",
     close: "Tutup",
     loading: "Memuat...",
+    loadingData: "Memuat data...",
     noData: "Tidak ada data",
     success: "Berhasil",
     error: "Gagal",
@@ -56,6 +57,11 @@ export default {
     rejected: "Ditolak",
     pending: "Menunggu",
     notes: "Catatan",
+    failedToExport: "Gagal mengekspor data",
+    exportSuccess: "Data berhasil diekspor",
+    failedToLoad: "Gagal memuat data",
+    tryAgain: "Coba Lagi",
+    none: "Tidak Ada",
   },
 
   // ============================================
@@ -231,11 +237,20 @@ export default {
   employee: {
     title: "Database Karyawan",
     subtitle: "Kelola data karyawan perusahaan Anda",
+    allInfo: "Semua Informasi Karyawan",
     addEmployee: "Tambah Karyawan",
+    addData: "Tambah Data",
     editEmployee: "Edit Karyawan",
     deleteEmployee: "Hapus Karyawan",
     viewEmployee: "Lihat Detail Karyawan",
     employeeList: "Daftar Karyawan",
+    loadingData: "Memuat data karyawan...",
+    failedToLoad: "Gagal Memuat Data",
+    tryAgain: "Coba Lagi",
+    noEmployeeData: "Belum Ada Data Karyawan",
+    noEmployeeWithKeyword: "Tidak ditemukan karyawan dengan kata kunci",
+    startByAdding: "Mulai dengan menambahkan karyawan pertama",
+    searchEmployee: "Cari Karyawan",
     
     // Table Headers
     employeeId: "ID Karyawan",
@@ -305,12 +320,19 @@ export default {
   attendance: {
     title: "Absensi",
     subtitle: "Kelola kehadiran karyawan",
+    overview: "Ringkasan Checkclock",
     checkIn: "Masuk",
     checkOut: "Keluar",
     checkInOut: "Check In/Out",
     clockIn: "Clock In",
     clockOut: "Clock Out",
     addAttendance: "Tambah Absensi",
+    addData: "Tambah Data",
+    loadingData: "Memuat data absensi...",
+    noDataMatch: "Tidak ada data yang cocok dengan pencarian",
+    noAttendanceData: "Belum ada data absensi",
+    clickAddData: "Klik \"Tambah Data\" untuk menambahkan absensi baru",
+    searchEmployee: "Cari Karyawan",
     
     // Status
     present: "Hadir",
@@ -371,12 +393,18 @@ export default {
   // ============================================
   schedule: {
     title: "Jadwal Kerja",
+    pageTitle: "Jadwal Kerja Karyawan",
     subtitle: "Kelola jadwal dan shift kerja",
+    manageWeeklySchedule: "Kelola jadwal kerja mingguan untuk semua karyawan",
+    searchEmployee: "Cari Karyawan...",
     addSchedule: "Tambah Jadwal",
     editSchedule: "Edit Jadwal",
     deleteSchedule: "Hapus Jadwal",
     
     // Table Headers
+    employeeColumn: "Karyawan",
+    branchColumn: "Cabang",
+    shiftTypeColumn: "Tipe Shift",
     scheduleName: "Nama Jadwal",
     shiftName: "Nama Shift",
     startTime: "Waktu Mulai",
@@ -404,6 +432,12 @@ export default {
     scheduleCreated: "Jadwal berhasil dibuat",
     scheduleUpdated: "Jadwal berhasil diperbarui",
     scheduleDeleted: "Jadwal berhasil dihapus",
+    failedToLoadSchedule: "Gagal memuat data jadwal kerja",
+    failedToDeleteSchedule: "Gagal menghapus jadwal kerja",
+    failedToUpdateSchedule: "Gagal memperbarui jadwal kerja",
+    failedToAddSchedule: "Gagal menambahkan jadwal kerja",
+    noScheduleData: "Tidak ada data jadwal kerja",
+    loadingEmployees: "Memuat karyawan...",
     
     // Stats
     totalSchedules: "Total Jadwal",

@@ -19,11 +19,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { attendanceService } from "@/app/services/attendance.api";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useTranslation } from "@/app/hooks/useTranslation";
 
 export function AttendanceUser() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -289,14 +291,14 @@ export function AttendanceUser() {
       <section className={`rounded-2xl border shadow-sm ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'}`}>
         {/* Header with Search & Actions */}
         <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-6 py-5 border-b ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
-          <h2 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>Checkclock Overview</h2>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>{t("attendance.overview")}</h2>
           
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Search */}
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search Employee"
+                placeholder={t("attendance.searchEmployee")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={`w-full sm:w-64 pl-4 pr-10 py-2.5 border rounded-full text-sm focus:outline-none focus:border-[#1D395E] focus:ring-2 focus:ring-[#1D395E]/20 ${isDark ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400' : 'border-gray-200'}`}
@@ -314,7 +316,7 @@ export function AttendanceUser() {
                 className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg text-sm font-medium ${isDark ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
               >
                 <Filter className="w-4 h-4" />
-                Filter
+                {t("common.filter")}
               </button>
               {showFilterDropdown && (
                 <div className={`absolute right-0 top-full mt-2 w-40 rounded-xl shadow-lg border py-1 z-20 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
@@ -329,7 +331,7 @@ export function AttendanceUser() {
                         filterStatus === opt ? (isDark ? "text-blue-400 font-medium bg-gray-700" : "text-[#1D395E] font-medium bg-gray-50") : (isDark ? "text-gray-300" : "text-gray-700")
                       }`}
                     >
-                      {opt === "all" ? "All Status" : opt}
+                      {opt === "all" ? t("common.all") + " " + t("common.status") : opt}
                     </button>
                   ))}
                 </div>
@@ -342,7 +344,7 @@ export function AttendanceUser() {
               className="flex items-center gap-2 px-5 py-2.5 bg-[#1D395E] text-white rounded-lg hover:bg-[#2a4a6e] transition-colors text-sm font-medium"
             >
               <Plus className="w-4 h-4" />
-              Tambah Data
+              {t("attendance.addData")}
             </button>
           </div>
         </div>
@@ -352,11 +354,11 @@ export function AttendanceUser() {
           <table className="w-full">
             <thead>
               <tr className={`border-b ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
-                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>Date</th>
-                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>Clock In</th>
-                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>Clock Out</th>
-                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>Work Hours</th>
-                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>Status</th>
+                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>{t("common.date")}</th>
+                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>{t("attendance.clockIn")}</th>
+                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>{t("attendance.clockOut")}</th>
+                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>{t("attendance.workHours")}</th>
+                <th className={`text-center px-6 py-4 text-sm font-semibold ${isDark ? 'text-gray-200' : 'text-[#1D395E]'}`}>{t("common.status")}</th>
               </tr>
             </thead>
             <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-100'}`}>
@@ -365,8 +367,8 @@ export function AttendanceUser() {
                   <td colSpan={5} className={`px-6 py-12 text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                     <div className="flex flex-col items-center gap-2">
                       <Calendar className={`w-12 h-12 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
-                      <p className="font-medium">Belum ada data absensi</p>
-                      <p className="text-sm">Klik "Tambah Data" untuk menambahkan absensi baru</p>
+                      <p className="font-medium">{t("attendance.noAttendanceData")}</p>
+                      <p className="text-sm">{t("attendance.clickAddData")}</p>
                     </div>
                   </td>
                 </tr>

@@ -23,6 +23,7 @@ import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { exportToExcel } from "@/lib/exportExcel";
 import scheduleService from "../../../app/services/schedule.api";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useTranslation } from "@/app/hooks/useTranslation";
 
 // Default empty schedule structure
 const defaultSchedules = {
@@ -86,6 +87,7 @@ export function WorkScheduleAdmin() {
   // Theme
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { t } = useTranslation();
 
   // API data state
   const [schedules, setSchedules] = useState([]);
@@ -558,10 +560,10 @@ export function WorkScheduleAdmin() {
             {/* Title */}
             <div>
               <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>
-                Jadwal Kerja Karyawan
+                {t("schedule.pageTitle")}
               </h2>
               <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                Kelola jadwal kerja mingguan untuk semua karyawan
+                {t("schedule.manageWeeklySchedule")}
               </p>
             </div>
 
@@ -571,7 +573,7 @@ export function WorkScheduleAdmin() {
               <div className="relative w-full sm:max-w-xs lg:max-w-sm">
                 <input
                   type="text"
-                  placeholder="Cari Karyawan..."
+                  placeholder={t("schedule.searchEmployee")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
@@ -595,7 +597,7 @@ export function WorkScheduleAdmin() {
                   }`}
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-                  <span>Refresh</span>
+                  <span>{t("common.refresh")}</span>
                 </button>
 
                 {/* Filter Dropdown */}
@@ -615,7 +617,7 @@ export function WorkScheduleAdmin() {
                   }`}
                 >
                   <Upload className="w-4 h-4" />
-                  <span>Export</span>
+                  <span>{t("common.export")}</span>
                 </button>
 
                 <button
@@ -623,7 +625,7 @@ export function WorkScheduleAdmin() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-600 text-white text-sm hover:bg-emerald-700 hover:border-emerald-700 active:bg-emerald-800 active:border-emerald-800 transition-all shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Tambah Jadwal</span>
+                  <span>{t("schedule.addSchedule")}</span>
                 </button>
               </div>
             </div>
@@ -635,17 +637,17 @@ export function WorkScheduleAdmin() {
           <table className="w-full text-sm">
             <thead>
               <tr className={isDark ? 'bg-gray-700 text-gray-200' : 'bg-[#F5F7FA] text-gray-700'}>
-                <th className="px-4 py-3 text-left font-medium">Karyawan</th>
-                <th className="px-4 py-3 text-left font-medium">Cabang</th>
-                <th className="px-4 py-3 text-center font-medium">Tipe Shift</th>
-                <th className="px-4 py-3 text-center font-medium">Sen</th>
-                <th className="px-4 py-3 text-center font-medium">Sel</th>
-                <th className="px-4 py-3 text-center font-medium">Rab</th>
-                <th className="px-4 py-3 text-center font-medium">Kam</th>
-                <th className="px-4 py-3 text-center font-medium">Jum</th>
-                <th className="px-4 py-3 text-center font-medium">Sab</th>
-                <th className="px-4 py-3 text-center font-medium">Min</th>
-                <th className="px-4 py-3 text-center font-medium">Aksi</th>
+                <th className="px-4 py-3 text-left font-medium">{t("schedule.employeeColumn")}</th>
+                <th className="px-4 py-3 text-left font-medium">{t("schedule.branchColumn")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.shiftTypeColumn")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.monday")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.tuesday")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.wednesday")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.thursday")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.friday")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.saturday")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("schedule.sunday")}</th>
+                <th className="px-4 py-3 text-center font-medium">{t("common.actions")}</th>
               </tr>
             </thead>
 
