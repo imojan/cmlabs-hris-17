@@ -433,7 +433,6 @@ export default {
     other: "Other",
     loadingLocations: "Loading locations...",
     noLocationsRegistered: "No office locations registered yet. Add them in Settings → Office Locations",
-    loadingEmployees: "Loading employee data...",
     
     // Notifications
     mapRedirected: "Map redirected to",
@@ -478,16 +477,11 @@ export default {
     clockOutTime: "Clock Out Time",
     workHours: "Work Hours",
     overtime: "Overtime",
-    location: "Location",
     proof: "Proof",
-    notes: "Notes",
     
     // Form
     editAttendance: "Edit Attendance",
-    attendanceType: "Attendance Type",
-    selectEmployee: "Select Employee",
     selectDate: "Select Date",
-    uploadProof: "Upload Proof",
     
     // Types
     wfo: "Work From Office",
@@ -564,7 +558,6 @@ export default {
     failedToUpdateSchedule: "Failed to update schedule",
     failedToAddSchedule: "Failed to add schedule",
     noScheduleData: "No schedule data available",
-    loadingEmployees: "Loading employees...",
     
     // Stats
     totalSchedules: "Total Schedules",

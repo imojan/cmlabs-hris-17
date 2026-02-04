@@ -33,8 +33,8 @@ import LocationSettings from "../../settings/pages/LocationSettings";
 // Notifications page
 import NotificationsPage from "../../notifications/pages/NotificationsPage";
 
-// Lazy load AddCheckclockAdmin to fix HMR blocking issue
-const AddCheckclockAdmin = lazy(() =>
+// Lazy load AddCheckClockAdmin to fix HMR blocking issue
+const AddCheckClockAdmin = lazy(() =>
   import("../../attendance/pages/AddCheckClockAdmin")
 );
 
@@ -300,7 +300,7 @@ export default function AdminDashboard() {
             <Suspense
               fallback={<div className="p-8 text-center">{t("common.loading")}</div>}
             >
-              <AddCheckclockAdmin />
+              <AddCheckClockAdmin />
             </Suspense>
           )}
 

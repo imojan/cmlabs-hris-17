@@ -478,16 +478,11 @@ export default {
     clockOutTime: "Waktu Keluar",
     workHours: "Jam Kerja",
     overtime: "Lembur",
-    location: "Lokasi",
     proof: "Bukti",
-    notes: "Catatan",
     
     // Form
     editAttendance: "Edit Absensi",
-    attendanceType: "Tipe Absensi",
-    selectEmployee: "Pilih Karyawan",
     selectDate: "Pilih Tanggal",
-    uploadProof: "Unggah Bukti",
     
     // Types
     wfo: "Work From Office",
@@ -564,7 +559,6 @@ export default {
     failedToUpdateSchedule: "Gagal memperbarui jadwal kerja",
     failedToAddSchedule: "Gagal menambahkan jadwal kerja",
     noScheduleData: "Tidak ada data jadwal kerja",
-    loadingEmployees: "Memuat karyawan...",
     
     // Stats
     totalSchedules: "Total Jadwal",
