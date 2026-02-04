@@ -660,26 +660,26 @@ export function EmployeeDatabase() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className={`${isDark ? 'bg-gray-700 text-gray-200' : 'bg-[#F5F7FA] text-gray-700'}`}>
-                    <th className="px-4 py-3 text-left font-medium">No.</th>
-                    <th className="px-4 py-3 text-left font-medium">Avatar</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("employee.no")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("employee.avatar")}</th>
                     <th className="px-4 py-3 text-left font-medium">
-                      Nama <span className="text-xs">↕</span>
+                      {t("employee.name")} <span className="text-xs">↕</span>
                     </th>
                     <th className="px-4 py-3 text-left font-medium">
-                      Employee ID
+                      {t("employee.employeeId")}
                     </th>
                     <th className="px-4 py-3 text-left font-medium">
-                      Jenis Kelamin
+                      {t("employee.gender")}
                     </th>
                     <th className="px-4 py-3 text-left font-medium">
-                      Nomor Telepon
+                      {t("employee.phoneNumber")}
                     </th>
-                    <th className="px-4 py-3 text-left font-medium">Cabang</th>
-                    <th className="px-4 py-3 text-left font-medium">Jabatan</th>
-                    <th className="px-4 py-3 text-left font-medium">Grade</th>
-                    <th className="px-4 py-3 text-left font-medium">Status Kontrak</th>
-                    <th className="px-4 py-3 text-left font-medium">Status</th>
-                    <th className="px-4 py-3 text-left font-medium">Action</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("employee.branch")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("employee.position")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("employee.grade")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("employee.contractStatus")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("common.status")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("employee.action")}</th>
                   </tr>
                 </thead>
 
@@ -719,7 +719,7 @@ export function EmployeeDatabase() {
                           {employee.firstName} {employee.lastName || ""}
                           {employee.isNew && (
                             <span className={`px-2 py-0.5 text-xs ${isDark ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'} rounded-full`}>
-                              New
+                              {t("employee.new")}
                             </span>
                           )}
                         </div>
@@ -728,10 +728,10 @@ export function EmployeeDatabase() {
                         {employee.employeeId || "-"}
                       </td>
                       <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-                        {employee.gender === "M" || employee.gender === "Laki-Laki" 
-                          ? "Laki-Laki" 
-                          : employee.gender === "F" || employee.gender === "Perempuan"
-                          ? "Perempuan"
+                        {employee.gender === "M" || employee.gender === "Laki-Laki" || employee.gender === "Male"
+                          ? t("employee.male") 
+                          : employee.gender === "F" || employee.gender === "Perempuan" || employee.gender === "Female"
+                          ? t("employee.female")
                           : employee.gender || "-"}
                       </td>
                       <td className={`px-4 py-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{employee.phone || "-"}</td>
@@ -768,11 +768,11 @@ export function EmployeeDatabase() {
                             ? isDark ? 'bg-pink-900/50 text-pink-400' : 'bg-pink-100 text-pink-700'
                             : isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
                         }`}>
-                          {employee.contractType === 'permanent' ? 'Permanen'
-                            : employee.contractType === 'trial' ? 'Trial'
-                            : employee.contractType === 'contract' ? 'PKWT'
-                            : employee.contractType === 'intern' ? 'Magang'
-                            : employee.contractType === 'freelance' ? 'Freelance'
+                          {employee.contractType === 'permanent' ? t("employee.permanent")
+                            : employee.contractType === 'trial' ? t("employee.trial")
+                            : employee.contractType === 'contract' ? t("employee.contract")
+                            : employee.contractType === 'intern' ? t("employee.intern")
+                            : employee.contractType === 'freelance' ? t("employee.freelance")
                             : employee.contractType || "N/A"}
                         </span>
                       </td>

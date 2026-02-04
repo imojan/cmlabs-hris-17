@@ -20,11 +20,13 @@ import { employeeService } from "@/app/services/employee.api";
 import { attendanceService } from "@/app/services/attendance.api";
 import { locationService } from "@/app/services/location.api";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useTranslation } from "@/app/hooks/useTranslation";
 
 
 export default function AddCheckclockAdmin() {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
   
   const [formData, setFormData] = useState({
@@ -87,7 +89,7 @@ export default function AddCheckclockAdmin() {
         console.error("Failed to fetch employees:", err);
         setNotification({
           type: "error",
-          message: "Gagal memuat data karyawan",
+          message: t("attendance.loadEmployeesFailed"),
         });
       } finally {
         setLoadingEmployees(false);
@@ -156,7 +158,7 @@ export default function AddCheckclockAdmin() {
       }));
       setNotification({
         type: "info",
-        message: `Peta diarahkan ke ${value}`,
+        message: `${t("attendance.mapRedirected")} ${value}`,
       });
     } else {
       // Untuk Remote/Lainnya, hanya update location tanpa mengubah peta
@@ -167,7 +169,7 @@ export default function AddCheckclockAdmin() {
       if (value === "Remote" || value === "Lainnya") {
         setNotification({
           type: "info",
-          message: "Silakan pilih lokasi di peta atau gunakan tombol My Location",
+          message: t("attendance.selectLocationOnMap"),
         });
       }
     }
@@ -220,33 +222,33 @@ export default function AddCheckclockAdmin() {
     const requiredFields = [];
     
     if (!formData.employeeId) {
-      requiredFields.push("Nama Karyawan");
+      requiredFields.push(t("attendance.requiredEmployee"));
     }
     
     if (!formData.attendanceType) {
-      requiredFields.push("Tipe Absensi");
+      requiredFields.push(t("attendance.requiredAttendanceType"));
     }
     
     // Validasi khusus untuk Annual Leave / Sick Leave
     if (["Annual Leave", "Sick Leave"].includes(formData.attendanceType)) {
       if (!formData.startDate) {
-        requiredFields.push("Start Date");
+        requiredFields.push(t("attendance.startDate"));
       }
       if (!formData.endDate) {
-        requiredFields.push("End Date");
+        requiredFields.push(t("attendance.endDate"));
       }
     }
     
     if (!formData.location) {
-      requiredFields.push("Lokasi");
+      requiredFields.push(t("attendance.requiredLocation"));
     }
     
     if (!formData.latitude || !formData.longitude) {
-      requiredFields.push("Koordinat Lokasi (Pilih di peta atau gunakan My Location)");
+      requiredFields.push(t("attendance.requiredCoordinates"));
     }
     
     if (!formData.address) {
-      requiredFields.push("Detail Alamat");
+      requiredFields.push(t("attendance.requiredAddress"));
     }
     
     // Jika ada field yang belum diisi, tampilkan notifikasi
@@ -254,7 +256,7 @@ export default function AddCheckclockAdmin() {
       const fieldList = requiredFields.map(field => `• ${field}`).join("\n");
       setNotification({
         type: "warning",
-        message: `Mohon isi semua field wajib:\n${fieldList}`,
+        message: `${t("attendance.fillAllRequired")}\n${fieldList}`,
       });
       return;
     }
@@ -306,7 +308,7 @@ export default function AddCheckclockAdmin() {
       // Success
       setNotification({
         type: "success",
-        message: "Data absensi berhasil disimpan!",
+        message: t("attendance.attendanceSaveSuccess"),
       });
 
       setShowConfirmModal(false);
@@ -319,7 +321,7 @@ export default function AddCheckclockAdmin() {
       console.error("Failed to save attendance:", err);
       setNotification({
         type: "error",
-        message: err?.data?.message || err?.message || "Gagal menyimpan data absensi",
+        message: err?.data?.message || err?.message || t("attendance.attendanceSaveFailed"),
       });
       setShowConfirmModal(false);
     } finally {
@@ -354,7 +356,7 @@ export default function AddCheckclockAdmin() {
     if (!navigator.geolocation) {
       setNotification({
         type: "error",
-        message: "Browser kamu tidak mendukung geolocation.",
+        message: t("attendance.browserNoGeolocation"),
       });
       return;
     }
@@ -368,14 +370,14 @@ export default function AddCheckclockAdmin() {
 
         setNotification({
           type: "success",
-          message: "Lokasi berhasil diperbarui!",
+          message: t("attendance.locationUpdated"),
         });
       },
       (err) => {
         console.error(err);
         setNotification({
           type: "error",
-          message: "Gagal mengambil lokasi. Pastikan izin lokasi sudah diizinkan.",
+          message: t("attendance.locationFailed"),
         });
       }
     );
@@ -397,7 +399,7 @@ export default function AddCheckclockAdmin() {
           {/* Header */}
           <div className="mb-6">
             <h2 className={`text-xl lg:text-2xl font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-              Add Checkclock
+              {t("attendance.addCheckclock")}
             </h2>
           </div>
 
@@ -410,12 +412,12 @@ export default function AddCheckclockAdmin() {
                 {/* Karyawan */}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Karyawan
+                    {t("attendance.employee")}
                   </label>
                   {loadingEmployees ? (
                     <div className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg text-sm ${isDark ? 'border-gray-600 text-gray-400' : 'border-gray-300 text-gray-500'}`}>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Memuat data karyawan...
+                      {t("attendance.loadingEmployees")}
                     </div>
                   ) : (
                     <CustomDropdown
@@ -434,7 +436,7 @@ export default function AddCheckclockAdmin() {
                             : "",
                         }));
                       }}
-                      placeholder="Pilih Karyawan"
+                      placeholder={t("attendance.selectEmployee")}
                       options={employees.map((emp) => ({
                         value: emp.id,
                         label: `${emp.firstName || ""} ${emp.lastName || ""} - ${emp.jobdesk || "Staff"}`.trim(),
@@ -446,13 +448,13 @@ export default function AddCheckclockAdmin() {
                 {/* Tipe Absensi + Waktu Realtime */}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Tipe Absensi
+                    {t("attendance.attendanceType")}
                   </label>
                   <CustomDropdown
                     name="attendanceType"
                     value={formData.attendanceType}
                     onChange={(e) => handleAttendanceTypeChange(e.target.value)}
-                    placeholder="Pilih Tipe Absensi"
+                    placeholder={t("attendance.selectAttendanceType")}
                     options={attendanceOptions.map((opt) => ({
                       value: opt,
                       label: opt,
@@ -463,7 +465,7 @@ export default function AddCheckclockAdmin() {
                   {/* Waktu Realtime */}
                   <div className="mt-4 space-y-1.5">
                     <label className={`block text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Waktu Absensi (Realtime)
+                      {t("attendance.realtimeAttendance")}
                     </label>
                     <div className="relative">
                       <input
@@ -479,11 +481,11 @@ export default function AddCheckclockAdmin() {
                       <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     </div>
                     <p className={`text-[11px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Saat kamu memilih tipe absensi, jam ini disimpan sebagai{" "}
+                      {t("attendance.realtimeNote")}{" "}
                       <span className="font-semibold">
                         {formData.capturedTime || "--:--:--"}
                       </span>{" "}
-                      dan bisa dikirim ke database.
+                      {t("attendance.realtimeNote2")}
                     </p>
                   </div>
                 </div>
@@ -493,7 +495,7 @@ export default function AddCheckclockAdmin() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        Start Date
+                        {t("attendance.startDate")}
                       </label>
                       <div className="relative">
                         <input
@@ -512,7 +514,7 @@ export default function AddCheckclockAdmin() {
                     </div>
                     <div>
                       <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        End Date
+                        {t("attendance.endDate")}
                       </label>
                       <div className="relative">
                         <input
@@ -535,7 +537,7 @@ export default function AddCheckclockAdmin() {
                 {/* Upload Bukti Pendukung */}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Upload Bukti Pendukung
+                    {t("attendance.uploadProof")}
                   </label>
 
                   {/* Show preview if file is uploaded */}
@@ -599,7 +601,7 @@ export default function AddCheckclockAdmin() {
                               : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                         >
-                          Change File
+                          {t("attendance.changeFile")}
                         </label>
                       </div>
                     </div>
@@ -610,9 +612,9 @@ export default function AddCheckclockAdmin() {
                           <Upload className={`w-6 h-6 ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
                         </div>
                         <p className={`text-sm mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                          Drag n Drop here
+                          {t("attendance.dragDropHere")}
                         </p>
-                        <p className={`text-sm mb-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Or</p>
+                        <p className={`text-sm mb-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{t("attendance.or")}</p>
 
                         <input
                           type="file"
@@ -629,7 +631,7 @@ export default function AddCheckclockAdmin() {
                               : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                         >
-                          Browse
+                          {t("attendance.browse")}
                         </label>
                       </div>
                     </div>
@@ -642,13 +644,13 @@ export default function AddCheckclockAdmin() {
                 {/* Lokasi dropdown */}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Lokasi
+                    {t("attendance.location")}
                   </label>
                   <CustomDropdown
                     name="location"
                     value={formData.location}
                     onChange={handleLocationChange}
-                    placeholder={loadingLocations ? "Memuat lokasi..." : "Pilih Lokasi"}
+                    placeholder={loadingLocations ? t("attendance.loadingLocations") : t("attendance.selectLocation")}
                     options={[
                       // Dynamic locations from company settings
                       ...companyLocations.map(loc => ({
@@ -657,13 +659,13 @@ export default function AddCheckclockAdmin() {
                         icon: "📍"
                       })),
                       // Fixed options
-                      { value: "Remote", label: "Remote", icon: "🏠" },
-                      { value: "Lainnya", label: "Lainnya", icon: "📌" },
+                      { value: "Remote", label: t("attendance.remote"), icon: "🏠" },
+                      { value: "Lainnya", label: t("attendance.other"), icon: "📌" },
                     ]}
                   />
                   {companyLocations.length === 0 && !loadingLocations && (
                     <p className={`text-xs mt-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                      Belum ada lokasi kantor terdaftar. Tambahkan di Settings → Lokasi Kantor
+                      {t("attendance.noLocationsRegistered")}
                     </p>
                   )}
                 </div>
@@ -672,7 +674,7 @@ export default function AddCheckclockAdmin() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Peta Lokasi
+                      {t("attendance.locationMap")}
                     </label>
                     {/* Tombol My Location di luar map - selalu terlihat */}
                     <button
@@ -682,7 +684,7 @@ export default function AddCheckclockAdmin() {
                       title="Gunakan lokasimu"
                     >
                       <LocateFixed className="w-3.5 h-3.5" />
-                      <span>My Location</span>
+                      <span>{t("attendance.myLocation")}</span>
                     </button>
                   </div>
                   
@@ -693,21 +695,21 @@ export default function AddCheckclockAdmin() {
                   />
                   
                   <p className={`text-xs mt-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Klik pada peta untuk memilih lokasi atau gunakan tombol "My Location"
+                    {t("attendance.mapClickNote")}
                   </p>
                 </div>
 
                 {/* Detail Alamat */}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Detail Alamat
+                    {t("attendance.addressDetail")}
                   </label>
                   <input
                     type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    placeholder="Nama Jalan, No. Rumah/Apartemen dan lainnya"
+                    placeholder={t("attendance.addressPlaceholder")}
                     className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                       isDark 
                         ? 'border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400' 
@@ -720,14 +722,14 @@ export default function AddCheckclockAdmin() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Latitude
+                      {t("attendance.latitude")}
                     </label>
                     <input
                       type="text"
                       name="latitude"
                       value={formData.latitude}
                       onChange={handleInputChange}
-                      placeholder="Lat Lokasi"
+                      placeholder={t("attendance.latPlaceholder")}
                       className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         isDark 
                           ? 'border-gray-600 bg-gray-700 text-gray-200' 
@@ -738,14 +740,14 @@ export default function AddCheckclockAdmin() {
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Longitude
+                      {t("attendance.longitude")}
                     </label>
                     <input
                       type="text"
                       name="longitude"
                       value={formData.longitude}
                       onChange={handleInputChange}
-                      placeholder="Long Lokasi"
+                      placeholder={t("attendance.lngPlaceholder")}
                       className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         isDark 
                           ? 'border-gray-600 bg-gray-700 text-gray-200' 
@@ -761,13 +763,13 @@ export default function AddCheckclockAdmin() {
             {/* Notes (full width) */}
             <div className="mt-6">
               <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                Additional Notes
+                {t("attendance.additionalNotes")}
               </label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={handleInputChange}
-                placeholder="Tambahkan keterangan tambahan jika diperlukan..."
+                placeholder={t("attendance.notesPlaceholder")}
                 rows={4}
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
                   isDark 
@@ -788,13 +790,13 @@ export default function AddCheckclockAdmin() {
                     : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="submit"
                 className="px-6 py-2.5 rounded-lg bg-[#1D395E] text-sm font-medium text-white hover:bg-[#142848]"
               >
-                Save
+                {t("common.save")}
               </button>
             </div>
             </form>
@@ -821,37 +823,37 @@ export default function AddCheckclockAdmin() {
 
             {/* Title */}
             <h3 className={`text-lg font-semibold text-center mb-2 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-              Konfirmasi Penyimpanan Data
+              {t("attendance.confirmSaveData")}
             </h3>
 
             {/* Message */}
             <p className={`text-sm text-center mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Apakah Anda yakin ingin mengirim data absensi ini?<br />
-              Pastikan semua informasi yang dimasukkan sudah benar.
+              {t("attendance.confirmSaveMessage")}<br />
+              {t("attendance.confirmSaveSubMessage")}
             </p>
 
             {/* Summary Info */}
             <div className={`rounded-lg p-4 mb-5 space-y-2.5 ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Karyawan:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("attendance.employee")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.employeeName || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Tipe Absensi:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("attendance.attendanceType")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.attendanceType || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Waktu:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("common.time")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.capturedTime || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Lokasi:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("attendance.location")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.location || "-"}
                 </span>
@@ -870,7 +872,7 @@ export default function AddCheckclockAdmin() {
                     : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Batal
+                {t("common.cancel")}
               </button>
               <button
                 type="button"
@@ -881,12 +883,12 @@ export default function AddCheckclockAdmin() {
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Menyimpan...
+                    {t("employee.saving")}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="w-4 h-4" />
-                    Ya, Kirim
+                    {t("attendance.yesSend")}
                   </>
                 )}
               </button>

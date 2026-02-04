@@ -65,8 +65,8 @@ export function EmployeeChart({ monthlyData = null, loading = false }) {
     <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border transition-colors duration-300`}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
         <div>
-          <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Employee Statistics</p>
-          <h3 className={`text-base sm:text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Current Number of Employees</h3>
+          <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("dashboard.employeeStatistics")}</p>
+          <h3 className={`text-base sm:text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{t("dashboard.currentNumberEmployees")}</h3>
         </div>
         <CustomDropdown
           name="month"

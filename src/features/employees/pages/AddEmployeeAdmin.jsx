@@ -6,10 +6,12 @@ import { Notification } from "../../../components/ui/Notification";
 import { CustomDropdown } from "../../../components/ui/CustomDropdown";
 import { employeeService } from "@/app/services/employee.api";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useTranslation } from "@/app/hooks/useTranslation";
 
 export function AddEmployeeAdmin() {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
 
   const [avatarFile, setAvatarFile] = useState(null);
@@ -80,14 +82,14 @@ export function AddEmployeeAdmin() {
     if (!formData.employeeId || !formData.email || !formData.password) {
       setNotification({
         type: "warning",
-        message: "Mohon isi ID Employee, Email, dan Password!",
+        message: t("employee.fillRequiredFields"),
       });
       return;
     }
     if (!formData.firstName || !formData.lastName || !formData.mobileNumber || !formData.nik) {
       setNotification({
         type: "warning",
-        message: "Mohon isi semua field wajib (Nama, NIK, No. HP)!",
+        message: t("employee.fillPersonalFields"),
       });
       return;
     }
@@ -96,7 +98,7 @@ export function AddEmployeeAdmin() {
     if (!emailRegex.test(formData.email)) {
       setNotification({
         type: "warning",
-        message: "Format email tidak valid!",
+        message: t("employee.invalidEmailFormat"),
       });
       return;
     }
@@ -104,7 +106,7 @@ export function AddEmployeeAdmin() {
     if (formData.password.length < 6) {
       setNotification({
         type: "warning",
-        message: "Password minimal 6 karakter!",
+        message: t("employee.passwordMinLength"),
       });
       return;
     }
@@ -238,7 +240,7 @@ export function AddEmployeeAdmin() {
       <section className={`rounded-2xl border shadow-sm p-6 lg:p-8 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/70'}`}>
         {/* header title kecil di dalam card */}
         <h2 className={`text-lg md:text-xl font-semibold mb-5 ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>
-          Add New Employee
+          {t("employee.addNewEmployee")}
         </h2>
 
         {/* inner card (abu biru) seperti frame-mu */}
@@ -267,7 +269,7 @@ export function AddEmployeeAdmin() {
                   }`}
                 >
                   <Upload className="w-4 h-4" />
-                  Upload Avatar
+                  {t("employee.uploadAvatar")}
                 </label>
                 <input
                   id="avatar-upload"
@@ -278,7 +280,7 @@ export function AddEmployeeAdmin() {
                 />
                 {avatarFile && (
                   <p className={`mt-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Selected: {avatarFile.name}
+                    {t("employee.selected")}: {avatarFile.name}
                   </p>
                 )}
               </div>
@@ -291,46 +293,46 @@ export function AddEmployeeAdmin() {
             <div className={`rounded-xl border p-4 md:p-5 ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-[#1D395E]/20'}`}>
               <h3 className={`text-sm font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>
                 <span className="w-6 h-6 rounded-full bg-[#1D395E] text-white text-xs flex items-center justify-center">1</span>
-                Account Login Employee
+                {t("employee.accountLogin")}
               </h3>
               
               {/* Employee ID */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4">
                 <div>
                   <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Employee ID <span className="text-red-500">*</span>
+                    {t("employee.employeeId")} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="employeeId"
                     value={formData.employeeId}
                     onChange={handleChange}
-                    placeholder="e.g. EMP001"
+                    placeholder={t("employee.enterEmployeeId")}
                     className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent ${
                       isDark 
                         ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
                         : 'border-gray-300 bg-white text-gray-700'
                     }`}
                   />
-                  <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>ID ini akan digunakan untuk login karyawan</p>
+                  <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("employee.idForLogin")}</p>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Email <span className="text-red-500">*</span>
+                    {t("employee.email")} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="employee@company.com"
+                    placeholder={t("employee.enterEmail")}
                     className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent ${
                       isDark 
                         ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
                         : 'border-gray-300 bg-white text-gray-700'
                     }`}
                   />
-                  <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Untuk recovery password</p>
+                  <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("employee.forPasswordRecovery")}</p>
                 </div>
               </div>
 
@@ -338,7 +340,7 @@ export function AddEmployeeAdmin() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div>
                   <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Password <span className="text-red-500">*</span>
+                    {t("employee.password")} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -346,7 +348,7 @@ export function AddEmployeeAdmin() {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      placeholder="Minimal 6 karakter"
+                      placeholder={t("employee.enterPassword")}
                       className={`w-full rounded-lg border px-4 py-2.5 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent ${
                         isDark 
                           ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -361,7 +363,7 @@ export function AddEmployeeAdmin() {
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Password default untuk login pertama kali</p>
+                  <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("employee.defaultPassword")}</p>
                 </div>
               </div>
             </div>
@@ -370,21 +372,21 @@ export function AddEmployeeAdmin() {
             <div className={`rounded-xl border p-4 md:p-5 ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'}`}>
               <h3 className={`text-sm font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-gray-100' : 'text-[#1D395E]'}`}>
                 <span className="w-6 h-6 rounded-full bg-[#1D395E] text-white text-xs flex items-center justify-center">2</span>
-                Personal Information
+                {t("employee.personalInfo")}
               </h3>
 
             {/* Baris 1: First / Last Name */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  First Name
+                  {t("employee.firstName")}
                 </label>
                 <input
                   type="text"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="Enter the first name"
+                  placeholder={t("employee.enterFirstName")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -394,14 +396,14 @@ export function AddEmployeeAdmin() {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Last Name
+                  {t("employee.lastName")}
                 </label>
                 <input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="Enter the last name"
+                  placeholder={t("employee.enterLastName")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] focus:border-transparent ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -415,14 +417,14 @@ export function AddEmployeeAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Mobile Number
+                  {t("employee.mobileNumber")}
                 </label>
                 <input
                   type="tel"
                   name="mobileNumber"
                   value={formData.mobileNumber}
                   onChange={handleChange}
-                  placeholder="Enter the Mobile Number"
+                  placeholder={t("employee.enterMobileNumber")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -432,14 +434,14 @@ export function AddEmployeeAdmin() {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  NIK
+                  {t("employee.nik")}
                 </label>
                 <input
                   type="text"
                   name="nik"
                   value={formData.nik}
                   onChange={handleChange}
-                  placeholder="Enter the NIK"
+                  placeholder={t("employee.enterNik")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -453,28 +455,28 @@ export function AddEmployeeAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Gender
+                  {t("employee.gender")}
                 </label>
                 <CustomDropdown
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  placeholder="Choose Gender"
+                  placeholder={t("employee.chooseGender")}
                   options={[
-                    { value: "Male", label: "Male", icon: "👨" },
-                    { value: "Female", label: "Female", icon: "👩" },
+                    { value: "Male", label: t("employee.male"), icon: "👨" },
+                    { value: "Female", label: t("employee.female"), icon: "👩" },
                   ]}
                 />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Pendidikan Terakhir
+                  {t("employee.education")}
                 </label>
                 <CustomDropdown
                   name="education"
                   value={formData.education}
                   onChange={handleChange}
-                  placeholder="Pilih Pendidikan Terakhir"
+                  placeholder={t("employee.chooseEducation")}
                   options={[
                     { value: "SMA/SMK", label: "SMA/SMK", icon: "🎓" },
                     { value: "D3", label: "D3", icon: "🎓" },
@@ -489,14 +491,14 @@ export function AddEmployeeAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Tempat Lahir
+                  {t("employee.birthPlace")}
                 </label>
                 <input
                   type="text"
                   name="birthPlace"
                   value={formData.birthPlace}
                   onChange={handleChange}
-                  placeholder="Masukan Tempat Lahir"
+                  placeholder={t("employee.enterBirthPlace")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -506,7 +508,7 @@ export function AddEmployeeAdmin() {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Tanggal Lahir
+                  {t("employee.birthDate")}
                 </label>
                 <div className="relative">
                   <input
@@ -529,14 +531,14 @@ export function AddEmployeeAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Jabatan
+                  {t("employee.position")}
                 </label>
                 <input
                   type="text"
                   name="position"
                   value={formData.position}
                   onChange={handleChange}
-                  placeholder="Enter the jabatan"
+                  placeholder={t("employee.enterPosition")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -546,14 +548,14 @@ export function AddEmployeeAdmin() {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Cabang
+                  {t("employee.branch")}
                 </label>
                 <input
                   type="text"
                   name="branch"
                   value={formData.branch}
                   onChange={handleChange}
-                  placeholder="Enter the cabang"
+                  placeholder={t("employee.enterBranch")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -567,23 +569,29 @@ export function AddEmployeeAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start">
               <div>
                 <p className={`text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Tipe Kontrak
+                  {t("employee.contractType")}
                 </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  {["Permanen", "Trial", "PKWT", "Magang", "Freelance"].map((type) => (
+                  {[
+                    { value: "Permanen", label: t("employee.permanent") },
+                    { value: "Trial", label: t("employee.trial") },
+                    { value: "PKWT", label: t("employee.contract") },
+                    { value: "Magang", label: t("employee.intern") },
+                    { value: "Freelance", label: t("employee.freelance") }
+                  ].map((type) => (
                     <label
-                      key={type}
+                      key={type.value}
                       className={`inline-flex items-center gap-2 text-sm cursor-pointer ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
                     >
                       <input
                         type="radio"
                         name="contractType"
-                        value={type}
-                        checked={formData.contractType === type}
+                        value={type.value}
+                        checked={formData.contractType === type.value}
                         onChange={handleChange}
                         className="h-4 w-4 border-gray-300 text-[#1D395E] focus:ring-[#1D395E]"
                       />
-                      <span>{type}</span>
+                      <span>{type.label}</span>
                     </label>
                   ))}
                 </div>
@@ -591,14 +599,14 @@ export function AddEmployeeAdmin() {
 
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Grade
+                  {t("employee.grade")}
                 </label>
                 <input
                   type="text"
                   name="grade"
                   value={formData.grade}
                   onChange={handleChange}
-                  placeholder="Masukan Grade Anda"
+                  placeholder={t("employee.enterGrade")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -612,13 +620,13 @@ export function AddEmployeeAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Bank
+                  {t("employee.bankName")}
                 </label>
                 <CustomDropdown
                   name="bank"
                   value={formData.bank}
                   onChange={handleChange}
-                  placeholder="Pilih Bank"
+                  placeholder={t("employee.chooseBank")}
                   options={[
                     { value: "BCA", label: "BCA", icon: "🏦" },
                     { value: "BNI", label: "BNI", icon: "🏦" },
@@ -629,14 +637,14 @@ export function AddEmployeeAdmin() {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Nomor Rekening
+                  {t("employee.accountNumber")}
                 </label>
                 <input
                   type="text"
                   name="accountNumber"
                   value={formData.accountNumber}
                   onChange={handleChange}
-                  placeholder="Masukan Nomor Rekening"
+                  placeholder={t("employee.enterAccountNumber")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -650,14 +658,14 @@ export function AddEmployeeAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Atas Nama Rekening
+                  {t("employee.accountHolder")}
                 </label>
                 <input
                   type="text"
                   name="accountName"
                   value={formData.accountName}
                   onChange={handleChange}
-                  placeholder="Masukkan A/N Rekening"
+                  placeholder={t("employee.enterAccountName")}
                   className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D395E] ${
                     isDark 
                       ? 'border-gray-600 bg-gray-600 text-gray-100 placeholder-gray-400' 
@@ -667,15 +675,15 @@ export function AddEmployeeAdmin() {
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Tipe SP
+                  {t("employee.spType")}
                 </label>
                 <CustomDropdown
                   name="spType"
                   value={formData.spType}
                   onChange={handleChange}
-                  placeholder="Pilih SP"
+                  placeholder={t("employee.chooseSP")}
                   options={[
-                    { value: "", label: "Tidak Ada", icon: "✓" },
+                    { value: "", label: t("employee.noSP"), icon: "✓" },
                     { value: "SP1", label: "SP1", icon: "⚠️" },
                     { value: "SP2", label: "SP2", icon: "⚠️" },
                     { value: "SP3", label: "SP3", icon: "⚠️" },
@@ -696,13 +704,13 @@ export function AddEmployeeAdmin() {
                     : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="submit"
                 className="px-6 py-2.5 rounded-lg bg-[#1D395E] text-sm font-medium text-white hover:bg-[#142848]"
               >
-                Save
+                {t("common.save")}
               </button>
             </div>
           </form>
@@ -729,31 +737,31 @@ export function AddEmployeeAdmin() {
 
             {/* Title */}
             <h3 className={`text-lg font-semibold text-center mb-2 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-              Konfirmasi Penambahan Data
+              {t("employee.confirmAddData")}
             </h3>
 
             {/* Message */}
             <p className={`text-sm text-center mb-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Apakah Anda yakin ingin menambahkan data karyawan baru ini?<br />
-              Pastikan semua informasi yang dimasukkan sudah benar.
+              {t("employee.confirmAddMessage")}<br />
+              {t("employee.confirmAddSubMessage")}
             </p>
 
             {/* Summary Info */}
             <div className={`rounded-lg p-4 mb-5 space-y-2.5 ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Employee ID:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("employee.employeeId")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.employeeId || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Email:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("employee.email")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.email || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Nama:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("common.name")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.firstName && formData.lastName 
                     ? `${formData.firstName} ${formData.lastName}` 
@@ -761,19 +769,19 @@ export function AddEmployeeAdmin() {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>NIK:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("employee.nik")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.nik || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Posisi:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("employee.position")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.position || "-"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>Cabang:</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t("employee.branch")}:</span>
                 <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                   {formData.branch || "-"}
                 </span>
@@ -792,7 +800,7 @@ export function AddEmployeeAdmin() {
                     : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Batal
+                {t("common.cancel")}
               </button>
               <button
                 type="button"
@@ -803,12 +811,12 @@ export function AddEmployeeAdmin() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Menyimpan...
+                    {t("employee.saving")}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="w-4 h-4" />
-                    Ya, Tambahkan
+                    {t("employee.yesAdd")}
                   </>
                 )}
               </button>

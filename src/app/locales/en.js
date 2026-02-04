@@ -217,6 +217,9 @@ export default {
     attendanceChart: "Attendance Chart",
     employeeDistribution: "Employee Distribution",
     departmentOverview: "Department Overview",
+    employeeStatistics: "Employee Statistics",
+    employeeStatus: "Employee Status",
+    currentNumberEmployees: "Current Number of Employees",
     
     // Recent Activity
     recentActivity: "Recent Activity",
@@ -253,25 +256,86 @@ export default {
     searchEmployee: "Search Employee",
     
     // Table Headers
+    no: "No.",
+    avatar: "Avatar",
+    name: "Name",
     employeeId: "Employee ID",
     fullName: "Full Name",
     gender: "Gender",
     phoneNumber: "Phone Number",
+    mobileNumber: "Mobile Number",
     branch: "Branch",
     position: "Position",
     department: "Department",
     joinDate: "Join Date",
     contractType: "Contract Type",
+    contractStatus: "Contract Status",
+    grade: "Grade",
+    action: "Action",
     
     // Form Fields
     firstName: "First Name",
     lastName: "Last Name",
     birthDate: "Birth Date",
     birthPlace: "Birth Place",
-    nik: "National ID",
+    nik: "National ID (NIK)",
     religion: "Religion",
     maritalStatus: "Marital Status",
     education: "Last Education",
+    
+    // Form Section Titles
+    accountLogin: "Employee Login Account",
+    personalInfo: "Personal Information",
+    employmentInfo: "Employment Information",
+    bankInfo: "Bank Information",
+    
+    // Form labels
+    addNewEmployee: "Add New Employee",
+    email: "Email",
+    password: "Password",
+    spType: "SP Type",
+    
+    // Placeholders
+    enterEmployeeId: "e.g. EMP001",
+    enterEmail: "employee@company.com",
+    enterPassword: "Minimum 6 characters",
+    enterFirstName: "Enter first name",
+    enterLastName: "Enter last name",
+    enterMobileNumber: "Enter mobile number",
+    enterNik: "Enter NIK",
+    enterBirthPlace: "Enter birth place",
+    enterPosition: "Enter position",
+    enterBranch: "Enter branch",
+    enterAccountNumber: "Enter account number",
+    enterAccountName: "Enter account holder name",
+    enterGrade: "Enter your grade",
+    chooseGender: "Choose Gender",
+    chooseEducation: "Choose Education",
+    chooseContractType: "Choose Contract Type",
+    chooseGrade: "Choose Grade",
+    chooseBank: "Choose Bank",
+    chooseSP: "Choose SP Status",
+    
+    // Helper texts
+    idForLogin: "This ID will be used for employee login",
+    forPasswordRecovery: "For password recovery",
+    defaultPassword: "Default password for first time login",
+    uploadAvatar: "Upload Avatar",
+    selected: "Selected",
+    noSP: "None",
+    
+    // Confirmation modal
+    confirmAddData: "Confirm Add Data",
+    confirmAddMessage: "Are you sure you want to add this new employee data?",
+    confirmAddSubMessage: "Make sure all information entered is correct.",
+    yesAdd: "Yes, Add",
+    saving: "Saving...",
+    
+    // Validation messages
+    fillRequiredFields: "Please fill in Employee ID, Email, and Password!",
+    fillPersonalFields: "Please fill in all required fields (Name, NIK, Phone)!",
+    invalidEmailFormat: "Invalid email format!",
+    passwordMinLength: "Password must be at least 6 characters!",
     
     // Gender Options
     male: "Male",
@@ -279,18 +343,19 @@ export default {
     
     // Contract Types
     permanent: "Permanent",
-    contract: "Contract",
-    internship: "Internship",
-    partTime: "Part Time",
+    trial: "Trial",
+    contract: "Contract (PKWT)",
+    intern: "Internship",
+    freelance: "Freelance",
     
     // Status
     active: "Active",
     inactive: "Inactive",
     resigned: "Resigned",
     terminated: "Terminated",
+    new: "New",
     
     // Bank Info
-    bankInfo: "Bank Information",
     bankName: "Bank Name",
     accountNumber: "Account Number",
     accountHolder: "Account Holder",
@@ -321,6 +386,7 @@ export default {
     title: "Attendance",
     subtitle: "Manage employee attendance",
     overview: "Checkclock Overview",
+    addCheckclock: "Add Checkclock",
     checkIn: "Check In",
     checkOut: "Check Out",
     checkInOut: "Check In/Out",
@@ -329,24 +395,85 @@ export default {
     addAttendance: "Add Attendance",
     addData: "Add Data",
     loadingData: "Loading attendance data...",
+    loadingEmployees: "Loading employee data...",
     noDataMatch: "No data matches your search",
     noAttendanceData: "No attendance data yet",
     clickAddData: "Click \"Add Data\" to add new attendance",
     searchEmployee: "Search Employee",
+    
+    // Form fields
+    employee: "Employee",
+    selectEmployee: "Select Employee",
+    attendanceType: "Attendance Type",
+    selectAttendanceType: "Select Attendance Type",
+    realtimeAttendance: "Attendance Time (Realtime)",
+    realtimeNote: "When you select attendance type, this time is saved as",
+    realtimeNote2: "and can be sent to database.",
+    location: "Location",
+    selectLocation: "Select Location",
+    locationMap: "Location Map",
+    addressDetail: "Address Detail",
+    addressPlaceholder: "Street Name, House/Apartment Number, etc.",
+    latitude: "Latitude",
+    longitude: "Longitude",
+    latPlaceholder: "Location Lat",
+    lngPlaceholder: "Location Long",
+    mapClickNote: "Click on the map to select location or use \"My Location\" button",
+    myLocation: "My Location",
+    uploadProof: "Upload Supporting Document",
+    dragDropHere: "Drag n Drop here",
+    or: "Or",
+    browse: "Browse",
+    changeFile: "Change File",
+    additionalNotes: "Additional Notes",
+    notesPlaceholder: "Add additional notes if needed...",
+    startDate: "Start Date",
+    endDate: "End Date",
+    remote: "Remote",
+    other: "Other",
+    loadingLocations: "Loading locations...",
+    noLocationsRegistered: "No office locations registered yet. Add them in Settings → Office Locations",
+    loadingEmployees: "Loading employee data...",
+    
+    // Notifications
+    mapRedirected: "Map redirected to",
+    selectLocationOnMap: "Please select location on map or use My Location button",
+    browserNoGeolocation: "Your browser does not support geolocation.",
+    locationUpdated: "Location successfully updated!",
+    locationFailed: "Failed to get location. Make sure location permission is allowed.",
+    attendanceSaveSuccess: "Attendance data successfully saved!",
+    attendanceSaveFailed: "Failed to save attendance data",
+    loadEmployeesFailed: "Failed to load employee data",
+    
+    // Confirmation modal
+    confirmSaveData: "Confirm Save Data",
+    confirmSaveMessage: "Are you sure you want to submit this attendance data?",
+    confirmSaveSubMessage: "Make sure all information entered is correct.",
+    yesSend: "Yes, Submit",
+    
+    // Validation
+    requiredEmployee: "Employee Name",
+    requiredAttendanceType: "Attendance Type",
+    requiredLocation: "Location",
+    requiredCoordinates: "Location Coordinates (Select on map or use My Location)",
+    requiredAddress: "Address Detail",
+    fillAllRequired: "Please fill in all required fields:",
     
     // Status
     present: "Present",
     absent: "Absent",
     late: "Late",
     earlyLeave: "Early Leave",
+    onTime: "On Time",
     onLeave: "On Leave",
     holiday: "Holiday",
     sickLeave: "Sick Leave",
+    annualLeave: "Annual Leave",
     permit: "Permit",
+    waitingApproval: "Waiting Approval",
     
     // Table Headers
     date: "Date",
-    employee: "Employee",
     clockInTime: "Clock In Time",
     clockOutTime: "Clock Out Time",
     workHours: "Work Hours",

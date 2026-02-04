@@ -1,7 +1,8 @@
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { CustomDropdown } from '../ui/CustomDropdown';
 import { useTheme } from '@/app/hooks/useTheme';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const COLORS = ['#3d5a80', '#4a8b6f', '#d4a942', '#98b4d4'];
 
@@ -22,28 +23,37 @@ const MONTH_OPTIONS = [
 
 export function EmployeeStatusChart({ statusData = null, loading = false }) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return now.toLocaleString("en-US", { month: "long" });
   });
 
-  // Default fallback data
-  const defaultData = [
-    { name: 'Permanen', value: 0 },
-    { name: 'Percobaan', value: 0 },
-    { name: 'PKWT (Kontrak)', value: 0 },
-    { name: 'Magang', value: 0 },
-  ];
-
-  const data = statusData || defaultData;
+  // Transform data with translated labels
+  const data = useMemo(() => {
+    const defaultData = [
+      { name: t("employee.permanent"), value: 0 },
+      { name: t("employee.trial"), value: 0 },
+      { name: t("employee.contract"), value: 0 },
+      { name: t("employee.intern"), value: 0 },
+    ];
+    
+    if (!statusData) return defaultData;
+    
+    // Map existing data to translated labels
+    return statusData.map((item, index) => ({
+      ...item,
+      name: defaultData[index]?.name || item.name
+    }));
+  }, [statusData, t]);
 
   return (
     <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border transition-colors duration-300`}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
         <div>
-          <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Employee Statistics</p>
-          <h3 className={`text-base sm:text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>Employee Status</h3>
+          <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t("dashboard.employeeStatistics")}</p>
+          <h3 className={`text-base sm:text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{t("dashboard.employeeStatus")}</h3>
         </div>
         <CustomDropdown
           name="month"

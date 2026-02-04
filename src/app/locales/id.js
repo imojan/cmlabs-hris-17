@@ -217,6 +217,9 @@ export default {
     attendanceChart: "Grafik Kehadiran",
     employeeDistribution: "Distribusi Karyawan",
     departmentOverview: "Overview Departemen",
+    employeeStatistics: "Statistik Karyawan",
+    employeeStatus: "Status Karyawan",
+    currentNumberEmployees: "Jumlah Karyawan Saat Ini",
     
     // Recent Activity
     recentActivity: "Aktivitas Terbaru",
@@ -253,15 +256,22 @@ export default {
     searchEmployee: "Cari Karyawan",
     
     // Table Headers
+    no: "No.",
+    avatar: "Avatar",
+    name: "Nama",
     employeeId: "ID Karyawan",
     fullName: "Nama Lengkap",
     gender: "Jenis Kelamin",
     phoneNumber: "Nomor Telepon",
+    mobileNumber: "Nomor HP",
     branch: "Cabang",
     position: "Jabatan",
     department: "Departemen",
     joinDate: "Tanggal Bergabung",
     contractType: "Tipe Kontrak",
+    contractStatus: "Status Kontrak",
+    grade: "Grade",
+    action: "Aksi",
     
     // Form Fields
     firstName: "Nama Depan",
@@ -273,24 +283,79 @@ export default {
     maritalStatus: "Status Pernikahan",
     education: "Pendidikan Terakhir",
     
+    // Form Section Titles
+    accountLogin: "Akun Login Karyawan",
+    personalInfo: "Informasi Pribadi",
+    employmentInfo: "Informasi Kepegawaian",
+    bankInfo: "Informasi Bank",
+    
+    // Form labels
+    addNewEmployee: "Tambah Karyawan Baru",
+    email: "Email",
+    password: "Password",
+    spType: "Tipe SP",
+    
+    // Placeholders
+    enterEmployeeId: "contoh: EMP001",
+    enterEmail: "karyawan@perusahaan.com",
+    enterPassword: "Minimal 6 karakter",
+    enterFirstName: "Masukkan nama depan",
+    enterLastName: "Masukkan nama belakang",
+    enterMobileNumber: "Masukkan nomor HP",
+    enterNik: "Masukkan NIK",
+    enterBirthPlace: "Masukkan tempat lahir",
+    enterPosition: "Masukkan jabatan",
+    enterBranch: "Masukkan cabang",
+    enterAccountNumber: "Masukkan nomor rekening",
+    enterAccountName: "Masukkan nama pemilik rekening",
+    enterGrade: "Masukkan grade anda",
+    chooseGender: "Pilih Jenis Kelamin",
+    chooseEducation: "Pilih Pendidikan Terakhir",
+    chooseContractType: "Pilih Tipe Kontrak",
+    chooseGrade: "Pilih Grade",
+    chooseBank: "Pilih Bank",
+    chooseSP: "Pilih Status SP",
+    
+    // Helper texts
+    idForLogin: "ID ini akan digunakan untuk login karyawan",
+    forPasswordRecovery: "Untuk recovery password",
+    defaultPassword: "Password default untuk login pertama kali",
+    uploadAvatar: "Upload Avatar",
+    selected: "Dipilih",
+    noSP: "Tidak Ada",
+    
+    // Confirmation modal
+    confirmAddData: "Konfirmasi Penambahan Data",
+    confirmAddMessage: "Apakah Anda yakin ingin menambahkan data karyawan baru ini?",
+    confirmAddSubMessage: "Pastikan semua informasi yang dimasukkan sudah benar.",
+    yesAdd: "Ya, Tambahkan",
+    saving: "Menyimpan...",
+    
+    // Validation messages
+    fillRequiredFields: "Mohon isi ID Employee, Email, dan Password!",
+    fillPersonalFields: "Mohon isi semua field wajib (Nama, NIK, No. HP)!",
+    invalidEmailFormat: "Format email tidak valid!",
+    passwordMinLength: "Password minimal 6 karakter!",
+    
     // Gender Options
     male: "Laki-laki",
     female: "Perempuan",
     
     // Contract Types
-    permanent: "Tetap",
-    contract: "Kontrak",
-    internship: "Magang",
-    partTime: "Paruh Waktu",
+    permanent: "Permanen",
+    trial: "Percobaan",
+    contract: "PKWT (Kontrak)",
+    intern: "Magang",
+    freelance: "Lepas",
     
     // Status
     active: "Aktif",
     inactive: "Tidak Aktif",
     resigned: "Mengundurkan Diri",
     terminated: "Diberhentikan",
+    new: "Baru",
     
     // Bank Info
-    bankInfo: "Informasi Bank",
     bankName: "Nama Bank",
     accountNumber: "Nomor Rekening",
     accountHolder: "Nama Pemilik Rekening",
@@ -321,6 +386,7 @@ export default {
     title: "Absensi",
     subtitle: "Kelola kehadiran karyawan",
     overview: "Ringkasan Checkclock",
+    addCheckclock: "Tambah Checkclock",
     checkIn: "Masuk",
     checkOut: "Keluar",
     checkInOut: "Check In/Out",
@@ -329,24 +395,85 @@ export default {
     addAttendance: "Tambah Absensi",
     addData: "Tambah Data",
     loadingData: "Memuat data absensi...",
+    loadingEmployees: "Memuat data karyawan...",
     noDataMatch: "Tidak ada data yang cocok dengan pencarian",
     noAttendanceData: "Belum ada data absensi",
     clickAddData: "Klik \"Tambah Data\" untuk menambahkan absensi baru",
     searchEmployee: "Cari Karyawan",
+    
+    // Form fields
+    employee: "Karyawan",
+    selectEmployee: "Pilih Karyawan",
+    attendanceType: "Tipe Absensi",
+    selectAttendanceType: "Pilih Tipe Absensi",
+    realtimeAttendance: "Waktu Absensi (Realtime)",
+    realtimeNote: "Saat kamu memilih tipe absensi, jam ini disimpan sebagai",
+    realtimeNote2: "dan bisa dikirim ke database.",
+    location: "Lokasi",
+    selectLocation: "Pilih Lokasi",
+    locationMap: "Peta Lokasi",
+    addressDetail: "Detail Alamat",
+    addressPlaceholder: "Nama Jalan, No. Rumah/Apartemen dan lainnya",
+    latitude: "Latitude",
+    longitude: "Longitude",
+    latPlaceholder: "Lat Lokasi",
+    lngPlaceholder: "Long Lokasi",
+    mapClickNote: "Klik pada peta untuk memilih lokasi atau gunakan tombol \"My Location\"",
+    myLocation: "My Location",
+    uploadProof: "Upload Bukti Pendukung",
+    dragDropHere: "Drag n Drop di sini",
+    or: "Atau",
+    browse: "Telusuri",
+    changeFile: "Ganti File",
+    additionalNotes: "Catatan Tambahan",
+    notesPlaceholder: "Tambahkan keterangan tambahan jika diperlukan...",
+    startDate: "Tanggal Mulai",
+    endDate: "Tanggal Selesai",
+    remote: "Remote",
+    other: "Lainnya",
+    loadingLocations: "Memuat lokasi...",
+    noLocationsRegistered: "Belum ada lokasi kantor terdaftar. Tambahkan di Settings → Lokasi Kantor",
+    loadingEmployees: "Memuat data karyawan...",
+    
+    // Notifications
+    mapRedirected: "Peta diarahkan ke",
+    selectLocationOnMap: "Silakan pilih lokasi di peta atau gunakan tombol My Location",
+    browserNoGeolocation: "Browser kamu tidak mendukung geolocation.",
+    locationUpdated: "Lokasi berhasil diperbarui!",
+    locationFailed: "Gagal mengambil lokasi. Pastikan izin lokasi sudah diizinkan.",
+    attendanceSaveSuccess: "Data absensi berhasil disimpan!",
+    attendanceSaveFailed: "Gagal menyimpan data absensi",
+    loadEmployeesFailed: "Gagal memuat data karyawan",
+    
+    // Confirmation modal
+    confirmSaveData: "Konfirmasi Penyimpanan Data",
+    confirmSaveMessage: "Apakah Anda yakin ingin mengirim data absensi ini?",
+    confirmSaveSubMessage: "Pastikan semua informasi yang dimasukkan sudah benar.",
+    yesSend: "Ya, Kirim",
+    
+    // Validation
+    requiredEmployee: "Nama Karyawan",
+    requiredAttendanceType: "Tipe Absensi",
+    requiredLocation: "Lokasi",
+    requiredCoordinates: "Koordinat Lokasi (Pilih di peta atau gunakan My Location)",
+    requiredAddress: "Detail Alamat",
+    fillAllRequired: "Mohon isi semua field wajib:",
     
     // Status
     present: "Hadir",
     absent: "Tidak Hadir",
     late: "Terlambat",
     earlyLeave: "Pulang Awal",
+    onTime: "Tepat Waktu",
     onLeave: "Cuti",
     holiday: "Libur",
     sickLeave: "Sakit",
+    annualLeave: "Cuti Tahunan",
     permit: "Izin",
+    waitingApproval: "Menunggu Persetujuan",
     
     // Table Headers
     date: "Tanggal",
-    employee: "Karyawan",
     clockInTime: "Waktu Masuk",
     clockOutTime: "Waktu Keluar",
     workHours: "Jam Kerja",
