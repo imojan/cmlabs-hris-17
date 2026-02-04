@@ -35,7 +35,7 @@ import NotificationsPage from "../../notifications/pages/NotificationsPage";
 
 // Lazy load AddCheckclockAdmin to fix HMR blocking issue
 const AddCheckclockAdmin = lazy(() =>
-  import("../../attendance/pages/AddCheckclockAdmin")
+  import("../../attendance/pages/AddCheckClockAdmin")
 );
 
 // ====================== CONSTANTS ======================
