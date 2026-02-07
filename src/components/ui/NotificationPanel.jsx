@@ -66,10 +66,11 @@ function getNotificationAvatar(notification) {
   return { type: "icon", value: "system" };
 }
 
-export function NotificationPanel({ isOpen, onClose }) {
+export function NotificationPanel({ isOpen, onClose, onUnreadCountChange }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all"); // "all" or "unread"
+  const [unreadCount, setUnreadCount] = useState(0);
   const panelRef = useRef(null);
   const navigate = useNavigate();
   const user = useAuth((s) => s.user);
@@ -82,6 +83,13 @@ export function NotificationPanel({ isOpen, onClose }) {
     if (isOpen) {
       fetchNotifications();
     }
+  }, [isOpen]);
+
+  // Poll notifications while panel is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const interval = setInterval(fetchNotifications, 25000);
+    return () => clearInterval(interval);
   }, [isOpen]);
 
   // Close on outside click
@@ -103,6 +111,9 @@ export function NotificationPanel({ isOpen, onClose }) {
     try {
       const response = await notificationService.getAll({ limit: 20 });
       setNotifications(response?.data || []);
+      const count = response?.unreadCount ?? 0;
+      setUnreadCount(count);
+      onUnreadCountChange?.(count);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
     } finally {
@@ -118,6 +129,11 @@ export function NotificationPanel({ isOpen, onClose }) {
         setNotifications((prev) =>
           prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n))
         );
+        setUnreadCount((prev) => {
+          const next = Math.max(prev - 1, 0);
+          onUnreadCountChange?.(next);
+          return next;
+        });
       } catch (err) {
         console.error("Failed to mark as read:", err);
       }

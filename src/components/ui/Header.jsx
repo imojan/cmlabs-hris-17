@@ -120,7 +120,8 @@ export function Header({ title = "Dashboard" }) {
                 {/* Notification Panel */}
                 <NotificationPanel 
                   isOpen={isNotificationOpen} 
-                  onClose={handleNotificationClose} 
+                  onClose={handleNotificationClose}
+                  onUnreadCountChange={setUnreadCount}
                 />
               </div>
 
