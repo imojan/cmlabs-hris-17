@@ -789,6 +789,14 @@ export default {
     feature3Desc: "Pastikan tidak ada yang terlewat dalam proses rekrutmen sampai offboarding dengan mengurangi dokumen fisik.",
     
     // Pricing Section
+    pricingEyebrow: "PAKET UNTUK SETIAP TIM",
+    pricingType: "Jenis paket harga",
+    pricingPackageHint: "Pilih berdasarkan kebutuhan fitur tim Anda",
+    pricingSeatHint: "Pilih berdasarkan jumlah anggota tim Anda",
+    pricingCustom: "Custom",
+    pricingPerUser: "per pengguna / bulan",
+    pricingCustomHint: "Solusi untuk kebutuhan perusahaan Anda",
+    pricingIncluded: "Fitur yang Anda dapatkan",
     pricingTitle: "Paket Harga HRIS",
     pricingSubtitle: "Pilih paket yang paling sesuai dengan bisnis Anda! HRIS ini menawarkan opsi pembayaran berlangganan dan pay-as-you-go, tersedia dalam paket berikut:",
     package: "Paket",

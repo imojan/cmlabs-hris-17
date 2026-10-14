@@ -14,7 +14,9 @@ import {
   Phone,
   UserPlus,
   Sun,
-  Moon
+  Moon,
+  ArrowUpRight,
+  Sparkles
 } from "lucide-react";
 import { useTranslation } from "@/app/hooks/useTranslation";
 import { useTheme } from "@/app/hooks/useTheme";
@@ -472,9 +474,9 @@ function PricingSection({ isDark }) {
 
   // Package plans (fitur lengkap)
   const packagePlans = [
-    { name: "BASIC", subtitle: "Untuk bisnis kecil & tim awal", popular: false, features: ["Attendance & List Hadir", "GPS based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management"] },
-    { name: "PREMIUM", subtitle: "Flexible & professional", popular: true, features: ["All Standard Features", "Clock in/out attendance settings", "Payroll integration", "Employee document management", "Sick leave & time off setting", "Shift management", "Overtime management (custom)"] },
-    { name: "STANDARD", subtitle: "Untuk tim berkembang & Operasional stabil", popular: false, features: ["Attendance & List Hadir", "GPS-based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management", "Automatic tax calculation"] },
+    { name: "BASIC", price: "Rp 10.000", subtitle: "Untuk bisnis kecil & tim awal", popular: false, features: ["Attendance & List Hadir", "GPS based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management"] },
+    { name: "PREMIUM", price: "Rp 15.000", subtitle: "Flexible & professional", popular: true, features: ["All Standard Features", "Clock in/out attendance settings", "Payroll integration", "Employee document management", "Sick leave & time off setting", "Shift management", "Overtime management (custom)"] },
+    { name: "STANDARD", price: "Rp 13.000", subtitle: "Untuk tim berkembang & Operasional stabil", popular: false, features: ["Attendance & List Hadir", "GPS-based attendance validation", "Employee data management", "Leave & time off request", "Overtime management", "Fixed work schedule management", "Automatic tax calculation"] },
   ];
 
   // Seat plans (per user pricing)
@@ -507,121 +509,108 @@ function PricingSection({ isDark }) {
     }, 250);
   };
 
+  const plans = activeTab === "package" ? packagePlans : seatPlans;
+
   return (
-    <section id="pricing" className={`py-16 lg:py-24 overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-[#1d395e]'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10" data-animate="fade-up">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-white">{t("landing.pricingTitle")}</h2>
-          <p className="max-w-2xl mx-auto text-white/80">{t("landing.pricingSubtitle")}</p>
-        </div>
-
-        {/* Tab Switcher */}
-        <div className="flex justify-center mb-10" data-animate="fade-up" data-animate-delay="100">
-          <div className={`rounded-full p-1.5 flex shadow-lg ${isDark ? 'bg-gray-700' : 'bg-white'}`}>
-            <button 
-              onClick={() => setActiveTab("package")} 
-              className={`px-8 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "package" ? "bg-[#1d395e] text-white shadow-md" : isDark ? "text-gray-300 hover:text-blue-400" : "text-gray-600 hover:text-[#1d395e]"}`}
-            >
-              {t("landing.package")}
-            </button>
-            <button 
-              onClick={() => setActiveTab("seat")} 
-              className={`px-8 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "seat" ? "bg-[#e85a5a] text-white shadow-md" : isDark ? "text-gray-300 hover:text-[#e85a5a]" : "text-gray-600 hover:text-[#e85a5a]"}`}
-            >
-              {t("landing.seat")}
-            </button>
+    <section
+      id="pricing"
+      aria-labelledby="pricing-heading"
+      className={`relative overflow-hidden py-16 sm:py-20 lg:py-24 ${isDark ? "bg-[#101e32]" : "bg-[#edf3f9]"}`}
+    >
+      <div aria-hidden="true" className={`pointer-events-none absolute -right-40 -top-48 h-[480px] w-[480px] rounded-full border-[60px] ${isDark ? "border-blue-300/[0.03]" : "border-white/50"}`} />
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-9 grid gap-5 lg:grid-cols-2 lg:items-end lg:gap-16">
+          <div>
+            <p className={`mb-3 text-xs font-bold uppercase tracking-[0.2em] ${isDark ? "text-blue-300" : "text-[#42658b]"}`}>
+              {t("landing.pricingEyebrow")}
+            </p>
+            <h2 id="pricing-heading" className={`text-3xl font-bold tracking-tight sm:text-4xl lg:text-[42px] lg:leading-tight ${isDark ? "text-white" : "text-[#1d395e]"}`}>
+              {t("landing.pricingTitle")}
+            </h2>
           </div>
+          <p className={`max-w-xl text-sm leading-7 sm:text-base ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+            {t("landing.pricingSubtitle")}
+          </p>
         </div>
 
-        {/* Package Plans */}
-        <div 
-          className={`grid md:grid-cols-3 gap-6 items-start transition-all duration-500 ${
-            activeTab === "package" 
-              ? "opacity-100 translate-y-0 pointer-events-auto" 
-              : "opacity-0 translate-y-4 absolute pointer-events-none h-0 overflow-hidden"
-          }`}
-        >
-          {packagePlans.map((plan, index) => (
-            <div 
-              key={`package-${index}`} 
-              className={`card-hover rounded-2xl p-6 ${plan.popular ? "ring-2 ring-[#25d366] md:scale-105 shadow-xl" : "shadow-lg"} ${isDark ? 'bg-gray-700' : 'bg-white'}`}
-              style={{ 
-                animation: activeTab === "package" ? `fadeInUp 0.5s ease-out ${index * 0.1}s both` : 'none'
-              }}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div role="group" aria-label={t("landing.pricingType")} className={`inline-flex w-full rounded-full border p-1.5 sm:w-auto ${isDark ? "border-slate-600 bg-slate-800" : "border-[#d5e1ee] bg-white/80"}`}>
+            {["package", "seat"].map((type) => (
+              <button
+                key={type}
+                type="button"
+                aria-pressed={activeTab === type}
+                onClick={() => setActiveTab(type)}
+                className={`min-h-11 flex-1 rounded-full px-8 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500 sm:flex-none ${activeTab === type ? "bg-[#1d395e] text-white shadow-sm" : isDark ? "text-slate-300 hover:bg-slate-700" : "text-slate-600 hover:bg-blue-50"}`}
+              >
+                {t(`landing.${type}`)}
+              </button>
+            ))}
+          </div>
+          <p className={`flex items-center gap-2 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            <Users aria-hidden="true" size={16} className="shrink-0" />
+            {t(activeTab === "package" ? "landing.pricingPackageHint" : "landing.pricingSeatHint")}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+          {plans.map((plan) => (
+            <article
+              key={`${activeTab}-${plan.name}`}
+              className={`relative flex min-w-0 flex-col rounded-[24px] border p-6 motion-safe:transition-[transform,box-shadow] motion-safe:duration-300 motion-safe:hover:-translate-y-1 sm:p-8 ${plan.popular
+                ? isDark ? "border-blue-400 bg-[#1b3352] shadow-xl shadow-black/15" : "border-[#658fbe] bg-white shadow-[0_16px_48px_-16px_rgba(29,57,94,0.3)]"
+                : isDark ? "border-slate-700 bg-[#17273d]" : "border-white bg-white shadow-[0_8px_30px_-16px_rgba(29,57,94,0.15)]"}`}
             >
-              {plan.popular && <div className="text-center mb-2"><span className="inline-block text-xs text-[#25d366] font-semibold uppercase tracking-wider animate-pulse bg-[#25d366]/10 px-3 py-1 rounded-full">{t("landing.mostPopular")}</span></div>}
-              <div className="text-center mb-6">
-                <h3 className={`text-xl font-bold mb-1 ${isDark ? 'text-gray-100' : 'text-[#1d395e]'}`}>{plan.name}</h3>
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{plan.subtitle}</p>
+              <div className="mb-6 flex min-h-7 flex-wrap items-center justify-between gap-2">
+                <h3 className={`text-sm font-bold tracking-[0.08em] ${isDark ? "text-slate-100" : "text-[#1d395e]"}`}>{plan.name}</h3>
+                {plan.popular && (
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide ${isDark ? "bg-blue-300/15 text-blue-200" : "bg-[#eaf2fc] text-[#315d90]"}`}>
+                    <Sparkles aria-hidden="true" size={12} />
+                    {t("landing.mostPopular")}
+                  </span>
+                )}
               </div>
-              <ul className="space-y-3 mb-6">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className={`flex items-start gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}><Check size={16} className="text-[#25d366] mt-0.5 flex-shrink-0" /><span>{feature}</span></li>
-                ))}
-              </ul>
-              <button 
-                onClick={() => handleSelectPackage(plan.name, "package")}
-                className={`btn-hover w-full py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                  plan.popular 
-                    ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" 
-                    : isDark 
-                      ? "text-blue-400 border-2 border-blue-400 hover:bg-blue-400 hover:text-gray-900"
-                      : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"
-                }`}
+
+              <div className="mb-5">
+                <p className={`text-4xl font-bold leading-tight tracking-tight sm:text-[42px] ${isDark ? "text-white" : "text-[#1d395e]"}`}>
+                  {plan.price || t("landing.pricingCustom")}
+                </p>
+                <p className={`mt-2 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  {t(plan.price ? "landing.pricingPerUser" : "landing.pricingCustomHint")}
+                </p>
+              </div>
+
+              <p className={`mb-6 text-sm leading-6 md:min-h-12 ${isDark ? "text-slate-300" : "text-slate-500"}`}>
+                {activeTab === "package" ? plan.subtitle : plan.description}
+              </p>
+
+              {plan.features && (
+                <div className={`mb-8 border-t pt-6 ${isDark ? "border-slate-600/60" : "border-slate-100"}`}>
+                  <p className={`mb-4 text-xs font-semibold ${isDark ? "text-slate-200" : "text-[#1d395e]"}`}>{t("landing.pricingIncluded")}</p>
+                  <ul className="space-y-3.5">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className={`flex items-start gap-3 text-sm leading-6 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+                        <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${isDark ? "bg-blue-300/10 text-blue-300" : "bg-[#edf3fa] text-[#416f9f]"}`}>
+                          <Check aria-hidden="true" size={13} strokeWidth={2.5} />
+                        </span>
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => handleSelectPackage(plan.name, activeTab)}
+                className={`mt-auto flex min-h-12 w-full items-center justify-between gap-3 rounded-full border px-5 py-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500 ${plan.popular
+                  ? "border-[#1d395e] bg-[#1d395e] text-white hover:border-[#2c527d] hover:bg-[#2c527d]"
+                  : isDark ? "border-slate-500 text-slate-100 hover:bg-slate-700" : "border-[#b9cadd] text-[#1d395e] hover:border-[#1d395e] hover:bg-[#edf3f9]"}`}
               >
                 {t("landing.selectPackage")}
+                <ArrowUpRight aria-hidden="true" size={18} className="shrink-0" />
               </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Seat Plans */}
-        <div 
-          className={`grid md:grid-cols-3 gap-6 items-start transition-all duration-500 ${
-            activeTab === "seat" 
-              ? "opacity-100 translate-y-0 pointer-events-auto" 
-              : "opacity-0 translate-y-4 absolute pointer-events-none h-0 overflow-hidden"
-          }`}
-        >
-          {seatPlans.map((plan, index) => (
-            <div 
-              key={`seat-${index}`} 
-              className={`card-hover rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl ${plan.popular ? "ring-2 ring-[#e85a5a]" : ""} ${isDark ? 'bg-gray-700' : 'bg-white'}`}
-              style={{ 
-                animation: activeTab === "seat" ? `fadeInUp 0.5s ease-out ${index * 0.1}s both` : 'none'
-              }}
-            >
-              {/* Header */}
-              <div className={`py-4 px-6 ${plan.popular ? "bg-gradient-to-r from-[#1d395e] to-[#2a4a6e]" : "bg-[#1d395e]"}`}>
-                <h3 className="text-lg font-bold text-white text-center">{plan.name}</h3>
-              </div>
-              
-              {/* Body */}
-              <div className="p-6 text-center">
-                <div className="mb-4">
-                  <span className={`text-2xl font-bold ${isDark ? 'text-gray-100' : 'text-[#1d395e]'}`}>{plan.price}</span>
-                  <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{plan.unit}</span>
-                </div>
-                <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{plan.description}</p>
-                
-                {/* Select Button */}
-                <button 
-                  onClick={() => handleSelectPackage(plan.name, "seat")}
-                  className={`btn-hover inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                    plan.popular 
-                      ? "bg-[#1d395e] text-white hover:bg-[#2a4a6e]" 
-                      : isDark
-                        ? "text-blue-400 border-2 border-blue-400 hover:bg-blue-400 hover:text-gray-900"
-                        : "text-[#1d395e] border-2 border-[#1d395e] hover:bg-[#1d395e] hover:text-white"
-                  }`}
-                >
-                  {t("landing.selectPackage")}
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

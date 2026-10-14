@@ -789,6 +789,14 @@ export default {
     feature3Desc: "Ensure nothing is missed in the recruitment to offboarding process by reducing physical documents.",
     
     // Pricing Section
+    pricingEyebrow: "A PLAN FOR EVERY TEAM",
+    pricingType: "Pricing plan type",
+    pricingPackageHint: "Choose the features your team needs",
+    pricingSeatHint: "Choose a plan based on your team size",
+    pricingCustom: "Custom",
+    pricingPerUser: "per user / month",
+    pricingCustomHint: "Tailored to your company’s needs",
+    pricingIncluded: "What’s included",
     pricingTitle: "HRIS Pricing Plans",
     pricingSubtitle: "Choose the plan that best suits your business! This HRIS offers both subscription and pay-as-you-go payment options, available in the following packages:",
     package: "Package",
