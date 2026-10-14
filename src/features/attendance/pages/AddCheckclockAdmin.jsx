@@ -97,7 +97,7 @@ export default function AddCheckclockAdmin() {
     };
 
     fetchEmployees();
-  }, []);
+  }, [t]);
 
   // ====== FETCH COMPANY LOCATIONS ======
   useEffect(() => {

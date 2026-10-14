@@ -13,7 +13,6 @@ export default function SetNewPassword() {
   const [searchParams] = useSearchParams();
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [isLoaded, setIsLoaded] = useState(false);
   const [isValidatingToken, setIsValidatingToken] = useState(true);
   
   // Get token from URL query param (sent from email link)
@@ -41,7 +40,6 @@ export default function SetNewPassword() {
           navigate("/auth/link-expired");
           return;
         }
-        setIsLoaded(true);
       } catch (error) {
         console.error("Token validation failed:", error);
         navigate("/auth/link-expired");

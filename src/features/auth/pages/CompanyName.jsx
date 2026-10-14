@@ -18,11 +18,10 @@ export default function CompanyName() {
   // Auth store
   const setAuth = useAuth((s) => s.setAuth);
   const currentUser = useAuth((s) => s.user);
-  const token = useAuth((s) => s.token);
   
   // Check if coming from Google OAuth
   const fromGoogleAuth = location.state?.fromGoogleAuth || false;
-  const userData = location.state?.userData || currentUser || {};
+  const userData = location.state?.userData || currentUser || null;
 
   // Animation on mount
   useEffect(() => {
@@ -31,7 +30,7 @@ export default function CompanyName() {
 
   // Redirect if not from Google OAuth or already has company
   useEffect(() => {
-    if (!fromGoogleAuth && !userData.needsCompanySetup) {
+    if (!fromGoogleAuth && !userData?.needsCompanySetup) {
       // If user already has company, redirect to dashboard
       if (currentUser?.companyId) {
         if (currentUser.role === "admin") {

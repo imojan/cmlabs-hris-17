@@ -56,8 +56,8 @@ export function EmployeeDatabase() {
   // Search & filters
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear] = useState(new Date().getFullYear());
 
   // Delete modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -445,10 +445,6 @@ export function EmployeeDatabase() {
   // Slice for current page
   const currentEmployees = processedEmployees.slice(startIndex, endIndex);
 
-  // Format month/year untuk display
-  const monthNames = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
-                      "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-  const periodDisplay = `${monthNames[selectedMonth]} ${selectedYear}`;
 
   return (
     <div className="space-y-6">

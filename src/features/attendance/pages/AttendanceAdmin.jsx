@@ -19,158 +19,11 @@ import { useNavigate } from "react-router-dom";
 import { attendanceService } from "@/app/services/attendance.api";
 import { Notification } from "@/components/ui/Notification";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
-import { ImportModal } from "@/components/ui/ImportModal";
 import { exportToExcel } from "@/lib/exportExcel";
 import { useTheme } from "@/app/hooks/useTheme";
 import { useTranslation } from "@/app/hooks/useTranslation";
 
-const initialData = [
-  {
-    id: 1,
-    name: "Juanita",
-    role: "CEO",
-    clockIn: "08.00",
-    clockOut: "16.30",
-    workHours: "10h 5m",
-    status: "Waiting Approval",
-    actualStatus: "On Time", // status setelah approved
-    approvalStatus: "pending", // "pending" | "approved" | "rejected"
 
-    // detail tambahan
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Juanita.jpeg",
-  },
-  {
-    id: 2,
-    name: "Shane",
-    role: "OB",
-    clockIn: "08.00",
-    clockOut: "17.15",
-    workHours: "9h 50m",
-    status: "Waiting Approval",
-    actualStatus: "On Time",
-    approvalStatus: "pending",
-
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Shane.jpeg",
-  },
-  {
-    id: 3,
-    name: "Miles",
-    role: "Head of HR",
-    clockIn: "09.00",
-    clockOut: "16.45",
-    workHours: "10h 30m",
-    status: "On Time",
-    actualStatus: "On Time",
-    approvalStatus: "approved",
-
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Miles.jpeg",
-  },
-  {
-    id: 4,
-    name: "Flores",
-    role: "Manager",
-    clockIn: "09.15",
-    clockOut: "15.30",
-    workHours: "6h 15m",
-    status: "Waiting Approval",
-    actualStatus: "Late",
-    approvalStatus: "pending",
-
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Flores.jpeg",
-  },
-  {
-    id: 5,
-    name: "Henry",
-    role: "CPO",
-    clockIn: "0",
-    clockOut: "0",
-    workHours: "0",
-    status: "Waiting Approval",
-    actualStatus: "Annual Leave",
-    approvalStatus: "pending",
-
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Henry.jpeg",
-  },
-  {
-    id: 6,
-    name: "Sarah",
-    role: "Manager",
-    clockIn: "08.30",
-    clockOut: "17.00",
-    workHours: "8h 30m",
-    status: "On Time",
-    actualStatus: "On Time",
-    approvalStatus: "approved",
-
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Sarah.jpeg",
-  },
-  {
-    id: 7,
-    name: "Michael",
-    role: "Staff",
-    clockIn: "09.30",
-    clockOut: "17.30",
-    workHours: "8h 0m",
-    status: "Waiting Approval",
-    actualStatus: "Late",
-    approvalStatus: "pending",
-
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Michael.jpeg",
-  },
-  {
-    id: 8,
-    name: "Lisa",
-    role: "Supervisor",
-    clockIn: "0",
-    clockOut: "0",
-    workHours: "0",
-    status: "Waiting Approval",
-    actualStatus: "Sick",
-    approvalStatus: "pending",
-
-    date: "1 March 2025",
-    location: "Kantor Pusat",
-    address: "Jl. Veteran No.1, Kota Malang",
-    lat: "-7.983908",
-    long: "112.621381",
-    proofFile: "Proof of Attendance - Lisa.jpeg",
-  },
-];
 
 function statusClass(status) {
   switch (status) {
@@ -212,7 +65,6 @@ export function AttendanceAdmin() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
-  const [totalRecords, setTotalRecords] = useState(0);
   
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,7 +73,6 @@ export function AttendanceAdmin() {
   // Sort & Filter
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [exporting, setExporting] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
 
   // Filter columns
   const filterColumns = [
@@ -305,7 +156,6 @@ export function AttendanceAdmin() {
       }));
       
       setAttendanceData(mappedData);
-      setTotalRecords(response?.pagination?.total || mappedData.length);
       
     } catch (err) {
       console.error("Error fetching attendance:", err);

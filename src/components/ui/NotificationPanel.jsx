@@ -1,5 +1,5 @@
 // src/components/ui/NotificationPanel.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, X, Loader2 } from "lucide-react";
 import { notificationService } from "@/app/services/notification.api";
@@ -70,7 +70,7 @@ export function NotificationPanel({ isOpen, onClose, onUnreadCountChange }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all"); // "all" or "unread"
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [, setUnreadCount] = useState(0);
   const panelRef = useRef(null);
   const navigate = useNavigate();
   const user = useAuth((s) => s.user);
@@ -78,19 +78,34 @@ export function NotificationPanel({ isOpen, onClose, onUnreadCountChange }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  const fetchNotifications = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await notificationService.getAll({ limit: 20 });
+      setNotifications(response?.data || []);
+      const count = response?.unreadCount ?? 0;
+      setUnreadCount(count);
+      onUnreadCountChange?.(count);
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [onUnreadCountChange]);
+
   // Fetch notifications when panel opens
   useEffect(() => {
     if (isOpen) {
       fetchNotifications();
     }
-  }, [isOpen]);
+  }, [isOpen, fetchNotifications]);
 
   // Poll notifications while panel is open
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(fetchNotifications, 25000);
     return () => clearInterval(interval);
-  }, [isOpen]);
+  }, [isOpen, fetchNotifications]);
 
   // Close on outside click
   useEffect(() => {
@@ -106,20 +121,7 @@ export function NotificationPanel({ isOpen, onClose, onUnreadCountChange }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
-  const fetchNotifications = async () => {
-    setLoading(true);
-    try {
-      const response = await notificationService.getAll({ limit: 20 });
-      setNotifications(response?.data || []);
-      const count = response?.unreadCount ?? 0;
-      setUnreadCount(count);
-      onUnreadCountChange?.(count);
-    } catch (err) {
-      console.error("Failed to fetch notifications:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const handleNotificationClick = async (notification) => {
     // Mark as read if unread

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -11,14 +10,10 @@ export default function CheckYourEmail() {
   const [searchParams] = useSearchParams();
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [isLoaded, setIsLoaded] = useState(false);
   
   // Get email from URL query param
   const email = searchParams.get("email") || "your email";
 
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
 
   const handleOpenGmail = () => {
     window.open("https://mail.google.com", "_blank");

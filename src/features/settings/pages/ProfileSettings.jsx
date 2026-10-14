@@ -46,7 +46,6 @@ export default function ProfileSettings() {
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
 
   // Password change states
   const [passwordData, setPasswordData] = useState({
@@ -268,7 +267,7 @@ export default function ProfileSettings() {
     
     try {
       // 1. Update profile data
-      const res = await authService.updateProfile(formData);
+      await authService.updateProfile(formData);
       
       // 2. Upload avatar jika ada file baru
       let newAvatarPath = null;

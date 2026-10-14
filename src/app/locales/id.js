@@ -433,7 +433,6 @@ export default {
     other: "Lainnya",
     loadingLocations: "Memuat lokasi...",
     noLocationsRegistered: "Belum ada lokasi kantor terdaftar. Tambahkan di Settings → Lokasi Kantor",
-    loadingEmployees: "Memuat data karyawan...",
     
     // Notifications
     mapRedirected: "Peta diarahkan ke",

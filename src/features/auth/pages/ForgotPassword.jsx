@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -12,12 +12,7 @@ export default function ForgotPassword() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Animation on mount
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
 
   // form state
   const [email, setEmail] = useState("");

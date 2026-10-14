@@ -31,11 +31,7 @@ export function useScrollAnimation(options = {}) {
       observer.observe(ref.current);
     }
 
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
+    return () => observer.disconnect();
   }, [options]);
 
   return [ref, isVisible];
@@ -78,11 +74,7 @@ export function useMultipleScrollAnimation(count, options = {}) {
     });
 
     return () => {
-      observers.forEach((observer, index) => {
-        if (observer && refs.current[index]) {
-          observer.unobserve(refs.current[index]);
-        }
-      });
+      observers.forEach((observer) => observer?.disconnect());
     };
   }, [count, options]);
 

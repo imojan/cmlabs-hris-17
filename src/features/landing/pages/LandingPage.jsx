@@ -347,7 +347,7 @@ function Navbar({ activeSection, isDark }) {
 /* ===================== HERO SECTION ===================== */
 function HeroSection({ isDark }) {
   const navigate = useNavigate();
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
 
   const handleWhatsApp = () => {
     window.open("https://wa.me/6281213968518?text=Halo, saya tertarik dengan HRIS Online", "_blank");
@@ -632,7 +632,7 @@ function PricingSection({ isDark }) {
 /* ===================== ABOUT / FAQ SECTION ===================== */
 function AboutSection({ isDark }) {
   const [openFaq, setOpenFaq] = useState(null);
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   
   const faqs = [
     { question: t("landing.aboutFaq1Q"), answer: t("landing.aboutFaq1A") },
